@@ -24,3 +24,4 @@ flutter:
   assets:
     - assets/data/hiragana_lessons.json
     - assets/data/katakana_lessons.json
+    - assets/data/kanji_lessons.json

@@ -52,6 +52,13 @@ class LearningController extends ChangeNotifier {
             'unicode': character.unicode,
             'isLearned': character.isLearned,
           },
+          secondaryReadings: character.secondaryReadings,
+          kunReadings: character.kunReadings,
+          radical: character.radical,
+          grade: character.grade,
+          jlptLevel: character.jlptLevel,
+          examples: character.examples,
+          notes: character.notes,
         ),
       );
     }

@@ -1,0 +1,2087 @@
+{
+  "lessons": [
+    {
+      "lessonNumber": 1,
+      "title": "Lesson 1",
+      "description": "10 N5 Kanji",
+      "characters": [
+        {
+          "id": "一",
+          "character": "一",
+          "romaji": "ichi",
+          "englishName": "one",
+          "strokeCount": 1,
+          "lessonNumber": 1,
+          "unicode": "U+4E00",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ichi.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "hito"
+          ],
+          "radical": "一",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "一人",
+              "reading": "ひとり",
+              "meaning": "one person"
+            }
+          ]
+        },
+        {
+          "id": "右",
+          "character": "右",
+          "romaji": "u",
+          "englishName": "right",
+          "strokeCount": 5,
+          "lessonNumber": 1,
+          "unicode": "U+53F3",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/u.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "migi"
+          ],
+          "radical": "口",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "右手",
+              "reading": "みぎて",
+              "meaning": "right hand"
+            }
+          ]
+        },
+        {
+          "id": "雨",
+          "character": "雨",
+          "romaji": "u",
+          "englishName": "rain",
+          "strokeCount": 8,
+          "lessonNumber": 1,
+          "unicode": "U+96E8",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/u.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "ame"
+          ],
+          "radical": "雨",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "雨天",
+              "reading": "うてん",
+              "meaning": "rainy weather"
+            }
+          ]
+        },
+        {
+          "id": "円",
+          "character": "円",
+          "romaji": "en",
+          "englishName": "yen; circle",
+          "strokeCount": 4,
+          "lessonNumber": 1,
+          "unicode": "U+5186",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/en.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "maru"
+          ],
+          "radical": "冂",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "円",
+              "reading": "えん",
+              "meaning": "yen"
+            }
+          ]
+        },
+        {
+          "id": "王",
+          "character": "王",
+          "romaji": "ou",
+          "englishName": "king",
+          "strokeCount": 4,
+          "lessonNumber": 1,
+          "unicode": "U+738B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ou.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [],
+          "radical": "王",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "王様",
+              "reading": "おうさま",
+              "meaning": "king"
+            }
+          ]
+        },
+        {
+          "id": "音",
+          "character": "音",
+          "romaji": "on",
+          "englishName": "sound",
+          "strokeCount": 9,
+          "lessonNumber": 1,
+          "unicode": "U+97F3",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/on.mp3",
+          "secondaryReadings": [
+            "in"
+          ],
+          "kunReadings": [
+            "oto"
+          ],
+          "radical": "音",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "音楽",
+              "reading": "おんがく",
+              "meaning": "music"
+            }
+          ]
+        },
+        {
+          "id": "下",
+          "character": "下",
+          "romaji": "ka",
+          "englishName": "below; under",
+          "strokeCount": 3,
+          "lessonNumber": 1,
+          "unicode": "U+4E0B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ka.mp3",
+          "secondaryReadings": [
+            "ge"
+          ],
+          "kunReadings": [
+            "shita",
+            "kuda"
+          ],
+          "radical": "一",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "地下",
+              "reading": "ちか",
+              "meaning": "underground"
+            }
+          ]
+        },
+        {
+          "id": "火",
+          "character": "火",
+          "romaji": "ka",
+          "englishName": "fire",
+          "strokeCount": 4,
+          "lessonNumber": 1,
+          "unicode": "U+706B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ka.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "hi"
+          ],
+          "radical": "火",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "火曜日",
+              "reading": "かようび",
+              "meaning": "Tuesday"
+            }
+          ]
+        },
+        {
+          "id": "花",
+          "character": "花",
+          "romaji": "ka",
+          "englishName": "flower",
+          "strokeCount": 7,
+          "lessonNumber": 1,
+          "unicode": "U+82B1",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ka.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "hana"
+          ],
+          "radical": "艸",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "花見",
+              "reading": "はなみ",
+              "meaning": "flower viewing"
+            }
+          ]
+        },
+        {
+          "id": "貝",
+          "character": "貝",
+          "romaji": "kai",
+          "englishName": "shellfish",
+          "strokeCount": 7,
+          "lessonNumber": 1,
+          "unicode": "U+8C9D",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/kai.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "kai"
+          ],
+          "radical": "貝",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "貝がら",
+              "reading": "かいがら",
+              "meaning": "seashell"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonNumber": 2,
+      "title": "Lesson 2",
+      "description": "10 N5 Kanji",
+      "characters": [
+        {
+          "id": "学",
+          "character": "学",
+          "romaji": "gaku",
+          "englishName": "study",
+          "strokeCount": 8,
+          "lessonNumber": 2,
+          "unicode": "U+5B66",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/gaku.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "mana"
+          ],
+          "radical": "子",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "学校",
+              "reading": "がっこう",
+              "meaning": "school"
+            }
+          ]
+        },
+        {
+          "id": "気",
+          "character": "気",
+          "romaji": "ki",
+          "englishName": "spirit; air",
+          "strokeCount": 6,
+          "lessonNumber": 2,
+          "unicode": "U+6C17",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ki.mp3",
+          "secondaryReadings": [
+            "ke"
+          ],
+          "kunReadings": [],
+          "radical": "气",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "天気",
+              "reading": "てんき",
+              "meaning": "weather"
+            }
+          ]
+        },
+        {
+          "id": "九",
+          "character": "九",
+          "romaji": "kyuu",
+          "englishName": "nine",
+          "strokeCount": 2,
+          "lessonNumber": 2,
+          "unicode": "U+4E5D",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/kyuu.mp3",
+          "secondaryReadings": [
+            "ku"
+          ],
+          "kunReadings": [
+            "kokono"
+          ],
+          "radical": "乙",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "九月",
+              "reading": "くがつ",
+              "meaning": "September"
+            }
+          ]
+        },
+        {
+          "id": "休",
+          "character": "休",
+          "romaji": "kyuu",
+          "englishName": "rest",
+          "strokeCount": 6,
+          "lessonNumber": 2,
+          "unicode": "U+4F11",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/kyuu.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "yasu"
+          ],
+          "radical": "人",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "休日",
+              "reading": "きゅうじつ",
+              "meaning": "holiday"
+            }
+          ]
+        },
+        {
+          "id": "玉",
+          "character": "玉",
+          "romaji": "gyoku",
+          "englishName": "ball; jewel",
+          "strokeCount": 5,
+          "lessonNumber": 2,
+          "unicode": "U+7389",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/gyoku.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "tama"
+          ],
+          "radical": "玉",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "玉子",
+              "reading": "たまご",
+              "meaning": "egg"
+            }
+          ]
+        },
+        {
+          "id": "金",
+          "character": "金",
+          "romaji": "kin",
+          "englishName": "gold; money",
+          "strokeCount": 8,
+          "lessonNumber": 2,
+          "unicode": "U+91D1",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/kin.mp3",
+          "secondaryReadings": [
+            "kon"
+          ],
+          "kunReadings": [
+            "kane"
+          ],
+          "radical": "金",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "金曜日",
+              "reading": "きんようび",
+              "meaning": "Friday"
+            }
+          ]
+        },
+        {
+          "id": "空",
+          "character": "空",
+          "romaji": "kuu",
+          "englishName": "sky; empty",
+          "strokeCount": 8,
+          "lessonNumber": 2,
+          "unicode": "U+7A7A",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/kuu.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "sora",
+            "a"
+          ],
+          "radical": "穴",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "空気",
+              "reading": "くうき",
+              "meaning": "air"
+            }
+          ]
+        },
+        {
+          "id": "月",
+          "character": "月",
+          "romaji": "getsu",
+          "englishName": "moon; month",
+          "strokeCount": 4,
+          "lessonNumber": 2,
+          "unicode": "U+6708",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/getsu.mp3",
+          "secondaryReadings": [
+            "gatsu"
+          ],
+          "kunReadings": [
+            "tsuki"
+          ],
+          "radical": "月",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "月曜日",
+              "reading": "げつようび",
+              "meaning": "Monday"
+            }
+          ]
+        },
+        {
+          "id": "犬",
+          "character": "犬",
+          "romaji": "ken",
+          "englishName": "dog",
+          "strokeCount": 4,
+          "lessonNumber": 2,
+          "unicode": "U+72AC",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ken.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "inu"
+          ],
+          "radical": "犬",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "子犬",
+              "reading": "こいぬ",
+              "meaning": "puppy"
+            }
+          ]
+        },
+        {
+          "id": "見",
+          "character": "見",
+          "romaji": "ken",
+          "englishName": "see",
+          "strokeCount": 7,
+          "lessonNumber": 2,
+          "unicode": "U+898B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ken.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "mi"
+          ],
+          "radical": "見",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "見学",
+              "reading": "けんがく",
+              "meaning": "observation tour"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonNumber": 3,
+      "title": "Lesson 3",
+      "description": "10 N5 Kanji",
+      "characters": [
+        {
+          "id": "五",
+          "character": "五",
+          "romaji": "go",
+          "englishName": "five",
+          "strokeCount": 4,
+          "lessonNumber": 3,
+          "unicode": "U+4E94",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/go.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "itsu"
+          ],
+          "radical": "二",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "五月",
+              "reading": "ごがつ",
+              "meaning": "May"
+            }
+          ]
+        },
+        {
+          "id": "口",
+          "character": "口",
+          "romaji": "kou",
+          "englishName": "mouth",
+          "strokeCount": 3,
+          "lessonNumber": 3,
+          "unicode": "U+53E3",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/kou.mp3",
+          "secondaryReadings": [
+            "ku"
+          ],
+          "kunReadings": [
+            "kuchi"
+          ],
+          "radical": "口",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "入り口",
+              "reading": "いりぐち",
+              "meaning": "entrance"
+            }
+          ]
+        },
+        {
+          "id": "校",
+          "character": "校",
+          "romaji": "kou",
+          "englishName": "school",
+          "strokeCount": 10,
+          "lessonNumber": 3,
+          "unicode": "U+6821",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/kou.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [],
+          "radical": "木",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "校長",
+              "reading": "こうちょう",
+              "meaning": "principal"
+            }
+          ]
+        },
+        {
+          "id": "左",
+          "character": "左",
+          "romaji": "sa",
+          "englishName": "left",
+          "strokeCount": 5,
+          "lessonNumber": 3,
+          "unicode": "U+5DE6",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/sa.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "hidari"
+          ],
+          "radical": "工",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "左手",
+              "reading": "ひだりて",
+              "meaning": "left hand"
+            }
+          ]
+        },
+        {
+          "id": "三",
+          "character": "三",
+          "romaji": "san",
+          "englishName": "three",
+          "strokeCount": 3,
+          "lessonNumber": 3,
+          "unicode": "U+4E09",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/san.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "mit"
+          ],
+          "radical": "一",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "三月",
+              "reading": "さんがつ",
+              "meaning": "March"
+            }
+          ]
+        },
+        {
+          "id": "山",
+          "character": "山",
+          "romaji": "san",
+          "englishName": "mountain",
+          "strokeCount": 3,
+          "lessonNumber": 3,
+          "unicode": "U+5C71",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/san.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "yama"
+          ],
+          "radical": "山",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "富士山",
+              "reading": "ふじさん",
+              "meaning": "Mt. Fuji"
+            }
+          ]
+        },
+        {
+          "id": "子",
+          "character": "子",
+          "romaji": "shi",
+          "englishName": "child",
+          "strokeCount": 3,
+          "lessonNumber": 3,
+          "unicode": "U+5B50",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/shi.mp3",
+          "secondaryReadings": [
+            "su"
+          ],
+          "kunReadings": [
+            "ko"
+          ],
+          "radical": "子",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "子供",
+              "reading": "こども",
+              "meaning": "child"
+            }
+          ]
+        },
+        {
+          "id": "四",
+          "character": "四",
+          "romaji": "shi",
+          "englishName": "four",
+          "strokeCount": 5,
+          "lessonNumber": 3,
+          "unicode": "U+56DB",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/shi.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "yon",
+            "yo"
+          ],
+          "radical": "囗",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "四月",
+              "reading": "しがつ",
+              "meaning": "April"
+            }
+          ]
+        },
+        {
+          "id": "糸",
+          "character": "糸",
+          "romaji": "shi",
+          "englishName": "thread",
+          "strokeCount": 6,
+          "lessonNumber": 3,
+          "unicode": "U+7CF8",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/shi.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "ito"
+          ],
+          "radical": "糸",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "毛糸",
+              "reading": "けいと",
+              "meaning": "wool yarn"
+            }
+          ]
+        },
+        {
+          "id": "字",
+          "character": "字",
+          "romaji": "ji",
+          "englishName": "character; letter",
+          "strokeCount": 6,
+          "lessonNumber": 3,
+          "unicode": "U+5B57",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ji.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [],
+          "radical": "子",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "漢字",
+              "reading": "かんじ",
+              "meaning": "kanji character"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonNumber": 4,
+      "title": "Lesson 4",
+      "description": "10 N5 Kanji",
+      "characters": [
+        {
+          "id": "耳",
+          "character": "耳",
+          "romaji": "ji",
+          "englishName": "ear",
+          "strokeCount": 6,
+          "lessonNumber": 4,
+          "unicode": "U+8033",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ji.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "mimi"
+          ],
+          "radical": "耳",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "耳たぶ",
+              "reading": "みみたぶ",
+              "meaning": "earlobe"
+            }
+          ]
+        },
+        {
+          "id": "七",
+          "character": "七",
+          "romaji": "shichi",
+          "englishName": "seven",
+          "strokeCount": 2,
+          "lessonNumber": 4,
+          "unicode": "U+4E03",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/shichi.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "nana"
+          ],
+          "radical": "一",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "七月",
+              "reading": "しちがつ",
+              "meaning": "July"
+            }
+          ]
+        },
+        {
+          "id": "車",
+          "character": "車",
+          "romaji": "sha",
+          "englishName": "car; vehicle",
+          "strokeCount": 7,
+          "lessonNumber": 4,
+          "unicode": "U+8ECA",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/sha.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "kuruma"
+          ],
+          "radical": "車",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "電車",
+              "reading": "でんしゃ",
+              "meaning": "train"
+            }
+          ]
+        },
+        {
+          "id": "手",
+          "character": "手",
+          "romaji": "shu",
+          "englishName": "hand",
+          "strokeCount": 4,
+          "lessonNumber": 4,
+          "unicode": "U+624B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/shu.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "te"
+          ],
+          "radical": "手",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "手紙",
+              "reading": "てがみ",
+              "meaning": "letter"
+            }
+          ]
+        },
+        {
+          "id": "十",
+          "character": "十",
+          "romaji": "juu",
+          "englishName": "ten",
+          "strokeCount": 2,
+          "lessonNumber": 4,
+          "unicode": "U+5341",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/juu.mp3",
+          "secondaryReadings": [
+            "jit"
+          ],
+          "kunReadings": [
+            "too"
+          ],
+          "radical": "十",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "十月",
+              "reading": "じゅうがつ",
+              "meaning": "October"
+            }
+          ]
+        },
+        {
+          "id": "出",
+          "character": "出",
+          "romaji": "shutsu",
+          "englishName": "exit; go out",
+          "strokeCount": 5,
+          "lessonNumber": 4,
+          "unicode": "U+51FA",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/shutsu.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "de",
+            "da"
+          ],
+          "radical": "凵",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "出口",
+              "reading": "でぐち",
+              "meaning": "exit"
+            }
+          ]
+        },
+        {
+          "id": "女",
+          "character": "女",
+          "romaji": "jo",
+          "englishName": "woman",
+          "strokeCount": 3,
+          "lessonNumber": 4,
+          "unicode": "U+5973",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/jo.mp3",
+          "secondaryReadings": [
+            "nyo"
+          ],
+          "kunReadings": [
+            "onna"
+          ],
+          "radical": "女",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "女子",
+              "reading": "じょし",
+              "meaning": "girl"
+            }
+          ]
+        },
+        {
+          "id": "小",
+          "character": "小",
+          "romaji": "shou",
+          "englishName": "small",
+          "strokeCount": 3,
+          "lessonNumber": 4,
+          "unicode": "U+5C0F",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/shou.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "chii",
+            "ko"
+          ],
+          "radical": "小",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "小学校",
+              "reading": "しょうがっこう",
+              "meaning": "elementary school"
+            }
+          ]
+        },
+        {
+          "id": "上",
+          "character": "上",
+          "romaji": "jou",
+          "englishName": "up; above",
+          "strokeCount": 3,
+          "lessonNumber": 4,
+          "unicode": "U+4E0A",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/jou.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "ue",
+            "a",
+            "nobo"
+          ],
+          "radical": "一",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "上手",
+              "reading": "じょうず",
+              "meaning": "skilled"
+            }
+          ]
+        },
+        {
+          "id": "森",
+          "character": "森",
+          "romaji": "shin",
+          "englishName": "forest",
+          "strokeCount": 12,
+          "lessonNumber": 4,
+          "unicode": "U+68EE",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/shin.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "mori"
+          ],
+          "radical": "木",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "森林",
+              "reading": "しんりん",
+              "meaning": "forest"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonNumber": 5,
+      "title": "Lesson 5",
+      "description": "10 N5 Kanji",
+      "characters": [
+        {
+          "id": "人",
+          "character": "人",
+          "romaji": "jin",
+          "englishName": "person",
+          "strokeCount": 2,
+          "lessonNumber": 5,
+          "unicode": "U+4EBA",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/jin.mp3",
+          "secondaryReadings": [
+            "nin"
+          ],
+          "kunReadings": [
+            "hito"
+          ],
+          "radical": "人",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "日本人",
+              "reading": "にほんじん",
+              "meaning": "Japanese person"
+            }
+          ]
+        },
+        {
+          "id": "水",
+          "character": "水",
+          "romaji": "sui",
+          "englishName": "water",
+          "strokeCount": 4,
+          "lessonNumber": 5,
+          "unicode": "U+6C34",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/sui.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "mizu"
+          ],
+          "radical": "水",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "水曜日",
+              "reading": "すいようび",
+              "meaning": "Wednesday"
+            }
+          ]
+        },
+        {
+          "id": "正",
+          "character": "正",
+          "romaji": "sei",
+          "englishName": "correct",
+          "strokeCount": 5,
+          "lessonNumber": 5,
+          "unicode": "U+6B63",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/sei.mp3",
+          "secondaryReadings": [
+            "shou"
+          ],
+          "kunReadings": [
+            "tada",
+            "masa"
+          ],
+          "radical": "止",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "正月",
+              "reading": "しょうがつ",
+              "meaning": "New Year"
+            }
+          ]
+        },
+        {
+          "id": "生",
+          "character": "生",
+          "romaji": "sei",
+          "englishName": "life; birth",
+          "strokeCount": 5,
+          "lessonNumber": 5,
+          "unicode": "U+751F",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/sei.mp3",
+          "secondaryReadings": [
+            "shou"
+          ],
+          "kunReadings": [
+            "i",
+            "u",
+            "nama"
+          ],
+          "radical": "生",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "先生",
+              "reading": "せんせい",
+              "meaning": "teacher"
+            }
+          ]
+        },
+        {
+          "id": "青",
+          "character": "青",
+          "romaji": "sei",
+          "englishName": "blue",
+          "strokeCount": 8,
+          "lessonNumber": 5,
+          "unicode": "U+9752",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/sei.mp3",
+          "secondaryReadings": [
+            "shou"
+          ],
+          "kunReadings": [
+            "ao"
+          ],
+          "radical": "青",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "青空",
+              "reading": "あおぞら",
+              "meaning": "blue sky"
+            }
+          ]
+        },
+        {
+          "id": "夕",
+          "character": "夕",
+          "romaji": "seki",
+          "englishName": "evening",
+          "strokeCount": 3,
+          "lessonNumber": 5,
+          "unicode": "U+5915",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/seki.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "yuu"
+          ],
+          "radical": "夕",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "夕方",
+              "reading": "ゆうがた",
+              "meaning": "evening"
+            }
+          ]
+        },
+        {
+          "id": "石",
+          "character": "石",
+          "romaji": "seki",
+          "englishName": "stone",
+          "strokeCount": 5,
+          "lessonNumber": 5,
+          "unicode": "U+77F3",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/seki.mp3",
+          "secondaryReadings": [
+            "shaku"
+          ],
+          "kunReadings": [
+            "ishi"
+          ],
+          "radical": "石",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "小石",
+              "reading": "こいし",
+              "meaning": "pebble"
+            }
+          ]
+        },
+        {
+          "id": "赤",
+          "character": "赤",
+          "romaji": "seki",
+          "englishName": "red",
+          "strokeCount": 7,
+          "lessonNumber": 5,
+          "unicode": "U+8D64",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/seki.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "aka"
+          ],
+          "radical": "赤",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "赤ちゃん",
+              "reading": "あかちゃん",
+              "meaning": "baby"
+            }
+          ]
+        },
+        {
+          "id": "川",
+          "character": "川",
+          "romaji": "sen",
+          "englishName": "river",
+          "strokeCount": 3,
+          "lessonNumber": 5,
+          "unicode": "U+5DDD",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/sen.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "kawa"
+          ],
+          "radical": "川",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "小川",
+              "reading": "おがわ",
+              "meaning": "stream"
+            }
+          ]
+        },
+        {
+          "id": "先",
+          "character": "先",
+          "romaji": "sen",
+          "englishName": "previous; ahead",
+          "strokeCount": 6,
+          "lessonNumber": 5,
+          "unicode": "U+5148",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/sen.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "saki"
+          ],
+          "radical": "儿",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "先週",
+              "reading": "せんしゅう",
+              "meaning": "last week"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonNumber": 6,
+      "title": "Lesson 6",
+      "description": "10 N5 Kanji",
+      "characters": [
+        {
+          "id": "早",
+          "character": "早",
+          "romaji": "sou",
+          "englishName": "early",
+          "strokeCount": 6,
+          "lessonNumber": 6,
+          "unicode": "U+65E9",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/sou.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "haya"
+          ],
+          "radical": "日",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "早朝",
+              "reading": "そうちょう",
+              "meaning": "early morning"
+            }
+          ]
+        },
+        {
+          "id": "草",
+          "character": "草",
+          "romaji": "sou",
+          "englishName": "grass",
+          "strokeCount": 9,
+          "lessonNumber": 6,
+          "unicode": "U+8349",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/sou.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "kusa"
+          ],
+          "radical": "艸",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "草花",
+              "reading": "くさばな",
+              "meaning": "flowers and plants"
+            }
+          ]
+        },
+        {
+          "id": "足",
+          "character": "足",
+          "romaji": "soku",
+          "englishName": "foot; leg",
+          "strokeCount": 7,
+          "lessonNumber": 6,
+          "unicode": "U+8DB3",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/soku.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "ashi",
+            "ta"
+          ],
+          "radical": "足",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "足音",
+              "reading": "あしおと",
+              "meaning": "footsteps"
+            }
+          ]
+        },
+        {
+          "id": "村",
+          "character": "村",
+          "romaji": "son",
+          "englishName": "village",
+          "strokeCount": 7,
+          "lessonNumber": 6,
+          "unicode": "U+6751",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/son.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "mura"
+          ],
+          "radical": "木",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "村人",
+              "reading": "むらびと",
+              "meaning": "villager"
+            }
+          ]
+        },
+        {
+          "id": "大",
+          "character": "大",
+          "romaji": "dai",
+          "englishName": "big",
+          "strokeCount": 3,
+          "lessonNumber": 6,
+          "unicode": "U+5927",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/dai.mp3",
+          "secondaryReadings": [
+            "tai"
+          ],
+          "kunReadings": [
+            "oo"
+          ],
+          "radical": "大",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "大学",
+              "reading": "だいがく",
+              "meaning": "university"
+            }
+          ]
+        },
+        {
+          "id": "男",
+          "character": "男",
+          "romaji": "dan",
+          "englishName": "man",
+          "strokeCount": 7,
+          "lessonNumber": 6,
+          "unicode": "U+7537",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/dan.mp3",
+          "secondaryReadings": [
+            "nan"
+          ],
+          "kunReadings": [
+            "otoko"
+          ],
+          "radical": "田",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "男子",
+              "reading": "だんし",
+              "meaning": "boy"
+            }
+          ]
+        },
+        {
+          "id": "竹",
+          "character": "竹",
+          "romaji": "chiku",
+          "englishName": "bamboo",
+          "strokeCount": 6,
+          "lessonNumber": 6,
+          "unicode": "U+7AF9",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/chiku.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "take"
+          ],
+          "radical": "竹",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "竹林",
+              "reading": "ちくりん",
+              "meaning": "bamboo grove"
+            }
+          ]
+        },
+        {
+          "id": "中",
+          "character": "中",
+          "romaji": "chuu",
+          "englishName": "middle; inside",
+          "strokeCount": 4,
+          "lessonNumber": 6,
+          "unicode": "U+4E2D",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/chuu.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "naka"
+          ],
+          "radical": "丨",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "中学校",
+              "reading": "ちゅうがっこう",
+              "meaning": "middle school"
+            }
+          ]
+        },
+        {
+          "id": "虫",
+          "character": "虫",
+          "romaji": "chuu",
+          "englishName": "insect",
+          "strokeCount": 6,
+          "lessonNumber": 6,
+          "unicode": "U+866B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/chuu.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "mushi"
+          ],
+          "radical": "虫",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "虫歯",
+              "reading": "むしば",
+              "meaning": "cavity (tooth decay)"
+            }
+          ]
+        },
+        {
+          "id": "町",
+          "character": "町",
+          "romaji": "chou",
+          "englishName": "town",
+          "strokeCount": 7,
+          "lessonNumber": 6,
+          "unicode": "U+753A",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/chou.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "machi"
+          ],
+          "radical": "田",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "市町村",
+              "reading": "しちょうそん",
+              "meaning": "municipalities"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonNumber": 7,
+      "title": "Lesson 7",
+      "description": "10 N5 Kanji",
+      "characters": [
+        {
+          "id": "天",
+          "character": "天",
+          "romaji": "ten",
+          "englishName": "heaven; sky",
+          "strokeCount": 4,
+          "lessonNumber": 7,
+          "unicode": "U+5929",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ten.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "ame",
+            "ama"
+          ],
+          "radical": "大",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "天才",
+              "reading": "てんさい",
+              "meaning": "genius"
+            }
+          ]
+        },
+        {
+          "id": "田",
+          "character": "田",
+          "romaji": "den",
+          "englishName": "rice field",
+          "strokeCount": 5,
+          "lessonNumber": 7,
+          "unicode": "U+7530",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/den.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "ta"
+          ],
+          "radical": "田",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "田んぼ",
+              "reading": "たんぼ",
+              "meaning": "rice paddy"
+            }
+          ]
+        },
+        {
+          "id": "土",
+          "character": "土",
+          "romaji": "do",
+          "englishName": "earth; soil",
+          "strokeCount": 3,
+          "lessonNumber": 7,
+          "unicode": "U+571F",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/do.mp3",
+          "secondaryReadings": [
+            "to"
+          ],
+          "kunReadings": [
+            "tsuchi"
+          ],
+          "radical": "土",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "土曜日",
+              "reading": "どようび",
+              "meaning": "Saturday"
+            }
+          ]
+        },
+        {
+          "id": "二",
+          "character": "二",
+          "romaji": "ni",
+          "englishName": "two",
+          "strokeCount": 2,
+          "lessonNumber": 7,
+          "unicode": "U+4E8C",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ni.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "futa"
+          ],
+          "radical": "二",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "二月",
+              "reading": "にがつ",
+              "meaning": "February"
+            }
+          ]
+        },
+        {
+          "id": "日",
+          "character": "日",
+          "romaji": "nichi",
+          "englishName": "day; sun",
+          "strokeCount": 4,
+          "lessonNumber": 7,
+          "unicode": "U+65E5",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/nichi.mp3",
+          "secondaryReadings": [
+            "jitsu"
+          ],
+          "kunReadings": [
+            "hi",
+            "ka"
+          ],
+          "radical": "日",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "日曜日",
+              "reading": "にちようび",
+              "meaning": "Sunday"
+            }
+          ]
+        },
+        {
+          "id": "入",
+          "character": "入",
+          "romaji": "nyuu",
+          "englishName": "enter",
+          "strokeCount": 2,
+          "lessonNumber": 7,
+          "unicode": "U+5165",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/nyuu.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "hai",
+            "i"
+          ],
+          "radical": "入",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "入学",
+              "reading": "にゅうがく",
+              "meaning": "school enrollment"
+            }
+          ]
+        },
+        {
+          "id": "年",
+          "character": "年",
+          "romaji": "nen",
+          "englishName": "year",
+          "strokeCount": 6,
+          "lessonNumber": 7,
+          "unicode": "U+5E74",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/nen.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "toshi"
+          ],
+          "radical": "干",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "今年",
+              "reading": "ことし",
+              "meaning": "this year"
+            }
+          ]
+        },
+        {
+          "id": "白",
+          "character": "白",
+          "romaji": "haku",
+          "englishName": "white",
+          "strokeCount": 5,
+          "lessonNumber": 7,
+          "unicode": "U+767D",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/haku.mp3",
+          "secondaryReadings": [
+            "byaku"
+          ],
+          "kunReadings": [
+            "shiro"
+          ],
+          "radical": "白",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "白鳥",
+              "reading": "はくちょう",
+              "meaning": "swan"
+            }
+          ]
+        },
+        {
+          "id": "八",
+          "character": "八",
+          "romaji": "hachi",
+          "englishName": "eight",
+          "strokeCount": 2,
+          "lessonNumber": 7,
+          "unicode": "U+516B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/hachi.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "ya"
+          ],
+          "radical": "八",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "八月",
+              "reading": "はちがつ",
+              "meaning": "August"
+            }
+          ]
+        },
+        {
+          "id": "百",
+          "character": "百",
+          "romaji": "hyaku",
+          "englishName": "hundred",
+          "strokeCount": 6,
+          "lessonNumber": 7,
+          "unicode": "U+767E",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/hyaku.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [],
+          "radical": "白",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "百人",
+              "reading": "ひゃくにん",
+              "meaning": "one hundred people"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonNumber": 8,
+      "title": "Lesson 8",
+      "description": "9 N5 Kanji",
+      "characters": [
+        {
+          "id": "文",
+          "character": "文",
+          "romaji": "bun",
+          "englishName": "sentence; writing",
+          "strokeCount": 4,
+          "lessonNumber": 8,
+          "unicode": "U+6587",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/bun.mp3",
+          "secondaryReadings": [
+            "mon"
+          ],
+          "kunReadings": [
+            "fumi"
+          ],
+          "radical": "文",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "文学",
+              "reading": "ぶんがく",
+              "meaning": "literature"
+            }
+          ]
+        },
+        {
+          "id": "木",
+          "character": "木",
+          "romaji": "moku",
+          "englishName": "tree; wood",
+          "strokeCount": 4,
+          "lessonNumber": 8,
+          "unicode": "U+6728",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/moku.mp3",
+          "secondaryReadings": [
+            "boku"
+          ],
+          "kunReadings": [
+            "ki"
+          ],
+          "radical": "木",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "木曜日",
+              "reading": "もくようび",
+              "meaning": "Thursday"
+            }
+          ]
+        },
+        {
+          "id": "本",
+          "character": "本",
+          "romaji": "hon",
+          "englishName": "book; origin",
+          "strokeCount": 5,
+          "lessonNumber": 8,
+          "unicode": "U+672C",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/hon.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "moto"
+          ],
+          "radical": "木",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "日本",
+              "reading": "にほん",
+              "meaning": "Japan"
+            }
+          ]
+        },
+        {
+          "id": "名",
+          "character": "名",
+          "romaji": "mei",
+          "englishName": "name",
+          "strokeCount": 6,
+          "lessonNumber": 8,
+          "unicode": "U+540D",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/mei.mp3",
+          "secondaryReadings": [
+            "myou"
+          ],
+          "kunReadings": [
+            "na"
+          ],
+          "radical": "口",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "名前",
+              "reading": "なまえ",
+              "meaning": "name"
+            }
+          ]
+        },
+        {
+          "id": "目",
+          "character": "目",
+          "romaji": "moku",
+          "englishName": "eye",
+          "strokeCount": 5,
+          "lessonNumber": 8,
+          "unicode": "U+76EE",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/moku.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "me"
+          ],
+          "radical": "目",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "目玉",
+              "reading": "めだま",
+              "meaning": "eyeball"
+            }
+          ]
+        },
+        {
+          "id": "立",
+          "character": "立",
+          "romaji": "ritsu",
+          "englishName": "stand",
+          "strokeCount": 5,
+          "lessonNumber": 8,
+          "unicode": "U+7ACB",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ritsu.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "ta"
+          ],
+          "radical": "立",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "起立",
+              "reading": "きりつ",
+              "meaning": "stand up"
+            }
+          ]
+        },
+        {
+          "id": "力",
+          "character": "力",
+          "romaji": "ryoku",
+          "englishName": "power; strength",
+          "strokeCount": 2,
+          "lessonNumber": 8,
+          "unicode": "U+529B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/ryoku.mp3",
+          "secondaryReadings": [
+            "riki"
+          ],
+          "kunReadings": [
+            "chikara"
+          ],
+          "radical": "力",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "力持ち",
+              "reading": "ちからもち",
+              "meaning": "strong person"
+            }
+          ]
+        },
+        {
+          "id": "林",
+          "character": "林",
+          "romaji": "rin",
+          "englishName": "woods",
+          "strokeCount": 8,
+          "lessonNumber": 8,
+          "unicode": "U+6797",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/rin.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "hayashi"
+          ],
+          "radical": "木",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "林道",
+              "reading": "りんどう",
+              "meaning": "forest road"
+            }
+          ]
+        },
+        {
+          "id": "六",
+          "character": "六",
+          "romaji": "roku",
+          "englishName": "six",
+          "strokeCount": 4,
+          "lessonNumber": 8,
+          "unicode": "U+516D",
+          "isLearned": false,
+          "audioAsset": "assets/audio/kanji/roku.mp3",
+          "secondaryReadings": [],
+          "kunReadings": [
+            "mut"
+          ],
+          "radical": "八",
+          "grade": 1,
+          "jlptLevel": "N5",
+          "examples": [
+            {
+              "word": "六月",
+              "reading": "ろくがつ",
+              "meaning": "June"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -8,6 +8,10 @@ import '../../models/learning_step.dart';
 import '../../repositories/content_repository_factory.dart';
 import '../../repositories/lesson_repository.dart';
 import '../../shared/widgets/app_scaffold.dart';
+import '../learning/models/kanji_example.dart';
+import '../learning/widgets/example_word_card.dart';
+import '../learning/widgets/radical_card.dart';
+import '../learning/widgets/reading_section.dart';
 import '../progress/providers/progress_providers.dart';
 import '../review/providers/review_providers.dart';
 import '../review/services/review_scheduler.dart';
@@ -234,6 +238,36 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                             style: Theme.of(context).textTheme.bodyMedium,
                             textAlign: TextAlign.center,
                           ),
+                          if (currentStep == LearningStep.introduction &&
+                              currentCharacter.radical != null) ...[
+                            const SizedBox(height: AppSpacing.lg),
+                            ReadingSection(
+                              onReadings: [
+                                currentCharacter.primaryReading,
+                                ...currentCharacter.secondaryReadings,
+                              ],
+                              kunReadings: currentCharacter.kunReadings,
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                            RadicalCard(
+                              radical: currentCharacter.radical!,
+                              strokeCount: currentCharacter.strokeCount,
+                            ),
+                          ],
+                          if (currentStep == LearningStep.introduction &&
+                              currentCharacter.examples.isNotEmpty) ...[
+                            const SizedBox(height: AppSpacing.lg),
+                            Text(
+                              'Example',
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            for (final KanjiExample example
+                                in currentCharacter.examples) ...[
+                              ExampleWordCard(example: example),
+                              const SizedBox(height: AppSpacing.sm),
+                            ],
+                          ],
                         ],
                       ),
                     ),

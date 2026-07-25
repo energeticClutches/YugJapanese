@@ -1,4 +1,5 @@
 import 'hiragana_repository.dart';
+import 'kanji_repository.dart';
 import 'katakana_repository.dart';
 import 'lesson_repository.dart';
 
@@ -15,6 +16,7 @@ class ContentRepositoryFactory {
       <String, LessonRepository Function()>{
     'hiragana': () => HiraganaRepository(),
     'katakana': () => KatakanaRepository(),
+    'kanji': () => KanjiRepository(),
   };
 
   static List<String> get availableContentIds =>

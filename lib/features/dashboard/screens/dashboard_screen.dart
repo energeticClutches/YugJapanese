@@ -30,11 +30,13 @@ import '../widgets/statistic_card.dart';
 const Map<String, String> _scriptTitles = <String, String>{
   'hiragana': 'Hiragana',
   'katakana': 'Katakana',
+  'kanji': 'Kanji',
 };
 
 const Map<String, IconData> _scriptIcons = <String, IconData>{
   'hiragana': Icons.font_download_outlined,
   'katakana': Icons.text_fields_outlined,
+  'kanji': Icons.auto_stories_outlined,
 };
 
 class _ScriptSummary {
@@ -349,12 +351,6 @@ class _DashboardContent extends StatelessWidget {
                     );
                   },
                 ),
-              const ScriptCard(
-                icon: Icons.auto_stories_outlined,
-                title: 'Kanji',
-                subtitle: 'Coming Soon',
-                enabled: false,
-              ),
             ],
           ),
           const SizedBox(height: AppSpacing.xl),
