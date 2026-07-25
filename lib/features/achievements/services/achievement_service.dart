@@ -1,0 +1,222 @@
+import '../../dashboard/models/content_source.dart';
+import '../../dashboard/models/learning_statistics.dart';
+import '../../dashboard/services/statistics_service.dart';
+import '../../progress/models/lesson_progress.dart';
+import '../../progress/repositories/progress_repository.dart';
+import '../../review/models/review_item.dart';
+import '../../review/repositories/review_repository.dart';
+import '../models/achievement.dart';
+import '../models/achievement_progress.dart';
+import '../models/streak_info.dart';
+import '../repositories/achievement_repository.dart';
+
+/// Calculates streaks and unlocks achievements from data already persisted
+/// by the progress, statistics, and review features. Reads only; never
+/// hooks into or modifies the learning flow itself.
+class AchievementService {
+  const AchievementService({
+    required AchievementRepository achievementRepository,
+    required ProgressRepository progressRepository,
+    required StatisticsService statisticsService,
+    required ReviewRepository reviewRepository,
+  })  : _achievementRepository = achievementRepository,
+        _progressRepository = progressRepository,
+        _statisticsService = statisticsService,
+        _reviewRepository = reviewRepository;
+
+  final AchievementRepository _achievementRepository;
+  final ProgressRepository _progressRepository;
+  final StatisticsService _statisticsService;
+  final ReviewRepository _reviewRepository;
+
+  static const List<Achievement> catalog = <Achievement>[
+    Achievement(
+      id: 'first_lesson',
+      title: 'First Steps',
+      description: 'Complete your first lesson.',
+      iconKey: 'flag',
+      criteria: AchievementCriteria.lessonsCompleted,
+      threshold: 1,
+    ),
+    Achievement(
+      id: 'five_lessons',
+      title: 'Building Momentum',
+      description: 'Complete 5 lessons.',
+      iconKey: 'stars',
+      criteria: AchievementCriteria.lessonsCompleted,
+      threshold: 5,
+    ),
+    Achievement(
+      id: 'streak_3',
+      title: 'Getting Consistent',
+      description: 'Reach a 3-day streak.',
+      iconKey: 'streak',
+      criteria: AchievementCriteria.longestStreakDays,
+      threshold: 3,
+    ),
+    Achievement(
+      id: 'streak_7',
+      title: 'One Week Strong',
+      description: 'Reach a 7-day streak.',
+      iconKey: 'streak',
+      criteria: AchievementCriteria.longestStreakDays,
+      threshold: 7,
+    ),
+    Achievement(
+      id: 'first_review',
+      title: 'Reinforced',
+      description: 'Complete your first review.',
+      iconKey: 'review',
+      criteria: AchievementCriteria.reviewsCompleted,
+      threshold: 1,
+    ),
+    Achievement(
+      id: 'perfect_accuracy',
+      title: 'Precision Writer',
+      description: 'Reach 100% average accuracy.',
+      iconKey: 'target',
+      criteria: AchievementCriteria.averageAccuracy,
+      threshold: 100,
+    ),
+  ];
+
+  /// Computes the current and longest daily streak from every lesson's
+  /// [LessonProgress.lastAccessedAt] across the given content sources.
+  Future<StreakInfo> calculateStreak(
+    List<ContentSource> sources, {
+    DateTime? now,
+  }) async {
+    final Set<DateTime> activeDates = <DateTime>{};
+
+    for (final ContentSource source in sources) {
+      final List<LessonProgress> progressItems =
+          await _progressRepository.getProgressForContent(source.contentId);
+      for (final LessonProgress progress in progressItems) {
+        activeDates.add(_dateOnly(progress.lastAccessedAt));
+      }
+    }
+
+    if (activeDates.isEmpty) {
+      return StreakInfo.empty;
+    }
+
+    final DateTime today = _dateOnly(now ?? DateTime.now());
+    return StreakInfo(
+      currentStreak: _currentStreak(activeDates, today),
+      longestStreak: _longestStreak(activeDates),
+      lastActiveDate: activeDates.reduce(
+        (DateTime a, DateTime b) => a.isAfter(b) ? a : b,
+      ),
+    );
+  }
+
+  /// Evaluates every catalog achievement against current progress, streak,
+  /// and review data, persisting newly unlocked ones. Already-unlocked
+  /// achievements are never re-locked.
+  Future<List<AchievementProgress>> evaluateAchievements(
+    List<ContentSource> sources, {
+    DateTime? now,
+  }) async {
+    final LearningStatistics statistics =
+        await _statisticsService.getStatistics(sources);
+    final StreakInfo streak = await calculateStreak(sources, now: now);
+    final List<ReviewItem> reviews = await _reviewRepository.getAllReviews();
+    final int totalReviewCount = reviews.fold(
+      0,
+      (int sum, ReviewItem item) => sum + item.reviewCount,
+    );
+
+    final List<AchievementProgress> results = <AchievementProgress>[];
+    for (final Achievement achievement in catalog) {
+      final AchievementProgress? existing =
+          await _achievementRepository.getProgress(achievement.id);
+      if (existing != null && existing.isUnlocked) {
+        results.add(existing);
+        continue;
+      }
+
+      final bool meetsCriteria = _meetsCriteria(
+        achievement,
+        statistics: statistics,
+        streak: streak,
+        totalReviewCount: totalReviewCount,
+      );
+
+      if (meetsCriteria) {
+        final AchievementProgress unlocked = AchievementProgress(
+          achievementId: achievement.id,
+          isUnlocked: true,
+          unlockedAt: now ?? DateTime.now(),
+        );
+        await _achievementRepository.saveProgress(unlocked);
+        results.add(unlocked);
+      } else {
+        results.add(
+          existing ??
+              AchievementProgress(
+                achievementId: achievement.id,
+                isUnlocked: false,
+              ),
+        );
+      }
+    }
+    return results;
+  }
+
+  bool _meetsCriteria(
+    Achievement achievement, {
+    required LearningStatistics statistics,
+    required StreakInfo streak,
+    required int totalReviewCount,
+  }) {
+    switch (achievement.criteria) {
+      case AchievementCriteria.lessonsCompleted:
+        return statistics.completedLessons >= achievement.threshold;
+      case AchievementCriteria.longestStreakDays:
+        return streak.longestStreak >= achievement.threshold;
+      case AchievementCriteria.reviewsCompleted:
+        return totalReviewCount >= achievement.threshold;
+      case AchievementCriteria.averageAccuracy:
+        return statistics.averageAccuracy >= achievement.threshold;
+    }
+  }
+
+  DateTime _dateOnly(DateTime dateTime) {
+    return DateTime(dateTime.year, dateTime.month, dateTime.day);
+  }
+
+  int _currentStreak(Set<DateTime> activeDates, DateTime today) {
+    DateTime cursor = today;
+    if (!activeDates.contains(cursor)) {
+      cursor = cursor.subtract(const Duration(days: 1));
+      if (!activeDates.contains(cursor)) {
+        return 0;
+      }
+    }
+
+    int streak = 0;
+    while (activeDates.contains(cursor)) {
+      streak++;
+      cursor = cursor.subtract(const Duration(days: 1));
+    }
+    return streak;
+  }
+
+  int _longestStreak(Set<DateTime> activeDates) {
+    final List<DateTime> sorted = activeDates.toList()..sort();
+    int longest = 0;
+    int current = 0;
+    DateTime? previous;
+
+    for (final DateTime date in sorted) {
+      if (previous != null && date.difference(previous).inDays == 1) {
+        current++;
+      } else {
+        current = 1;
+      }
+      longest = current > longest ? current : longest;
+      previous = date;
+    }
+    return longest;
+  }
+}

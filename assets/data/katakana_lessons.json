@@ -1,0 +1,580 @@
+{
+  "lessons": [
+    {
+      "lessonNumber": 1,
+      "title": "Lesson 1",
+      "description": "Vowels",
+      "characters": [
+        {
+          "id": "katakana-a",
+          "character": "ア",
+          "romaji": "a",
+          "englishName": "a",
+          "strokeCount": 2,
+          "lessonNumber": 1,
+          "unicode": "U+30A2",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/a.mp3"
+        },
+        {
+          "id": "katakana-i",
+          "character": "イ",
+          "romaji": "i",
+          "englishName": "i",
+          "strokeCount": 2,
+          "lessonNumber": 1,
+          "unicode": "U+30A4",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/i.mp3"
+        },
+        {
+          "id": "katakana-u",
+          "character": "ウ",
+          "romaji": "u",
+          "englishName": "u",
+          "strokeCount": 3,
+          "lessonNumber": 1,
+          "unicode": "U+30A6",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/u.mp3"
+        },
+        {
+          "id": "katakana-e",
+          "character": "エ",
+          "romaji": "e",
+          "englishName": "e",
+          "strokeCount": 3,
+          "lessonNumber": 1,
+          "unicode": "U+30A8",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/e.mp3"
+        },
+        {
+          "id": "katakana-o",
+          "character": "オ",
+          "romaji": "o",
+          "englishName": "o",
+          "strokeCount": 3,
+          "lessonNumber": 1,
+          "unicode": "U+30AA",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/o.mp3"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 2,
+      "title": "Lesson 2",
+      "description": "Ka Row",
+      "characters": [
+        {
+          "id": "katakana-ka",
+          "character": "カ",
+          "romaji": "ka",
+          "englishName": "ka",
+          "strokeCount": 2,
+          "lessonNumber": 2,
+          "unicode": "U+30AB",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ka.mp3"
+        },
+        {
+          "id": "katakana-ki",
+          "character": "キ",
+          "romaji": "ki",
+          "englishName": "ki",
+          "strokeCount": 3,
+          "lessonNumber": 2,
+          "unicode": "U+30AD",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ki.mp3"
+        },
+        {
+          "id": "katakana-ku",
+          "character": "ク",
+          "romaji": "ku",
+          "englishName": "ku",
+          "strokeCount": 2,
+          "lessonNumber": 2,
+          "unicode": "U+30AF",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ku.mp3"
+        },
+        {
+          "id": "katakana-ke",
+          "character": "ケ",
+          "romaji": "ke",
+          "englishName": "ke",
+          "strokeCount": 3,
+          "lessonNumber": 2,
+          "unicode": "U+30B1",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ke.mp3"
+        },
+        {
+          "id": "katakana-ko",
+          "character": "コ",
+          "romaji": "ko",
+          "englishName": "ko",
+          "strokeCount": 2,
+          "lessonNumber": 2,
+          "unicode": "U+30B3",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ko.mp3"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 3,
+      "title": "Lesson 3",
+      "description": "Sa Row",
+      "characters": [
+        {
+          "id": "katakana-sa",
+          "character": "サ",
+          "romaji": "sa",
+          "englishName": "sa",
+          "strokeCount": 2,
+          "lessonNumber": 3,
+          "unicode": "U+30B5",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/sa.mp3"
+        },
+        {
+          "id": "katakana-shi",
+          "character": "シ",
+          "romaji": "shi",
+          "englishName": "shi",
+          "strokeCount": 3,
+          "lessonNumber": 3,
+          "unicode": "U+30B7",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/shi.mp3"
+        },
+        {
+          "id": "katakana-su",
+          "character": "ス",
+          "romaji": "su",
+          "englishName": "su",
+          "strokeCount": 2,
+          "lessonNumber": 3,
+          "unicode": "U+30B9",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/su.mp3"
+        },
+        {
+          "id": "katakana-se",
+          "character": "セ",
+          "romaji": "se",
+          "englishName": "se",
+          "strokeCount": 2,
+          "lessonNumber": 3,
+          "unicode": "U+30BB",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/se.mp3"
+        },
+        {
+          "id": "katakana-so",
+          "character": "ソ",
+          "romaji": "so",
+          "englishName": "so",
+          "strokeCount": 2,
+          "lessonNumber": 3,
+          "unicode": "U+30BD",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/so.mp3"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 4,
+      "title": "Lesson 4",
+      "description": "Ta Row",
+      "characters": [
+        {
+          "id": "katakana-ta",
+          "character": "タ",
+          "romaji": "ta",
+          "englishName": "ta",
+          "strokeCount": 3,
+          "lessonNumber": 4,
+          "unicode": "U+30BF",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ta.mp3"
+        },
+        {
+          "id": "katakana-chi",
+          "character": "チ",
+          "romaji": "chi",
+          "englishName": "chi",
+          "strokeCount": 3,
+          "lessonNumber": 4,
+          "unicode": "U+30C1",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/chi.mp3"
+        },
+        {
+          "id": "katakana-tsu",
+          "character": "ツ",
+          "romaji": "tsu",
+          "englishName": "tsu",
+          "strokeCount": 3,
+          "lessonNumber": 4,
+          "unicode": "U+30C4",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/tsu.mp3"
+        },
+        {
+          "id": "katakana-te",
+          "character": "テ",
+          "romaji": "te",
+          "englishName": "te",
+          "strokeCount": 3,
+          "lessonNumber": 4,
+          "unicode": "U+30C6",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/te.mp3"
+        },
+        {
+          "id": "katakana-to",
+          "character": "ト",
+          "romaji": "to",
+          "englishName": "to",
+          "strokeCount": 2,
+          "lessonNumber": 4,
+          "unicode": "U+30C8",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/to.mp3"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 5,
+      "title": "Lesson 5",
+      "description": "Na Row",
+      "characters": [
+        {
+          "id": "katakana-na",
+          "character": "ナ",
+          "romaji": "na",
+          "englishName": "na",
+          "strokeCount": 2,
+          "lessonNumber": 5,
+          "unicode": "U+30CA",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/na.mp3"
+        },
+        {
+          "id": "katakana-ni",
+          "character": "ニ",
+          "romaji": "ni",
+          "englishName": "ni",
+          "strokeCount": 2,
+          "lessonNumber": 5,
+          "unicode": "U+30CB",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ni.mp3"
+        },
+        {
+          "id": "katakana-nu",
+          "character": "ヌ",
+          "romaji": "nu",
+          "englishName": "nu",
+          "strokeCount": 2,
+          "lessonNumber": 5,
+          "unicode": "U+30CC",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/nu.mp3"
+        },
+        {
+          "id": "katakana-ne",
+          "character": "ネ",
+          "romaji": "ne",
+          "englishName": "ne",
+          "strokeCount": 4,
+          "lessonNumber": 5,
+          "unicode": "U+30CD",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ne.mp3"
+        },
+        {
+          "id": "katakana-no",
+          "character": "ノ",
+          "romaji": "no",
+          "englishName": "no",
+          "strokeCount": 1,
+          "lessonNumber": 5,
+          "unicode": "U+30CE",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/no.mp3"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 6,
+      "title": "Lesson 6",
+      "description": "Ha Row",
+      "characters": [
+        {
+          "id": "katakana-ha",
+          "character": "ハ",
+          "romaji": "ha",
+          "englishName": "ha",
+          "strokeCount": 2,
+          "lessonNumber": 6,
+          "unicode": "U+30CF",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ha.mp3"
+        },
+        {
+          "id": "katakana-hi",
+          "character": "ヒ",
+          "romaji": "hi",
+          "englishName": "hi",
+          "strokeCount": 2,
+          "lessonNumber": 6,
+          "unicode": "U+30D2",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/hi.mp3"
+        },
+        {
+          "id": "katakana-fu",
+          "character": "フ",
+          "romaji": "fu",
+          "englishName": "fu",
+          "strokeCount": 1,
+          "lessonNumber": 6,
+          "unicode": "U+30D5",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/fu.mp3"
+        },
+        {
+          "id": "katakana-he",
+          "character": "ヘ",
+          "romaji": "he",
+          "englishName": "he",
+          "strokeCount": 1,
+          "lessonNumber": 6,
+          "unicode": "U+30D8",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/he.mp3"
+        },
+        {
+          "id": "katakana-ho",
+          "character": "ホ",
+          "romaji": "ho",
+          "englishName": "ho",
+          "strokeCount": 4,
+          "lessonNumber": 6,
+          "unicode": "U+30DB",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ho.mp3"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 7,
+      "title": "Lesson 7",
+      "description": "Ma Row",
+      "characters": [
+        {
+          "id": "katakana-ma",
+          "character": "マ",
+          "romaji": "ma",
+          "englishName": "ma",
+          "strokeCount": 2,
+          "lessonNumber": 7,
+          "unicode": "U+30DE",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ma.mp3"
+        },
+        {
+          "id": "katakana-mi",
+          "character": "ミ",
+          "romaji": "mi",
+          "englishName": "mi",
+          "strokeCount": 3,
+          "lessonNumber": 7,
+          "unicode": "U+30DF",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/mi.mp3"
+        },
+        {
+          "id": "katakana-mu",
+          "character": "ム",
+          "romaji": "mu",
+          "englishName": "mu",
+          "strokeCount": 2,
+          "lessonNumber": 7,
+          "unicode": "U+30E0",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/mu.mp3"
+        },
+        {
+          "id": "katakana-me",
+          "character": "メ",
+          "romaji": "me",
+          "englishName": "me",
+          "strokeCount": 2,
+          "lessonNumber": 7,
+          "unicode": "U+30E1",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/me.mp3"
+        },
+        {
+          "id": "katakana-mo",
+          "character": "モ",
+          "romaji": "mo",
+          "englishName": "mo",
+          "strokeCount": 3,
+          "lessonNumber": 7,
+          "unicode": "U+30E2",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/mo.mp3"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 8,
+      "title": "Lesson 8",
+      "description": "Ya Row",
+      "characters": [
+        {
+          "id": "katakana-ya",
+          "character": "ヤ",
+          "romaji": "ya",
+          "englishName": "ya",
+          "strokeCount": 2,
+          "lessonNumber": 8,
+          "unicode": "U+30E4",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ya.mp3"
+        },
+        {
+          "id": "katakana-yu",
+          "character": "ユ",
+          "romaji": "yu",
+          "englishName": "yu",
+          "strokeCount": 2,
+          "lessonNumber": 8,
+          "unicode": "U+30E6",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/yu.mp3"
+        },
+        {
+          "id": "katakana-yo",
+          "character": "ヨ",
+          "romaji": "yo",
+          "englishName": "yo",
+          "strokeCount": 3,
+          "lessonNumber": 8,
+          "unicode": "U+30E8",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/yo.mp3"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 9,
+      "title": "Lesson 9",
+      "description": "Ra Row",
+      "characters": [
+        {
+          "id": "katakana-ra",
+          "character": "ラ",
+          "romaji": "ra",
+          "englishName": "ra",
+          "strokeCount": 2,
+          "lessonNumber": 9,
+          "unicode": "U+30E9",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ra.mp3"
+        },
+        {
+          "id": "katakana-ri",
+          "character": "リ",
+          "romaji": "ri",
+          "englishName": "ri",
+          "strokeCount": 2,
+          "lessonNumber": 9,
+          "unicode": "U+30EA",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ri.mp3"
+        },
+        {
+          "id": "katakana-ru",
+          "character": "ル",
+          "romaji": "ru",
+          "englishName": "ru",
+          "strokeCount": 2,
+          "lessonNumber": 9,
+          "unicode": "U+30EB",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ru.mp3"
+        },
+        {
+          "id": "katakana-re",
+          "character": "レ",
+          "romaji": "re",
+          "englishName": "re",
+          "strokeCount": 1,
+          "lessonNumber": 9,
+          "unicode": "U+30EC",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/re.mp3"
+        },
+        {
+          "id": "katakana-ro",
+          "character": "ロ",
+          "romaji": "ro",
+          "englishName": "ro",
+          "strokeCount": 3,
+          "lessonNumber": 9,
+          "unicode": "U+30ED",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/ro.mp3"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 10,
+      "title": "Lesson 10",
+      "description": "Wa Row & N",
+      "characters": [
+        {
+          "id": "katakana-wa",
+          "character": "ワ",
+          "romaji": "wa",
+          "englishName": "wa",
+          "strokeCount": 2,
+          "lessonNumber": 10,
+          "unicode": "U+30EF",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/wa.mp3"
+        },
+        {
+          "id": "katakana-wo",
+          "character": "ヲ",
+          "romaji": "wo",
+          "englishName": "wo",
+          "strokeCount": 3,
+          "lessonNumber": 10,
+          "unicode": "U+30F2",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/wo.mp3"
+        },
+        {
+          "id": "katakana-n",
+          "character": "ン",
+          "romaji": "n",
+          "englishName": "n",
+          "strokeCount": 2,
+          "lessonNumber": 10,
+          "unicode": "U+30F3",
+          "isLearned": false,
+          "audioAsset": "assets/audio/katakana/n.mp3"
+        }
+      ]
+    }
+  ]
+}

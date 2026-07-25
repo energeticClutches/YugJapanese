@@ -1,0 +1,26 @@
+name: japanese_learning
+description: "Japanese learning Flutter application."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: any
+  go_router: any
+  hive: any
+  hive_flutter: any
+  path_provider: any
+  google_fonts: any
+  shared_preferences: any
+  flutter_svg: any
+  audioplayers: any
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/hiragana_lessons.json
+    - assets/data/katakana_lessons.json
