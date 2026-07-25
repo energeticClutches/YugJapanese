@@ -14,7 +14,7 @@
           "lessonNumber": 1,
           "unicode": "U+3042",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/a.mp3"
+          "audioAsset": "assets/audio/hiragana/a.wav"
         },
         {
           "id": "hiragana-i",
@@ -25,7 +25,7 @@
           "lessonNumber": 1,
           "unicode": "U+3044",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/i.mp3"
+          "audioAsset": "assets/audio/hiragana/i.wav"
         },
         {
           "id": "hiragana-u",
@@ -36,7 +36,7 @@
           "lessonNumber": 1,
           "unicode": "U+3046",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/u.mp3"
+          "audioAsset": "assets/audio/hiragana/u.wav"
         },
         {
           "id": "hiragana-e",
@@ -47,7 +47,7 @@
           "lessonNumber": 1,
           "unicode": "U+3048",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/e.mp3"
+          "audioAsset": "assets/audio/hiragana/e.wav"
         },
         {
           "id": "hiragana-o",
@@ -58,7 +58,7 @@
           "lessonNumber": 1,
           "unicode": "U+304A",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/o.mp3"
+          "audioAsset": "assets/audio/hiragana/o.wav"
         }
       ]
     }

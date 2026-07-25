@@ -8,6 +8,8 @@ import '../../models/learning_step.dart';
 import '../../repositories/content_repository_factory.dart';
 import '../../repositories/lesson_repository.dart';
 import '../../shared/widgets/app_scaffold.dart';
+import '../audio/providers/audio_providers.dart';
+import '../audio/widgets/audio_button.dart';
 import '../learning/models/kanji_example.dart';
 import '../learning/widgets/example_word_card.dart';
 import '../learning/widgets/radical_card.dart';
@@ -15,6 +17,7 @@ import '../learning/widgets/reading_section.dart';
 import '../progress/providers/progress_providers.dart';
 import '../review/providers/review_providers.dart';
 import '../review/services/review_scheduler.dart';
+import '../settings/providers/settings_providers.dart';
 import '../writing/models/stroke.dart';
 import '../writing/models/stroke_point.dart';
 import '../writing/models/writing_result.dart';
@@ -46,6 +49,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
   late final LearningController _controller = LearningController(_repository);
   WritingResult? _writingResult;
   bool _isSavingCompletion = false;
+  String? _autoPlayedItemId;
 
   @override
   void initState() {
@@ -111,6 +115,27 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  void _maybeAutoPlayPronunciation(LearningItem item) {
+    if (_autoPlayedItemId == item.id) {
+      return;
+    }
+    final settings = ref.read(currentSettingsProvider).settings;
+    if (!settings.soundEnabled || !settings.autoPlayAudio) {
+      return;
+    }
+    _autoPlayedItemId = item.id;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      ref.read(audioServiceProvider).play(
+            id: item.id,
+            assetPath: item.audioAsset,
+            script: _contentId,
+          );
+    });
   }
 
   Future<void> _continueAfterResult() async {
@@ -179,6 +204,10 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       });
     }
 
+    if (currentStep == LearningStep.introduction && currentCharacter != null) {
+      _maybeAutoPlayPronunciation(currentCharacter);
+    }
+
     return AppScaffold(
       appBar: AppBar(title: const Text('Learning Flow')),
       child: lessonNumber == null || session == null || currentCharacter == null
@@ -225,6 +254,13 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                             currentCharacter.symbol,
                             style: Theme.of(context).textTheme.displayLarge,
                             textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          AudioButton(
+                            key: ValueKey(currentCharacter.id),
+                            id: currentCharacter.id,
+                            assetPath: currentCharacter.audioAsset,
+                            script: _contentId,
                           ),
                           const SizedBox(height: AppSpacing.sm),
                           Text(
@@ -309,6 +345,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                         onPressed: () {
                           setState(() {
                             _writingResult = null;
+                            _autoPlayedItemId = null;
                           });
                           _controller.restartLesson();
                         },
