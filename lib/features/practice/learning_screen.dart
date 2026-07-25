@@ -32,11 +32,16 @@ class LearningScreen extends ConsumerStatefulWidget {
     required this.lessonNumber,
     this.isReviewMode = false,
     this.contentId = 'hiragana',
+    this.startCharacterId,
   });
 
   final int lessonNumber;
   final bool isReviewMode;
   final String contentId;
+
+  /// If set, the lesson opens with this character selected instead of the
+  /// first one — used when arriving from search/detail lookup.
+  final String? startCharacterId;
 
   @override
   ConsumerState<LearningScreen> createState() => _LearningScreenState();
@@ -69,38 +74,37 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
     await _controller.startLesson(
       widget.lessonNumber,
       skipIntroduction: widget.isReviewMode,
+      startCharacterId: widget.startCharacterId,
     );
     if (!mounted || _controller.lessonNumber == null) {
       return;
     }
-    await ref.read(progressControllerProvider).startLesson(
-          contentId: _contentId,
-          lessonNumber: widget.lessonNumber,
-        );
+    await ref
+        .read(progressControllerProvider)
+        .startLesson(contentId: _contentId, lessonNumber: widget.lessonNumber);
   }
 
   WritingResult _evaluateCurrentItem(LearningItem item) {
     final WritingEvaluator evaluator = ref.read(writingEvaluatorProvider);
     final int expectedStrokeCount = item.strokeCount;
-    final List<Stroke> strokes = List<Stroke>.generate(
-      expectedStrokeCount,
-      (int index) {
-        final double inset = 24 + (index * 6).toDouble();
-        final double size = 160 - (index * 4).toDouble();
-        return Stroke(
-          points: <StrokePoint>[
-            StrokePoint(
-              position: Offset(inset, inset),
-              timestamp: DateTime.now(),
-            ),
-            StrokePoint(
-              position: Offset(inset + size, inset + size),
-              timestamp: DateTime.now(),
-            ),
-          ],
-        );
-      },
-    );
+    final List<Stroke> strokes = List<Stroke>.generate(expectedStrokeCount, (
+      int index,
+    ) {
+      final double inset = 24 + (index * 6).toDouble();
+      final double size = 160 - (index * 4).toDouble();
+      return Stroke(
+        points: <StrokePoint>[
+          StrokePoint(
+            position: Offset(inset, inset),
+            timestamp: DateTime.now(),
+          ),
+          StrokePoint(
+            position: Offset(inset + size, inset + size),
+            timestamp: DateTime.now(),
+          ),
+        ],
+      );
+    });
 
     return evaluator.evaluate(
       strokes: strokes,
@@ -130,11 +134,9 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       if (!mounted) {
         return;
       }
-      ref.read(audioServiceProvider).play(
-            id: item.id,
-            assetPath: item.audioAsset,
-            script: _contentId,
-          );
+      ref
+          .read(audioServiceProvider)
+          .play(id: item.id, assetPath: item.audioAsset, script: _contentId);
     });
   }
 
@@ -154,15 +156,16 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       setState(() {
         _isSavingCompletion = true;
       });
-      await ref.read(progressControllerProvider).completeLesson(
+      await ref
+          .read(progressControllerProvider)
+          .completeLesson(
             contentId: _contentId,
             lessonNumber: session.lessonNumber,
             writingAccuracy: result.accuracy,
           );
 
       final String lessonId = '$_contentId:${session.lessonNumber}';
-      final ReviewScheduler reviewScheduler =
-          ref.read(reviewSchedulerProvider);
+      final ReviewScheduler reviewScheduler = ref.read(reviewSchedulerProvider);
       if (widget.isReviewMode) {
         await reviewScheduler.recordSuccessfulReview(lessonId);
       } else {
@@ -212,149 +215,151 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       appBar: AppBar(title: const Text('Learning Flow')),
       child: lessonNumber == null || session == null || currentCharacter == null
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Lesson $lessonNumber',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Current Character: ${currentCharacter.symbol}',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Current Step: ${_describeStep(currentStep)}',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Character ${session.currentCharacterIndex + 1} of ${session.totalCharacters}',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                if (currentStep == LearningStep.completed)
-                  if (_writingResult == null)
-                    const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Lesson $lessonNumber',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'Current Character: ${currentCharacter.symbol}',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'Current Step: ${_describeStep(currentStep)}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'Character ${session.currentCharacterIndex + 1} of ${session.totalCharacters}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  if (currentStep == LearningStep.completed)
+                    if (_writingResult == null)
+                      const Center(child: CircularProgressIndicator())
+                    else
+                      WritingResultCard(
+                        result: _writingResult!,
+                        onContinue: _continueAfterResult,
+                      )
                   else
-                    WritingResultCard(
-                      result: _writingResult!,
-                      onContinue: _continueAfterResult,
-                    )
-                else
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.xl),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            currentCharacter.symbol,
-                            style: Theme.of(context).textTheme.displayLarge,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          AudioButton(
-                            key: ValueKey(currentCharacter.id),
-                            id: currentCharacter.id,
-                            assetPath: currentCharacter.audioAsset,
-                            script: _contentId,
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            currentCharacter.primaryReading,
-                            style: Theme.of(context).textTheme.titleMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          Text(
-                            currentCharacter.meaning,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                          if (currentStep == LearningStep.introduction &&
-                              currentCharacter.radical != null) ...[
-                            const SizedBox(height: AppSpacing.lg),
-                            ReadingSection(
-                              onReadings: [
-                                currentCharacter.primaryReading,
-                                ...currentCharacter.secondaryReadings,
-                              ],
-                              kunReadings: currentCharacter.kunReadings,
-                            ),
-                            const SizedBox(height: AppSpacing.lg),
-                            RadicalCard(
-                              radical: currentCharacter.radical!,
-                              strokeCount: currentCharacter.strokeCount,
-                            ),
-                          ],
-                          if (currentStep == LearningStep.introduction &&
-                              currentCharacter.examples.isNotEmpty) ...[
-                            const SizedBox(height: AppSpacing.lg),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.xl),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
                             Text(
-                              'Example',
-                              style: Theme.of(context).textTheme.labelMedium,
+                              currentCharacter.symbol,
+                              style: Theme.of(context).textTheme.displayLarge,
+                              textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: AppSpacing.sm),
-                            for (final KanjiExample example
-                                in currentCharacter.examples) ...[
-                              ExampleWordCard(example: example),
+                            AudioButton(
+                              key: ValueKey(currentCharacter.id),
+                              id: currentCharacter.id,
+                              assetPath: currentCharacter.audioAsset,
+                              script: _contentId,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              currentCharacter.primaryReading,
+                              style: Theme.of(context).textTheme.titleMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            Text(
+                              currentCharacter.meaning,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                            if (currentStep == LearningStep.introduction &&
+                                currentCharacter.radical != null) ...[
+                              const SizedBox(height: AppSpacing.lg),
+                              ReadingSection(
+                                onReadings: [
+                                  currentCharacter.primaryReading,
+                                  ...currentCharacter.secondaryReadings,
+                                ],
+                                kunReadings: currentCharacter.kunReadings,
+                              ),
+                              const SizedBox(height: AppSpacing.lg),
+                              RadicalCard(
+                                radical: currentCharacter.radical!,
+                                strokeCount: currentCharacter.strokeCount,
+                              ),
+                            ],
+                            if (currentStep == LearningStep.introduction &&
+                                currentCharacter.examples.isNotEmpty) ...[
+                              const SizedBox(height: AppSpacing.lg),
+                              Text(
+                                'Example',
+                                style: Theme.of(context).textTheme.labelMedium,
+                              ),
                               const SizedBox(height: AppSpacing.sm),
+                              for (final KanjiExample example
+                                  in currentCharacter.examples) ...[
+                                ExampleWordCard(example: example),
+                                const SizedBox(height: AppSpacing.sm),
+                              ],
                             ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                const SizedBox(height: AppSpacing.xl),
-                if (currentStep != LearningStep.completed) ...[
+                  const SizedBox(height: AppSpacing.xl),
+                  if (currentStep != LearningStep.completed) ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: _controller.previousStep,
+                            child: const Text('Previous'),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: _controller.nextStep,
+                            child: const Text('Next'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: _controller.previousStep,
-                          child: const Text('Previous'),
+                          onPressed: currentStep == LearningStep.completed
+                              ? _continueAfterResult
+                              : _controller.nextCharacter,
+                          child: const Text('Next Character'),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.md),
                       Expanded(
-                        child: FilledButton(
-                          onPressed: _controller.nextStep,
-                          child: const Text('Next'),
+                        child: FilledButton.tonal(
+                          onPressed: () {
+                            setState(() {
+                              _writingResult = null;
+                              _autoPlayedItemId = null;
+                            });
+                            _controller.restartLesson();
+                          },
+                          child: const Text('Restart'),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.md),
                 ],
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: currentStep == LearningStep.completed
-                            ? _continueAfterResult
-                            : _controller.nextCharacter,
-                        child: const Text('Next Character'),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: FilledButton.tonal(
-                        onPressed: () {
-                          setState(() {
-                            _writingResult = null;
-                            _autoPlayedItemId = null;
-                          });
-                          _controller.restartLesson();
-                        },
-                        child: const Text('Restart'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
     );
   }

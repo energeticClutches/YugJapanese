@@ -9,6 +9,7 @@ import '../../features/katakana/katakana_screen.dart';
 import '../../features/kanji/kanji_screen.dart';
 import '../../features/progress/progress_screen.dart';
 import '../../features/review/screens/review_screen.dart';
+import '../../features/search/screens/search_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -32,10 +33,12 @@ final GoRouter appRouter = GoRouter(
         final bool isReviewMode = state.uri.queryParameters['mode'] == 'review';
         final String contentId =
             state.uri.queryParameters['content'] ?? 'hiragana';
+        final String? startCharacterId = state.uri.queryParameters['char'];
         return LearningScreen(
           lessonNumber: lessonNumber,
           isReviewMode: isReviewMode,
           contentId: contentId,
+          startCharacterId: startCharacterId,
         );
       },
     ),
@@ -68,6 +71,11 @@ final GoRouter appRouter = GoRouter(
       path: '/settings',
       builder: (BuildContext context, GoRouterState state) =>
           const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/search',
+      builder: (BuildContext context, GoRouterState state) =>
+          const SearchScreen(),
     ),
   ],
 );

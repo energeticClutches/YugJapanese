@@ -13,6 +13,7 @@ class LearningController extends ChangeNotifier {
   int? _currentLessonNumber;
   List<LearningItem> _items = <LearningItem>[];
   bool _skipIntroduction = false;
+  String? _startCharacterId;
 
   LearningSession? get session => _session;
   int? get lessonNumber => _currentLessonNumber;
@@ -29,12 +30,14 @@ class LearningController extends ChangeNotifier {
   Future<void> startLesson(
     int lessonNumber, {
     bool skipIntroduction = false,
+    String? startCharacterId,
   }) async {
     final lesson = await _repository.getLesson(lessonNumber);
     if (lesson == null) {
       return;
     }
     _skipIntroduction = skipIntroduction;
+    _startCharacterId = startCharacterId;
     _currentLessonNumber = lesson.lessonNumber;
     _items = <LearningItem>[];
     for (final character in lesson.characters) {
@@ -64,9 +67,12 @@ class LearningController extends ChangeNotifier {
     }
     final LearningStep startStep =
         skipIntroduction ? LearningStep.strokeOrder : LearningStep.introduction;
+    final int requestedIndex = startCharacterId == null
+        ? -1
+        : _items.indexWhere((LearningItem item) => item.id == startCharacterId);
     _session = LearningSession(
       lessonNumber: lesson.lessonNumber,
-      currentCharacterIndex: 0,
+      currentCharacterIndex: requestedIndex < 0 ? 0 : requestedIndex,
       currentStep: startStep,
       totalCharacters: _items.length,
       completedCharacters: 0,
@@ -110,6 +116,10 @@ class LearningController extends ChangeNotifier {
     if (lessonNumber == null) {
       return;
     }
-    startLesson(lessonNumber, skipIntroduction: _skipIntroduction);
+    startLesson(
+      lessonNumber,
+      skipIntroduction: _skipIntroduction,
+      startCharacterId: _startCharacterId,
+    );
   }
 }

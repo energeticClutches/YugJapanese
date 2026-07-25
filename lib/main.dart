@@ -4,6 +4,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/search/repositories/hive_favorites_repository.dart';
+import 'features/search/repositories/hive_search_history_repository.dart';
 import 'features/settings/models/app_settings.dart';
 import 'features/settings/providers/settings_providers.dart';
 import 'features/settings/repositories/hive_settings_repository.dart';
@@ -15,6 +17,8 @@ Future<void> main() async {
   await Hive.openBox<dynamic>('review_schedule');
   await Hive.openBox<dynamic>('achievement_progress');
   await Hive.openBox<dynamic>(HiveSettingsRepository.boxName);
+  await Hive.openBox<dynamic>(HiveFavoritesRepository.boxName);
+  await Hive.openBox<dynamic>(HiveSearchHistoryRepository.boxName);
   runApp(const JapaneseLearningApp());
 }
 

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../repositories/content_repository_factory.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/feature_card.dart';
 import '../../achievements/models/achievement.dart';
 import '../../achievements/models/achievement_progress.dart';
 import '../../achievements/models/streak_info.dart';
@@ -210,6 +211,13 @@ class _DashboardContent extends StatelessWidget {
           Text(
             'Continue your Japanese journey.',
             style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          FeatureCard(
+            icon: Icons.search,
+            title: 'Quick Search',
+            subtitle: 'Find any Hiragana, Katakana, or Kanji character',
+            onTap: () => context.go('/search'),
           ),
           const SizedBox(height: AppSpacing.xl),
           Center(
