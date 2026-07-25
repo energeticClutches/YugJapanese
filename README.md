@@ -1,3 +1,2 @@
-# japanese_learning
-
-A new Flutter project.
+# YugJapanese
+You can learn to write japanese easily
