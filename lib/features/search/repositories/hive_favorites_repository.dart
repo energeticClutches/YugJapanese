@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 
+import '../../../core/utils/safe_parse.dart';
 import '../models/favorite_item.dart';
 import 'favorites_repository.dart';
 
@@ -14,9 +15,8 @@ class HiveFavoritesRepository implements FavoritesRepository {
   Future<List<FavoriteItem>> getAll() async {
     return _box.values
         .whereType<Map>()
-        .map(
-          (Map value) => FavoriteItem.fromMap(Map<String, dynamic>.from(value)),
-        )
+        .map((Map value) => safeParse(value, FavoriteItem.fromMap))
+        .whereType<FavoriteItem>()
         .toList(growable: false);
   }
 

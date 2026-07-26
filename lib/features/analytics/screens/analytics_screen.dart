@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/loading_indicator.dart';
 import '../../achievements/widgets/achievement_icons.dart';
 import '../models/daily_learning_stat.dart';
 import '../models/learning_analytics.dart';
@@ -56,7 +58,7 @@ class AnalyticsScreen extends ConsumerWidget {
       ),
       child: analyticsAsync.when(
         data: (LearningAnalytics analytics) => _AnalyticsContent(analytics: analytics),
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingIndicator(),
         error: (Object error, StackTrace stackTrace) =>
             _AnalyticsContent(analytics: LearningAnalytics.empty),
       ),
@@ -250,9 +252,9 @@ class _AnalyticsContent extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(next.title, style: Theme.of(context).textTheme.labelLarge),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: AppSpacing.xs),
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(AppRadius.small),
                             child: LinearProgressIndicator(value: next.progress),
                           ),
                         ],

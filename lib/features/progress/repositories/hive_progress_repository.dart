@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 
+import '../../../core/utils/safe_parse.dart';
 import '../models/lesson_progress.dart';
 import 'progress_repository.dart';
 
@@ -14,11 +15,8 @@ class HiveProgressRepository implements ProgressRepository {
   Future<List<LessonProgress>> getProgressForContent(String contentId) async {
     return _box.values
         .whereType<Map>()
-        .map(
-          (Map value) => LessonProgress.fromMap(
-            Map<String, dynamic>.from(value),
-          ),
-        )
+        .map((Map value) => safeParse(value, LessonProgress.fromMap))
+        .whereType<LessonProgress>()
         .where((LessonProgress progress) => progress.contentId == contentId)
         .toList(growable: false);
   }
@@ -32,7 +30,7 @@ class HiveProgressRepository implements ProgressRepository {
     if (value is! Map) {
       return null;
     }
-    return LessonProgress.fromMap(Map<String, dynamic>.from(value));
+    return safeParse(value, LessonProgress.fromMap);
   }
 
   @override

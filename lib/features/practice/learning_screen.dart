@@ -8,6 +8,7 @@ import '../../models/learning_step.dart';
 import '../../repositories/content_repository_factory.dart';
 import '../../repositories/lesson_repository.dart';
 import '../../shared/widgets/app_scaffold.dart';
+import '../../shared/widgets/loading_indicator.dart';
 import '../audio/providers/audio_providers.dart';
 import '../audio/widgets/audio_button.dart';
 import '../learning/models/kanji_example.dart';
@@ -214,7 +215,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
     return AppScaffold(
       appBar: AppBar(title: const Text('Learning Flow')),
       child: lessonNumber == null || session == null || currentCharacter == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingIndicator()
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -241,7 +242,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                   const SizedBox(height: AppSpacing.xl),
                   if (currentStep == LearningStep.completed)
                     if (_writingResult == null)
-                      const Center(child: CircularProgressIndicator())
+                      const LoadingIndicator()
                     else
                       WritingResultCard(
                         result: _writingResult!,

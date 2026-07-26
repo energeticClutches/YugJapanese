@@ -7,6 +7,7 @@ import '../../models/lesson_model.dart';
 import '../../repositories/hiragana_repository.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/lesson_card.dart';
+import '../../shared/widgets/loading_indicator.dart';
 import '../progress/models/lesson_progress.dart';
 import '../progress/providers/progress_providers.dart';
 
@@ -41,7 +42,7 @@ class _HiraganaScreenState extends ConsumerState<HiraganaScreen> {
         builder:
             (BuildContext context, AsyncSnapshot<LessonModel?> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingIndicator();
           }
 
           if (snapshot.hasError || snapshot.data == null) {

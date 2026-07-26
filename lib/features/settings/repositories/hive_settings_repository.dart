@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 
+import '../../../core/utils/safe_parse.dart';
 import '../models/app_settings.dart';
 import 'settings_repository.dart';
 
@@ -17,7 +18,7 @@ class HiveSettingsRepository implements SettingsRepository {
     if (value is! Map) {
       return AppSettings.defaults;
     }
-    return AppSettings.fromMap(Map<String, dynamic>.from(value));
+    return safeParse(value, AppSettings.fromMap) ?? AppSettings.defaults;
   }
 
   @override

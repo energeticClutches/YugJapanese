@@ -7,10 +7,13 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
 
 ## Current State (read this first in a new session)
 
-- **Last completed milestone: 18 (Learning Analytics & Insights).** Fully
-  implemented, `flutter analyze` clean, verified end-to-end on an Android
-  emulator (API 37, `emulator-5554`), including a real CSV/JSON export.
-  No open work, no known bugs.
+- **Last completed milestone: 19 (Polish, Accessibility & Performance).**
+  Fully implemented, `flutter analyze` clean, `flutter test` passing
+  (36/36), verified end-to-end on an Android emulator (API 37,
+  `emulator-5554`). No open work, no known bugs. See the M19 log entry
+  for the full list of what was in scope vs. explicitly deferred (multi-
+  device testing, lint rules, `integration_test` package) — this was a
+  broad 12-area polish pass, not a bounded feature.
 - **Content:** Hiragana (5 vowels, 1 lesson), Katakana (46 characters, 10
   lessons), and Kanji (79 JLPT N5 / Grade-1 kyōiku characters, 8 lessons) all
   have real content and are fully enabled end-to-end (learning flow,
@@ -112,7 +115,25 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
   found instead of always at index 0; reuse this instead of building a
   parallel "character detail" screen if something else ever needs the same
   behavior.
-- Do not start Milestone 19 or any new feature without explicit instruction.
+- **Testing (M19)**: `test/` exists now — `test/fakes/` has in-memory
+  (non-Hive) fakes for every repository interface; prefer reusing one over
+  writing a new fake. `test/flutter_test_config.dart` disables
+  `google_fonts` runtime fetching for every test automatically — don't
+  remove it, tests will hang under `pumpAndSettle` without it. If a new
+  widget test needs a `FutureProvider` that `ref.watch()`s
+  `practiceServiceProvider` (a `ChangeNotifierProvider`), override that
+  `FutureProvider` directly rather than letting it construct
+  `practiceServiceProvider` internally — see the M19 log entry and the
+  comment in `test/widget/dashboard_screen_test.dart` for the
+  `flutter_test`/Riverpod deadlock this works around (not present in the
+  real app).
+- **Data safety (M19)**: every Hive repository read goes through
+  `safeParse` (`lib/core/utils/safe_parse.dart`) — use it for any new
+  repository's `fromMap` calls too, don't call `X.fromMap(...)` directly
+  from a repository. Boxes open via `_openBoxSafely` in `main.dart`,
+  which self-heals a corrupted box file; a new box should follow the same
+  pattern rather than a bare `Hive.openBox`.
+- Do not start Milestone 20 or any new feature without explicit instruction.
 
 ## Completed Milestones
 
@@ -1302,15 +1323,249 @@ No files under `lib/features/progress/`, `lib/features/review/`,
 `lib/features/quiz/`, or `lib/features/achievements/` were modified —
 this milestone only reads from their existing repositories/services.
 
+## Milestone 19: Polish, Accessibility & Performance
+
+Implemented and verified on device. This milestone's brief spanned 12
+open-ended areas (UI consistency, accessibility, responsive layout,
+performance, animation, error handling, offline validation, startup,
+settings, data integrity, testing, docs) — broader than any prior
+milestone and not a bounded feature. Three parallel codebase surveys
+(accessibility/UI/error-handling, performance/responsive/startup,
+testing/docs/data-integrity) identified the real gaps first; the plan
+then made explicit, disclosed scope decisions per area rather than
+attempting unlimited depth everywhere. Below is what was actually done,
+plus what was deliberately deferred and why.
+
+- **Data integrity & error handling**: every Hive `fromMap` factory
+  previously used unchecked `as` casts with no try/catch anywhere in the
+  read path — a single corrupted record would throw uncaught. New
+  `lib/core/utils/safe_parse.dart` (`T? safeParse<T>(...)`) catches any
+  parse failure and returns `null`; all 8 `Hive*Repository` list-read
+  methods now use it (`.map((v) => safeParse(v, X.fromMap)).whereType<X>()`),
+  so one bad record is skipped instead of crashing the whole read.
+  `lib/main.dart`'s box-opening now goes through `_openBoxSafely`, which
+  deletes and recreates a box that fails to open rather than crashing
+  `main()` at launch. Separately, `SettingsService.resetAllProgress()` was
+  found to only clear 3 of the 8 Hive boxes — missing `practice_results`
+  and `analytics_snapshot` (an M17/M18 oversight) — now fixed to clear all
+  5 progress-related boxes (favorites/search history are intentionally
+  left alone). `PROJECT_RULES.md`'s Hive-boxes list, which was stale since
+  M17, now lists all 8.
+- **Performance/startup**: the 8 `Hive.openBox` calls in `main.dart` were
+  sequential; they're now a single `Future.wait([...])` (combined with the
+  corrupted-box recovery above) — roughly 8x less sequential latency in
+  that startup phase. `dashboard_screen.dart`'s weekly-summary helper no
+  longer implicitly re-derives "now" on every call path.
+- **Accessibility**: only one `Tooltip` existed anywhere in the app before
+  this milestone. `AudioButton` (icon-only) now has a `tooltip` matching
+  its existing visible label logic; the search bar's clear button gained
+  one too. `MaterialApp.router`'s `builder` now wraps the app in
+  `MediaQuery.withClampedTextScaling(minScaleFactor: 1.0, maxScaleFactor:
+  1.6)` — verified on device with the system font scale set to 2.0x: text
+  visibly grows but layouts don't overflow, confirming the clamp is
+  active. Touch targets were audited (no `iconSize`/`visualDensity`
+  overrides found shrinking anything below Material's 48dp default) — no
+  code change needed there.
+- **UI consistency**: theme-token usage was already strong (a full-codebase
+  survey found only 2 stray hardcoded values — both fixed:
+  `analytics_screen.dart`'s `BorderRadius.circular(4)` → `AppRadius.small`,
+  `script_summary_card.dart`'s raw `EdgeInsets.symmetric(vertical: 2)` →
+  `AppSpacing.xs / 2`). The real gap was 15 separate ad hoc
+  `Center(child: CircularProgressIndicator())` loading states with no
+  shared widget. New `lib/shared/widgets/loading_indicator.dart`,
+  `empty_state.dart`, `error_state.dart`; `LoadingIndicator` was adopted
+  across all 15 sites found (mechanical swap, confirmed via
+  `grep`-for-zero-remaining-instances after).
+- **Responsive**: `lib/core/utils/responsive.dart` was already defined but
+  essentially unused (one call site). The one real issue found —
+  `practice_home_screen.dart`'s mode cards at a hardcoded `width: 320`,
+  tight on a 360dp phone — now uses a `LayoutBuilder` to cap at 320 but
+  shrink to fit narrower screens. Other flagged card widths (280/200/150dp)
+  were left as-is: they reflow correctly via `Wrap` and only produce mild
+  tablet whitespace, not overflow.
+- **Animation**: `AnswerOption`'s neutral/correct/incorrect color change is
+  now an `AnimatedContainer` (~200ms) instead of an instant swap — verified
+  on device (visible red/green tint transition on reveal).
+  `AchievementCard` gets a brief scale-in (`TweenAnimationBuilder`, ~250ms,
+  `Curves.easeOutBack`) when unlocked, used on the dashboard's
+  "recently unlocked" card and the achievements grid.
+- **Offline validation**: confirmed, not new work — `grep` for `http`,
+  `dio`, or any network package import across `lib/` returns nothing; the
+  app has no network dependency to validate away.
+- **Settings enhancements**: new "Diagnostics" section — a real storage-
+  usage figure (`SettingsService.getStorageUsageBytes()` sums each Hive
+  box's on-disk file size via `path_provider`, already an approved,
+  previously-unused dependency) and a "Licenses" tile using Flutter's
+  built-in `showLicensePage()`. Verified on device: showed "10.3 KB" and
+  the licenses page opened correctly. App version/build already existed
+  via the M12 `AboutListTile`. "Clear cache" wasn't added — this app has
+  no cache distinct from the Hive boxes the existing "Reset progress"
+  action already covers.
+- **Navigation fix found during device verification**: there was no UI
+  path from the Dashboard to `/settings` anywhere in the app (a
+  previously-logged "known open item") — discovered while trying to
+  manually verify the new Diagnostics section and impossible to route
+  around, so fixed as part of this milestone's own "Startup & Navigation"
+  scope: `DashboardScreen` gained a minimal `AppBar` with a settings gear
+  `IconButton` (tooltipped) routing to `/settings`.
+- **Testing**: zero tests existed before this milestone (no `test/`
+  directory, no `flutter_test` in `pubspec.yaml` — there wasn't even a
+  `dev_dependencies:` block). Added `flutter_test` as the one new
+  dependency this milestone required. New `test/fakes/` (in-memory
+  repository fakes for Progress/Review/Practice/Achievement/Analytics, no
+  Hive), `test/unit/` (`review_scheduler_test`, `writing_evaluator_test`,
+  `safe_parse_test`, `analytics_export_service_test`,
+  `practice_generator_test` — exercises real Hiragana JSON assets under
+  `flutter_test`, `search_service_test`), `test/widget/`
+  (`answer_option_test`, `statistic_card_test`, `dashboard_screen_test`),
+  `test/flow/lesson_completion_flow_test.dart` (a `flutter_test`
+  substitute for a true integration test: the real `ProgressController`
+  wired to a fake repository, exercising start→complete→persist→
+  completion-percentage). 36 tests, all passing.
+  - **`test/flutter_test_config.dart`** was needed: `AppTypography` calls
+    `GoogleFonts.notoSansJpTextTheme()` on every access, and `google_fonts`
+    attempts a real network fetch under `flutter_test` by default — with
+    no network available this hangs rather than failing fast. This file
+    (auto-discovered by the Flutter test runner) sets
+    `GoogleFonts.config.allowRuntimeFetching = false` before any test
+    runs, so it falls back to the bundled default font immediately.
+  - **A genuine `flutter_test`/Riverpod interaction bug was found and
+    routed around, not silently ignored**: several real `FutureProvider`s
+    (`achievementProgressListProvider`, `learningAnalyticsProvider`,
+    `practiceStatisticsProvider`, `practiceResultsProvider`) `ref.watch()`
+    a legacy `ChangeNotifierProvider` (`practiceServiceProvider`) purely
+    as an invalidation trigger — the established, correct pattern used
+    throughout this app. Under `flutter_test`'s `ProviderContainer`
+    specifically, reading that `ChangeNotifierProvider` and then awaiting
+    one of those `FutureProvider`s deadlocks — reproduced in isolation
+    with nothing but those two providers, unrelated to anything this
+    milestone changed, and **not reproducible in the real app** (the exact
+    same provider graph was exercised live on the emulator throughout this
+    session's own verification with no issue). `dashboard_screen_test.dart`
+    overrides every async provider `DashboardScreen` touches directly
+    rather than depending on that unrelated test-harness quirk; documented
+    inline in the test file for whoever touches it next.
+- **Documentation**: `README.md` was a 2-line stub — rewritten with
+  features, architecture overview, folder structure, setup/testing
+  instructions, an asset-management guide, and a "Known limitations"
+  section (consolidating the review-success-rate, per-script-quiz-accuracy,
+  study-time-estimate, and audio-coverage caveats already disclosed in
+  M15/M18, plus the new single-device-testing limitation below).
+  `PROJECT_RULES.md`'s Hive-boxes list fixed (see above).
+
+**Explicitly deferred** (disclosed, not silently skipped):
+- `flutter_lints`/`analysis_options.yaml` rules: `analysis_options.yaml`
+  is an intentionally empty stub today (zero lint rules). Enabling lints
+  now risks a large, unplanned cleanup across the whole existing codebase
+  and could break the "flutter analyze reports no issues" acceptance
+  criterion — left at today's baseline.
+- True multi-device testing (7"/10" tablets, landscape): only one phone
+  emulator profile (API 37) is available in this environment. Verified on
+  that profile; tablet/landscape behavior is reasoned about via the
+  existing `AppScaffold` 960dp content cap and `Wrap` reflow, not
+  physically verified on tablet hardware.
+- The `integration_test` package: substituted with the `flutter_test`-based
+  `test/flow/` approach described above.
+- Exhaustive `Semantics` coverage: only the specific gaps the survey found
+  were fixed, not a wrap-everything pass.
+- A full animation overhaul: only the two additions listed above.
+
+`flutter analyze`: **No issues found.** `flutter test`: **36/36 passing.**
+
+### Runtime Verification
+
+Verified on the same Android emulator (API 37, `emulator-5554`), reusing
+the real data accumulated across M17/M18's testing.
+
+- App launched cleanly after the `main.dart` bootstrap changes
+  (parallelized, corrupted-box-safe box opening); dashboard showed the
+  same real data as before (11% progress, 2 lessons completed, etc.) —
+  confirms the Hive hardening didn't change behavior for the healthy-data
+  path.
+- The new dashboard settings icon navigated to `/settings` correctly.
+- Settings' new Diagnostics section showed a real computed **"10.3 KB"**
+  storage figure and "Licenses" opened Flutter's built-in licenses page
+  (About dialog → "View licenses" → scrollable package list) without
+  error. The updated "Reset progress" description text
+  (practice history + analytics now mentioned) rendered correctly.
+- Started a Recognition quiz session: the answer-reveal color transition
+  (`AnimatedContainer`) showed a visible red (incorrect)/green (correct)
+  tint on selection, confirmed via a mid-transition screenshot.
+- The Achievements section's "Quiz Novice" card and the Practice section's
+  mode-selection cards (still capped at 320dp / shrinking on narrow
+  layouts per the responsive fix) rendered correctly.
+- Set the emulator's system font scale to 2.0x and relaunched: quiz answer
+  text grew visibly larger but no layout overflowed or clipped, confirming
+  the 1.0–1.6x clamp is active (reset back to 1.0x afterward).
+- No Dart exceptions or `FlutterError` output anywhere in the `flutter
+  run` log across the full session (dashboard → settings → diagnostics →
+  licenses → quiz → answer reveal → font-scale test); only benign platform
+  log lines.
+
+### Files Added
+
+- `lib/core/utils/safe_parse.dart`
+- `lib/shared/widgets/loading_indicator.dart`
+- `lib/shared/widgets/empty_state.dart`
+- `lib/shared/widgets/error_state.dart`
+- `test/flutter_test_config.dart`
+- `test/fakes/fake_progress_repository.dart`
+- `test/fakes/fake_review_repository.dart`
+- `test/fakes/fake_practice_repository.dart`
+- `test/fakes/fake_achievement_repository.dart`
+- `test/fakes/fake_analytics_repository.dart`
+- `test/fakes/fake_audio_repository.dart`
+- `test/unit/review_scheduler_test.dart`
+- `test/unit/writing_evaluator_test.dart`
+- `test/unit/safe_parse_test.dart`
+- `test/unit/analytics_export_service_test.dart`
+- `test/unit/practice_generator_test.dart`
+- `test/unit/search_service_test.dart`
+- `test/widget/answer_option_test.dart`
+- `test/widget/statistic_card_test.dart`
+- `test/widget/dashboard_screen_test.dart`
+- `test/flow/lesson_completion_flow_test.dart`
+
+### Files Changed
+
+- `lib/main.dart` (parallelized + corrupted-box-safe box opening,
+  clamped text scaling)
+- All 8 `Hive*Repository` classes (`safeParse` adoption)
+- `lib/features/settings/services/settings_service.dart` (
+  `resetAllProgress` now clears all 5 progress-related boxes; new
+  `getStorageUsageBytes()`)
+- `lib/features/settings/providers/settings_providers.dart` (new
+  `storageUsageProvider`)
+- `lib/features/settings/screens/settings_screen.dart` (Diagnostics
+  section; updated reset-progress copy)
+- `lib/features/audio/widgets/audio_button.dart`,
+  `lib/features/search/widgets/search_bar_field.dart` (tooltips)
+- `lib/features/analytics/screens/analytics_screen.dart`,
+  `lib/features/analytics/widgets/script_summary_card.dart` (token fixes)
+- 15 files adopting `LoadingIndicator` (`kanji_screen.dart`,
+  `katakana_screen.dart`, `hiragana_screen.dart`,
+  `features/practice/learning_screen.dart`, `settings_screen.dart`,
+  `review_screen.dart`, `search_screen.dart`, `achievements_screen.dart`,
+  `dashboard_screen.dart`, `practice_home_screen.dart`,
+  `practice_session_screen.dart`, `analytics_screen.dart`)
+- `lib/features/quiz/screens/practice_home_screen.dart` (responsive card
+  width)
+- `lib/features/quiz/widgets/answer_option.dart`,
+  `lib/features/achievements/widgets/achievement_card.dart` (animations)
+- `lib/features/dashboard/screens/dashboard_screen.dart` (settings
+  navigation icon)
+- `pubspec.yaml` (adds `dev_dependencies: flutter_test`)
+- `README.md` (full rewrite)
+- `PROJECT_RULES.md` (Hive-boxes list fix only)
+
 ## Next Required Action
 
-None. All 18 milestones to date are complete, `flutter analyze` is clean,
-and the full app (dashboard, all three scripts, review mode, achievements,
-settings, audio, search, practice/quiz, analytics) is verified working
-end-to-end on device, including a real file-based CSV/JSON export. Do not
-start Milestone 19 or any new feature until the user explicitly requests
-it and defines its scope.
+None. All 19 milestones to date are complete, `flutter analyze` is clean,
+`flutter test` passes (36/36), and the full app is verified working
+end-to-end on device, now including a real Settings→Diagnostics path,
+clamped text scaling, and animated quiz/achievement feedback. Do not start
+Milestone 20 or any new feature until the user explicitly requests it and
+defines its scope.
 
-Known open item (not a bug, not blocking): there is still no navigation
-entry point from the Dashboard to `/settings` — the route and screen exist
-and work when reached directly, but nothing in the UI links to it yet.
+No known open items. The previously-tracked gap (no Dashboard navigation
+entry point to `/settings`) was fixed in Milestone 19.

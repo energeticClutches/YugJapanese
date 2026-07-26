@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 
+import '../../../core/utils/safe_parse.dart';
 import '../models/analytics_snapshot.dart';
 import 'analytics_repository.dart';
 
@@ -17,7 +18,7 @@ class HiveAnalyticsRepository implements AnalyticsRepository {
     if (value is! Map) {
       return null;
     }
-    return AnalyticsSnapshot.fromMap(Map<String, dynamic>.from(value));
+    return safeParse(value, AnalyticsSnapshot.fromMap);
   }
 
   @override

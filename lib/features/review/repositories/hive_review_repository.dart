@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 
+import '../../../core/utils/safe_parse.dart';
 import '../models/review_item.dart';
 import 'review_repository.dart';
 
@@ -14,9 +15,8 @@ class HiveReviewRepository implements ReviewRepository {
   Future<List<ReviewItem>> getAllReviews() async {
     return _box.values
         .whereType<Map>()
-        .map(
-          (Map value) => ReviewItem.fromMap(Map<String, dynamic>.from(value)),
-        )
+        .map((Map value) => safeParse(value, ReviewItem.fromMap))
+        .whereType<ReviewItem>()
         .toList(growable: false);
   }
 
@@ -26,7 +26,7 @@ class HiveReviewRepository implements ReviewRepository {
     if (value is! Map) {
       return null;
     }
-    return ReviewItem.fromMap(Map<String, dynamic>.from(value));
+    return safeParse(value, ReviewItem.fromMap);
   }
 
   @override

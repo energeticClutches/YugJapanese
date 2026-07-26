@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 
+import '../../../core/utils/safe_parse.dart';
 import '../models/practice_result.dart';
 import 'practice_repository.dart';
 
@@ -14,10 +15,8 @@ class HivePracticeRepository implements PracticeRepository {
   Future<List<PracticeResult>> getAllResults() async {
     return _box.values
         .whereType<Map>()
-        .map(
-          (Map value) =>
-              PracticeResult.fromMap(Map<String, dynamic>.from(value)),
-        )
+        .map((Map value) => safeParse(value, PracticeResult.fromMap))
+        .whereType<PracticeResult>()
         .toList(growable: false);
   }
 

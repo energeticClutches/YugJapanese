@@ -29,6 +29,7 @@ class AppSearchBar extends StatelessWidget {
             ? null
             : IconButton(
                 icon: const Icon(Icons.clear),
+                tooltip: 'Clear search',
                 onPressed: () {
                   controller.clear();
                   onChanged('');

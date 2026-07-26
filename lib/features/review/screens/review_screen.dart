@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../repositories/content_repository_factory.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/loading_indicator.dart';
 import '../models/review_item.dart';
 import '../providers/review_providers.dart';
 import '../widgets/empty_review_state.dart';
@@ -64,7 +65,7 @@ class ReviewScreen extends ConsumerWidget {
         data: (List<ReviewItem> items) => items.isEmpty
             ? const EmptyReviewState()
             : _ReviewList(items: items),
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingIndicator(),
         error: (Object error, StackTrace stackTrace) =>
             const EmptyReviewState(),
       ),
@@ -86,7 +87,7 @@ class _ReviewList extends StatelessWidget {
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
+          return const LoadingIndicator();
         }
 
         final List<_ReviewDisplayInfo> resolved = snapshot.data!;

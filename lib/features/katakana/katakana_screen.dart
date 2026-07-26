@@ -7,6 +7,7 @@ import '../../models/lesson_model.dart';
 import '../../repositories/katakana_repository.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/lesson_card.dart';
+import '../../shared/widgets/loading_indicator.dart';
 import '../progress/models/lesson_progress.dart';
 import '../progress/providers/progress_providers.dart';
 import '../progress/services/progress_controller.dart';
@@ -43,7 +44,7 @@ class _KatakanaScreenState extends ConsumerState<KatakanaScreen> {
         builder:
             (BuildContext context, AsyncSnapshot<List<LessonModel>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingIndicator();
           }
 
           final List<LessonModel> lessons =

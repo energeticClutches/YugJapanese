@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/loading_indicator.dart';
 import '../models/app_settings.dart';
 import '../providers/settings_providers.dart';
 import '../services/settings_controller.dart';
@@ -103,7 +104,7 @@ class SettingsScreen extends ConsumerWidget {
     return AppScaffold(
       appBar: AppBar(title: const Text('Settings')),
       child: !controller.isReady
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingIndicator()
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,13 +224,13 @@ class SettingsScreen extends ConsumerWidget {
                   DangerZoneCard(
                     title: 'Reset progress',
                     description:
-                        'Erases all lesson progress, review schedules, and achievements. This cannot be undone.',
+                        'Erases all lesson progress, review schedules, achievements, practice history, and analytics. This cannot be undone.',
                     actionLabel: 'Reset',
                     onPressed: () => _confirmAndRun(
                       context,
                       title: 'Reset progress?',
                       message:
-                          'This permanently deletes all lesson progress, review schedules, and achievements.',
+                          'This permanently deletes all lesson progress, review schedules, achievements, practice history, and analytics.',
                       confirmLabel: 'Reset',
                       action: controller.resetAllProgress,
                       successMessage: 'Progress has been reset.',
@@ -280,9 +281,55 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl),
+                  Text(
+                    'Diagnostics',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Consumer(
+                    builder: (BuildContext context, WidgetRef ref, _) {
+                      final AsyncValue<int> storageAsync =
+                          ref.watch(storageUsageProvider);
+                      return SettingsTile(
+                        title: 'Storage usage',
+                        subtitle: storageAsync.when(
+                          data: (int bytes) => _formatBytes(bytes),
+                          loading: () => 'Calculating…',
+                          error: (Object error, StackTrace stackTrace) =>
+                              'Unavailable',
+                        ),
+                        leading: Icons.storage_outlined,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsTile(
+                    title: 'Licenses',
+                    subtitle: 'Open-source software used in this app',
+                    leading: Icons.description_outlined,
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => showLicensePage(
+                      context: context,
+                      applicationName: 'Japanese Learning',
+                      applicationVersion: '$_appVersion (build $_appBuildNumber)',
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
                 ],
               ),
             ),
     );
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) {
+      return '$bytes B';
+    }
+    final double kb = bytes / 1024;
+    if (kb < 1024) {
+      return '${kb.toStringAsFixed(1)} KB';
+    }
+    final double mb = kb / 1024;
+    return '${mb.toStringAsFixed(1)} MB';
   }
 }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../repositories/content_repository_factory.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/loading_indicator.dart';
 import '../models/practice_mode.dart';
 import '../models/practice_statistics.dart';
 import '../providers/practice_providers.dart';
@@ -55,7 +56,7 @@ class _PracticeHomeScreenState extends ConsumerState<PracticeHomeScreen> {
                 listeningAvailable: listeningAvailableAsync.asData?.value ?? true,
                 onSelect: (PracticeMode mode) => _startMode(context, mode),
               ),
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const LoadingIndicator(),
               error: (Object error, StackTrace stackTrace) => _ModeGrid(
                 statistics: PracticeStatistics.empty,
                 listeningAvailable: listeningAvailableAsync.asData?.value ?? true,
@@ -88,25 +89,35 @@ class _ModeGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.md,
-      runSpacing: AppSpacing.md,
-      children: [
-        for (final PracticeMode mode in PracticeGenerator.catalog)
-          SizedBox(
-            width: 320,
-            child: PracticeCard(
-              mode: mode,
-              enabled: mode.id != 'listening' || listeningAvailable,
-              disabledReason: mode.id == 'listening' && !listeningAvailable
-                  ? 'Not enough audio available yet.'
-                  : null,
-              bestScore: statistics.bestScoreByMode[mode.id],
-              lastPlayed: statistics.lastPlayedByMode[mode.id],
-              onTap: () => onSelect(mode),
-            ),
-          ),
-      ],
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        // Cap at 320 for a tidy multi-column grid on wide screens, but
+        // shrink to fit on narrow phones instead of leaving near-zero
+        // margin (`SizedBox(width: 320)` was tight on a 360dp phone).
+        final double cardWidth = constraints.maxWidth < 320
+            ? constraints.maxWidth
+            : 320;
+        return Wrap(
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.md,
+          children: [
+            for (final PracticeMode mode in PracticeGenerator.catalog)
+              SizedBox(
+                width: cardWidth,
+                child: PracticeCard(
+                  mode: mode,
+                  enabled: mode.id != 'listening' || listeningAvailable,
+                  disabledReason: mode.id == 'listening' && !listeningAvailable
+                      ? 'Not enough audio available yet.'
+                      : null,
+                  bestScore: statistics.bestScoreByMode[mode.id],
+                  lastPlayed: statistics.lastPlayedByMode[mode.id],
+                  onTap: () => onSelect(mode),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

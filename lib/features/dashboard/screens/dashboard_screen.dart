@@ -6,6 +6,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../repositories/content_repository_factory.dart';
 import '../../../shared/widgets/app_scaffold.dart';
 import '../../../shared/widgets/feature_card.dart';
+import '../../../shared/widgets/loading_indicator.dart';
 import '../../achievements/models/achievement.dart';
 import '../../achievements/models/achievement_progress.dart';
 import '../../achievements/models/streak_info.dart';
@@ -255,6 +256,16 @@ class DashboardScreen extends ConsumerWidget {
         ref.watch(learningAnalyticsProvider);
 
     return AppScaffold(
+      appBar: AppBar(
+        title: const SizedBox.shrink(),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Settings',
+            onPressed: () => context.go('/settings'),
+          ),
+        ],
+      ),
       child: statisticsAsync.when(
         data: (LearningStatistics statistics) => _DashboardContent(
           statistics: statistics,
@@ -267,7 +278,7 @@ class DashboardScreen extends ConsumerWidget {
           practiceResultsAsync: practiceResultsAsync,
           analyticsAsync: analyticsAsync,
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingIndicator(),
         error: (Object error, StackTrace stackTrace) => _DashboardContent(
           statistics: LearningStatistics.empty,
           dueReviewsAsync: dueReviewsAsync,

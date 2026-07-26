@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/loading_indicator.dart';
 import '../models/achievement.dart';
 import '../models/achievement_progress.dart';
 import '../models/streak_info.dart';
@@ -60,7 +61,7 @@ class AchievementsScreen extends ConsumerWidget {
               data: (List<AchievementProgress> progress) =>
                   AchievementGrid(items: _toGridItems(progress)),
               loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+                  const LoadingIndicator(),
               error: (Object error, StackTrace stackTrace) =>
                   AchievementGrid(items: _toGridItems(const <AchievementProgress>[])),
             ),

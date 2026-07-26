@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/loading_indicator.dart';
 import '../models/practice_question.dart';
 import '../models/practice_session.dart';
 import '../providers/practice_providers.dart';
@@ -68,7 +69,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
     final PracticeSession? session = service.currentSession;
 
     if (service.isGenerating || session == null) {
-      return const AppScaffold(child: Center(child: CircularProgressIndicator()));
+      return const AppScaffold(child: LoadingIndicator());
     }
 
     if (session.questions.isEmpty) {
@@ -98,7 +99,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
           }
         });
       }
-      return const AppScaffold(child: Center(child: CircularProgressIndicator()));
+      return const AppScaffold(child: LoadingIndicator());
     }
 
     final PracticeQuestion question = session.currentQuestion!;

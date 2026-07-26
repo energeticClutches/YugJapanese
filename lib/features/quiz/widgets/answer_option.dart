@@ -38,25 +38,29 @@ class AnswerOption extends StatelessWidget {
         break;
     }
 
-    return Material(
-      color: fillColor ?? colorScheme.surface,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        color: fillColor ?? colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.medium),
-        side: BorderSide(color: borderColor),
+        border: Border.all(color: borderColor),
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.medium),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
-          ),
-          child: Text(
-            label,
-            style: AppTypography.body,
-            textAlign: TextAlign.center,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppRadius.medium),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            child: Text(
+              label,
+              style: AppTypography.body,
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),

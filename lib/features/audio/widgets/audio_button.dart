@@ -71,6 +71,11 @@ class _AudioButtonState extends ConsumerState<AudioButton> {
         final bool resolved = snapshot.connectionState == ConnectionState.done;
         final bool available = snapshot.data != null;
         final bool enabled = soundEnabled && resolved && available;
+        final String label = _label(
+          resolved: resolved,
+          available: available,
+          soundEnabled: soundEnabled,
+        );
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -84,6 +89,7 @@ class _AudioButtonState extends ConsumerState<AudioButton> {
                         type: widget.type,
                       )
                   : null,
+              tooltip: label,
               icon: PlaybackIndicator(
                 isLoading: isThisLoading,
                 isPlaying: isThisPlaying,
@@ -92,11 +98,7 @@ class _AudioButtonState extends ConsumerState<AudioButton> {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              _label(
-                resolved: resolved,
-                available: available,
-                soundEnabled: soundEnabled,
-              ),
+              label,
               style: Theme.of(context).textTheme.labelSmall,
             ),
           ],

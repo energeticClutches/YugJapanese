@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../repositories/content_repository_factory.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/loading_indicator.dart';
 import '../../dashboard/models/learning_statistics.dart';
 import '../../dashboard/providers/dashboard_providers.dart';
 import '../models/search_result.dart';
@@ -147,7 +148,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             onResultTap: _openResult,
                           ),
                     loading: () =>
-                        const Center(child: CircularProgressIndicator()),
+                        const LoadingIndicator(),
                     error: (Object error, StackTrace stackTrace) =>
                         const EmptySearchState(
                           message: 'Something went wrong while searching.',

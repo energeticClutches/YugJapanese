@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 
+import '../../../core/utils/safe_parse.dart';
 import '../models/achievement_progress.dart';
 import 'achievement_repository.dart';
 
@@ -14,10 +15,8 @@ class HiveAchievementRepository implements AchievementRepository {
   Future<List<AchievementProgress>> getAllProgress() async {
     return _box.values
         .whereType<Map>()
-        .map(
-          (Map value) =>
-              AchievementProgress.fromMap(Map<String, dynamic>.from(value)),
-        )
+        .map((Map value) => safeParse(value, AchievementProgress.fromMap))
+        .whereType<AchievementProgress>()
         .toList(growable: false);
   }
 
@@ -27,7 +26,7 @@ class HiveAchievementRepository implements AchievementRepository {
     if (value is! Map) {
       return null;
     }
-    return AchievementProgress.fromMap(Map<String, dynamic>.from(value));
+    return safeParse(value, AchievementProgress.fromMap);
   }
 
   @override

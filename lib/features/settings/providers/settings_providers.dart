@@ -17,3 +17,10 @@ final settingsServiceProvider = Provider<SettingsService>(
 final currentSettingsProvider = ChangeNotifierProvider<SettingsController>(
   (Ref ref) => SettingsController(ref.watch(settingsServiceProvider)),
 );
+
+final storageUsageProvider = FutureProvider<int>(
+  (Ref ref) async {
+    ref.watch(currentSettingsProvider);
+    return ref.watch(settingsServiceProvider).getStorageUsageBytes();
+  },
+);

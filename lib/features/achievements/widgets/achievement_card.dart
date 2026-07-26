@@ -25,7 +25,7 @@ class AchievementCard extends StatelessWidget {
     final Color foreground =
         isUnlocked ? colorScheme.primary : AppColors.textSecondary;
 
-    return Material(
+    final Widget card = Material(
       color: colorScheme.surface,
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -49,6 +49,22 @@ class AchievementCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+
+    if (!isUnlocked) {
+      return card;
+    }
+
+    // Brief scale-in for unlocked achievements only, to draw the eye
+    // without an app-wide animation pass.
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.85, end: 1),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutBack,
+      builder: (BuildContext context, double scale, Widget? child) {
+        return Transform.scale(scale: scale, child: child);
+      },
+      child: card,
     );
   }
 }
