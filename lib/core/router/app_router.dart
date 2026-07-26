@@ -14,6 +14,7 @@ import '../../features/quiz/screens/practice_results_screen.dart';
 import '../../features/quiz/screens/practice_session_screen.dart';
 import '../../features/review/screens/review_screen.dart';
 import '../../features/search/screens/search_screen.dart';
+import '../../features/settings/screens/legal_document_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
 import '../../repositories/content_repository_factory.dart';
 
@@ -76,6 +77,30 @@ final GoRouter appRouter = GoRouter(
       path: '/settings',
       builder: (BuildContext context, GoRouterState state) =>
           const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/legal/privacy',
+      builder: (BuildContext context, GoRouterState state) =>
+          const LegalDocumentScreen(
+        title: 'Privacy Policy',
+        assetPath: 'PRIVACY_POLICY.md',
+      ),
+    ),
+    GoRoute(
+      path: '/legal/terms',
+      builder: (BuildContext context, GoRouterState state) =>
+          const LegalDocumentScreen(
+        title: 'Terms of Use',
+        assetPath: 'TERMS_OF_USE.md',
+      ),
+    ),
+    GoRoute(
+      path: '/legal/credits',
+      builder: (BuildContext context, GoRouterState state) =>
+          const LegalDocumentScreen(
+        title: 'Credits & Attribution',
+        assetPath: 'CREDITS.md',
+      ),
     ),
     GoRoute(
       path: '/search',

@@ -32,6 +32,17 @@ Future<void> main() async {
 /// recreating it empty instead of letting a single bad box crash the whole
 /// app at launch. All boxes are independent, so they open in parallel via
 /// [Future.wait] in [main] rather than sequentially.
+///
+/// M20 A/B-tested that choice on the Android emulator with profile builds,
+/// five cold starts each: parallel came in at a ~3.8s median and
+/// sequential at ~3.8s — no measurable difference. Cold box opening costs
+/// ~3.4–5.3s either way and dominates startup, so it is emulator disk I/O,
+/// not the concurrency strategy. (An early measurement suggesting
+/// sequential was dramatically faster turned out to be a warm-page-cache
+/// artifact — the sequential pass had run second in the same process.)
+/// Don't re-litigate parallel vs sequential here; if startup needs to get
+/// faster, the lever is opening fewer boxes eagerly, e.g. deferring the
+/// analytics/practice boxes until those screens are first opened.
 Future<void> _openBoxSafely(String boxName) async {
   try {
     await Hive.openBox<dynamic>(boxName);

@@ -7,13 +7,31 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
 
 ## Current State (read this first in a new session)
 
-- **Last completed milestone: 19 (Polish, Accessibility & Performance).**
-  Fully implemented, `flutter analyze` clean, `flutter test` passing
-  (36/36), verified end-to-end on an Android emulator (API 37,
-  `emulator-5554`). No open work, no known bugs. See the M19 log entry
-  for the full list of what was in scope vs. explicitly deferred (multi-
-  device testing, lint rules, `integration_test` package) — this was a
-  broad 12-area polish pass, not a bounded feature.
+- **Last completed milestone: 20 (Production Release v1.0).** The app is
+  at version `1.0.0+1`, `flutter analyze` clean, `flutter test` passing
+  (36/36), and both `flutter build apk --release` and `flutter build
+  appbundle` succeed. Verified end-to-end from a clean install against a
+  **release build** on an Android emulator (API 37, `emulator-5554`). No
+  known bugs. Remaining open items are **release blockers, not defects**,
+  and live in `RELEASE_CHECKLIST.md` — chiefly: release builds are
+  intentionally debug-signed (no production keystore exists yet), the
+  launcher icon and splash are placeholder artwork, and startup
+  performance and tablet layouts are unverified on physical hardware.
+- **Android application ID is `com.energeticclutches.yugjapanese`** (M20,
+  renamed from the `com.example.japanese_learning` placeholder). Display
+  name is "YugJapanese". Note this means a device with a pre-M20 build
+  installed will keep it as a *separate* app with separate data.
+- **Startup cost is dominated by the first cold open of the 8 Hive
+  boxes** (~3.4–5.3s on the emulator). M20 A/B-tested parallel vs
+  sequential opening and found no difference — do not "optimize" that
+  again without measuring; see `_openBoxSafely`'s comment. M19's claim
+  that parallelizing gave "roughly 8x" less latency was unmeasured and is
+  now corrected in that entry.
+- **Docs at the repository root:** `CHANGELOG.md`, `RELEASE_CHECKLIST.md`,
+  `PRIVACY_POLICY.md`, `TERMS_OF_USE.md`, `CREDITS.md`. The three legal
+  files are bundled as assets and rendered in-app by
+  `LegalDocumentScreen` (Settings → Legal), so edit the root file and the
+  in-app copy follows automatically.
 - **Content:** Hiragana (5 vowels, 1 lesson), Katakana (46 characters, 10
   lessons), and Kanji (79 JLPT N5 / Grade-1 kyōiku characters, 8 lessons) all
   have real content and are fully enabled end-to-end (learning flow,
@@ -1353,8 +1371,14 @@ plus what was deliberately deferred and why.
   M17, now lists all 8.
 - **Performance/startup**: the 8 `Hive.openBox` calls in `main.dart` were
   sequential; they're now a single `Future.wait([...])` (combined with the
-  corrupted-box recovery above) — roughly 8x less sequential latency in
-  that startup phase. `dashboard_screen.dart`'s weekly-summary helper no
+  corrupted-box recovery above) — claimed at the time to be roughly 8x
+  less sequential latency in that startup phase. **This claim was wrong
+  and was corrected in M20**: the change was never measured here, and M20's
+  A/B test on device found parallel and sequential box opening to be
+  indistinguishable (~3.8s median either way). The cost is cold disk I/O,
+  not the concurrency strategy. The `Future.wait` was left in place because
+  it is no worse; see the M20 entry and the comment on `_openBoxSafely`.
+  `dashboard_screen.dart`'s weekly-summary helper no
   longer implicitly re-derives "now" on every call path.
 - **Accessibility**: only one `Tooltip` existed anywhere in the app before
   this milestone. `AudioButton` (icon-only) now has a `tooltip` matching
@@ -1558,14 +1582,158 @@ the real data accumulated across M17/M18's testing.
 - `README.md` (full rewrite)
 - `PROJECT_RULES.md` (Hive-boxes list fix only)
 
+## Milestone 20: Production Release (v1.0)
+
+Implemented and verified against a **release build** on device. This was a
+stabilization milestone, not a feature milestone: release configuration,
+branding, legal documents, data-integrity and asset verification, a full
+application audit, performance measurement, release-build validation, and
+release documentation. Three decisions were confirmed with the user before
+planning (application ID, signing strategy, icon/splash approach).
+
+- **Release configuration**: `pubspec.yaml` version bumped `0.1.0+1` →
+  `1.0.0+1`. The Android `applicationId` and `namespace` moved from the
+  Flutter placeholder `com.example.japanese_learning` to
+  `com.energeticclutches.yugjapanese`; `MainActivity.kt` was moved
+  (`git mv`) to the matching package directory and its `package`
+  declaration updated; the now-empty `com/example/` directories were
+  removed. `AndroidManifest.xml`'s `android:label` changed from the raw
+  `japanese_learning` to `YugJapanese`. A grep sweep confirms **zero**
+  remaining `com.example` references anywhere in the project.
+  `compileSdk`/`minSdk`/`targetSdk`/`versionCode`/`versionName` are all
+  derived from `flutter.*` and needed no change. Verified by building and
+  installing before moving on — a fresh install under the new ID starts
+  with empty progress, as expected for what Android treats as a different
+  app.
+- **Signing (deliberately deferred)**: release builds still use the debug
+  signing config, per the user's explicit instruction not to generate a
+  production keystore in this milestone. The former `TODO` comment in
+  `build.gradle.kts` was replaced with a note stating this is intentional
+  for v1.0 and pointing at `RELEASE_CHECKLIST.md`, which documents the
+  full production-signing procedure as a release blocker. **No keystore or
+  signing credentials were created.**
+- **Branding (Android only)**: added `flutter_launcher_icons` and
+  `flutter_native_splash` as dev dependencies — the only dependency
+  additions this milestone. Placeholder artwork was generated
+  programmatically (a torii-gate silhouette drawn with PIL primitives, in
+  the existing `AppColors` palette — no copyrighted material, no traced
+  logo) into `assets/branding/`: `app_icon.png` (opaque), 
+  `app_icon_foreground.png` (transparent, sized inside Android's ~66%
+  adaptive-icon safe zone), and `splash_logo.png`. Both generators were
+  run; all Android mipmap densities, adaptive-icon XML, `colors.xml`, and
+  light/dark splash drawables and styles are generated. Verified on device:
+  the icon renders correctly on the home screen and the splash displays
+  before the dashboard.
+  - **iOS was dropped from this milestone.** The user's original
+    instruction asked for iOS icons and splash screens, but this project
+    has no `ios/` directory and has been Android-only throughout. Rather
+    than scaffold a new platform target as a side effect of a branding
+    task, the conflict was raised and the user confirmed: Android now,
+    iOS "in the near future". `flutter_launcher_icons`/
+    `flutter_native_splash` are configured with `ios: false`.
+- **Legal**: new `PRIVACY_POLICY.md`, `TERMS_OF_USE.md`, and `CREDITS.md`
+  at the repository root, reachable in-app from a new **Settings → Legal**
+  section. Rather than duplicating the text into Dart string literals,
+  the Markdown files themselves are bundled as assets and rendered by a
+  new `LegalDocumentScreen` — the repository copy and the in-app copy are
+  the same file and cannot drift. It uses a small purpose-built renderer
+  (`_MarkdownText`, ~60 lines) covering headings, bullets, and bold; no
+  Markdown package was added, since none is on the approved list. The
+  first on-device check caught a real defect — the source files' 72-column
+  hard wraps were rendering as literal line breaks, so paragraphs broke
+  mid-sentence — fixed by re-joining wrapped lines into paragraphs before
+  layout, and re-verified.
+- **About / version**: `SettingsScreen`'s hardcoded `0.1.0` version
+  constants updated to `1.0.0`, app name to `YugJapanese`, and the About
+  dialog now carries the MIT license line and a real description.
+- **Asset verification**: audited every asset path referenced by the
+  lesson JSON (112 paths) against `pubspec.yaml` and the filesystem. 5
+  exist (the Hiragana vowel recordings); the other 107 are audio paths
+  referenced ahead of recording. These resolve to `null` through
+  `LocalAudioRepository`'s existence check and simply hide the play
+  button — confirmed by design, not a bug, and now documented in
+  `CHANGELOG.md` as a known limitation.
+- **Data integrity**: verified fresh install, upgrade-over-existing-install
+  (release APK installed over the prior build, data preserved), and
+  persistence across a full `force-stop` + cold restart — "Lessons In
+  Progress" 0 → 1 and the dashboard CTA "Start Learning" → "Continue"
+  both survived. Quiz results persisted too ("Best: 20% · Last played
+  7/26/2026" on the mode card after a restart).
+- **Full application audit** (release build, clean install): Dashboard,
+  Search (all three scripts, live filtering, result → correct character
+  navigation), Learning flow, Audio playback (confirmed via AudioTrack
+  frames delivered, no errors), Practice/quiz (a complete 10-question
+  Recognition session, scored and timed, with mistakes feeding "Areas to
+  Review"), Analytics (completion, per-script breakdown, live streak),
+  Settings (all groups + Diagnostics), and the new Legal screens. No
+  uncaught exceptions in logcat across the entire walkthrough.
+- **Performance — and a corrected M19 claim**: cold start measures
+  ~3.5–5.3s on the x86 emulator. Instrumenting a profile build showed
+  `Hive.initFlutter()` costs ~30–70ms while the **first cold open of the 8
+  boxes costs ~3.4–5.3s** — nearly all of startup. An initial experiment
+  appeared to show sequential opening was ~9x faster than the `Future.wait`
+  introduced in M19, but that measurement was flawed: the sequential pass
+  ran second in the same process, on a warm page cache. A proper A/B
+  (separate builds, five cold starts each) found **no meaningful
+  difference** — parallel ~3.8s median, sequential ~3.8s median. So M19's
+  "roughly 8x less sequential latency" claim was never true; it was
+  asserted without measurement. The M19 entry above has been corrected.
+  The `Future.wait` was left in place (it is no worse), and
+  `_openBoxSafely`'s doc comment now records the measurement so this isn't
+  re-litigated. The real lever, if startup needs to improve, is opening
+  fewer boxes eagerly. Startup on physical hardware has **not** been
+  measured and is listed as a release blocker.
+- **Release build validation**: `flutter analyze` clean, `flutter test`
+  36/36 passing, `flutter build apk --release` succeeds (52.2 MB), and
+  `flutter build appbundle` succeeds (50.9 MB) — both debug-signed. Builds
+  emit a benign `cupertino_icons` font warning that originates from
+  Flutter's bundled Cupertino widgets, not from app code (no
+  `CupertinoIcons` reference exists in `lib/`); adding the package would
+  silence it but is pointless for an Android-only Material 3 app, so it was
+  left alone and documented.
+- **Documentation**: new `CHANGELOG.md` (v1.0.0 entry plus a feature
+  history of M1–M19 and a known-limitations list) and new
+  `RELEASE_CHECKLIST.md` (code quality, functionality, UI, and release
+  sections, plus an explicit "deferred — required before publishing" list
+  covering the production keystore, replacing placeholder branding,
+  physical-device/tablet testing, store assets, and iOS support).
+
+### Files touched (Milestone 20)
+
+- `pubspec.yaml` (version `1.0.0+1`; `flutter_launcher_icons` +
+  `flutter_native_splash` dev deps and their config; legal Markdown files
+  registered as assets)
+- `android/app/build.gradle.kts` (applicationId + namespace; signing
+  comment)
+- `android/app/src/main/AndroidManifest.xml` (`android:label`)
+- `android/app/src/main/kotlin/com/energeticclutches/yugjapanese/MainActivity.kt`
+  (moved from `com/example/japanese_learning/`; package declaration)
+- `android/app/src/main/res/**` (generated icons, adaptive-icon XML,
+  `colors.xml`, splash drawables and styles — light and dark)
+- `assets/branding/app_icon.png`, `app_icon_foreground.png`,
+  `splash_logo.png` (new)
+- `lib/features/settings/screens/legal_document_screen.dart` (new)
+- `lib/core/router/app_router.dart` (`/legal/privacy`, `/legal/terms`,
+  `/legal/credits` routes)
+- `lib/features/settings/screens/settings_screen.dart` (version/name
+  constants, About copy, new Legal section)
+- `lib/main.dart` (comment only — records the startup A/B measurement)
+- `PRIVACY_POLICY.md`, `TERMS_OF_USE.md`, `CREDITS.md`, `CHANGELOG.md`,
+  `RELEASE_CHECKLIST.md` (new)
+- `PROJECT_LOG.md` (this entry; M19 performance claim corrected)
+
 ## Next Required Action
 
-None. All 19 milestones to date are complete, `flutter analyze` is clean,
-`flutter test` passes (36/36), and the full app is verified working
-end-to-end on device, now including a real Settings→Diagnostics path,
-clamped text scaling, and animated quiz/achievement feedback. Do not start
-Milestone 20 or any new feature until the user explicitly requests it and
-defines its scope.
+None. All 20 milestones are complete. The app is at v1.0.0, `flutter
+analyze` is clean, `flutter test` passes (36/36), and both the release APK
+and the App Bundle build and have been verified end-to-end on device from
+a clean install. Do not start post-release work, v1.1 planning, or Play
+Store submission until the user explicitly requests it and defines scope.
 
-No known open items. The previously-tracked gap (no Dashboard navigation
-entry point to `/settings`) was fixed in Milestone 19.
+**Open items are release blockers, not bugs**, and are tracked in
+`RELEASE_CHECKLIST.md`: a production upload keystore must be created
+(release builds are intentionally debug-signed today), the placeholder
+launcher icon and splash artwork should be replaced with real branding,
+startup performance and tablet/landscape layouts need verification on
+physical hardware, store assets are not started, and iOS platform support
+is deferred to a future milestone.

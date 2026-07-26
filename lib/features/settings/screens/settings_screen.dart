@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_scaffold.dart';
@@ -13,7 +14,9 @@ import '../widgets/settings_section.dart';
 import '../widgets/settings_switch_tile.dart';
 import '../widgets/settings_tile.dart';
 
-const String _appVersion = '0.1.0';
+/// Keep these in sync with `version:` in `pubspec.yaml`.
+const String _appName = 'YugJapanese';
+const String _appVersion = '1.0.0';
 const String _appBuildNumber = '1';
 
 String _themeModeLabel(AppThemeMode mode) {
@@ -264,21 +267,55 @@ class SettingsScreen extends ConsumerWidget {
                       children: [
                         AboutListTile(
                           icon: const Icon(Icons.info_outline),
-                          applicationName: 'Japanese Learning',
+                          applicationName: _appName,
                           applicationVersion:
                               '$_appVersion (build $_appBuildNumber)',
                           applicationLegalese:
-                              '© ${DateTime.now().year} Japanese Learning',
+                              '© ${DateTime.now().year} energeticClutches. '
+                              'Released under the MIT License.',
                           aboutBoxChildren: const [
                             SizedBox(height: AppSpacing.md),
                             Text(
-                              'Built with Flutter, Riverpod, and Google Fonts.',
+                              'An offline-first Japanese learning app for '
+                              'Hiragana, Katakana, and Kanji.\n\n'
+                              'Built with Flutter, Riverpod, Hive, and '
+                              'Noto Sans JP via Google Fonts. See Credits & '
+                              'Attribution for the full list.',
                             ),
                           ],
                           child: const Text('About'),
                         ),
                       ],
                     ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  Text(
+                    'Legal',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsTile(
+                    title: 'Privacy Policy',
+                    subtitle: 'How your data is handled (spoiler: it stays here)',
+                    leading: Icons.privacy_tip_outlined,
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/legal/privacy'),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsTile(
+                    title: 'Terms of Use',
+                    subtitle: 'Usage terms and license',
+                    leading: Icons.gavel_outlined,
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/legal/terms'),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsTile(
+                    title: 'Credits & Attribution',
+                    subtitle: 'Open-source software and assets used',
+                    leading: Icons.favorite_outline,
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/legal/credits'),
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
@@ -310,7 +347,7 @@ class SettingsScreen extends ConsumerWidget {
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => showLicensePage(
                       context: context,
-                      applicationName: 'Japanese Learning',
+                      applicationName: _appName,
                       applicationVersion: '$_appVersion (build $_appBuildNumber)',
                     ),
                   ),

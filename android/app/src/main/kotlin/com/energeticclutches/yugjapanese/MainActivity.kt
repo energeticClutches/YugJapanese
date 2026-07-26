@@ -1,4 +1,4 @@
-package com.example.japanese_learning
+package com.energeticclutches.yugjapanese
 
 import io.flutter.embedding.android.FlutterActivity
 

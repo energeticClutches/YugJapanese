@@ -5,6 +5,15 @@ Hiragana, Katakana, and Kanji — with guided lessons, spaced-repetition
 review, six practice/quiz modes, achievements, and a learning-analytics
 dashboard. No account, no cloud, no network access required.
 
+**Version 1.0.0** · Android · application ID
+`com.energeticclutches.yugjapanese` · MIT licensed.
+
+Release builds are currently signed with the debug key and the launcher
+icon/splash are placeholder artwork — see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md)
+for what must be done before publishing. Other docs:
+[CHANGELOG.md](CHANGELOG.md), [PRIVACY_POLICY.md](PRIVACY_POLICY.md),
+[TERMS_OF_USE.md](TERMS_OF_USE.md), [CREDITS.md](CREDITS.md).
+
 ## Features
 
 - **Guided lessons** for Hiragana, Katakana, and JLPT N5 Kanji, with
@@ -163,6 +172,17 @@ pronunciation** (see `PROJECT_RULES.md`'s "Audio asset honesty" rule).
   beyond a single phone emulator profile; tablet layouts are reasoned
   about via the shared `AppScaffold` 960dp content cap, not verified on
   real tablet hardware.
+- **Cold start is slow on the emulator** (~3.5–5.3s), almost entirely due
+  to the first cold open of the 8 Hive boxes. This was measured and
+  A/B-tested in M20; opening the boxes concurrently versus sequentially
+  makes no difference, so it is disk I/O rather than the concurrency
+  strategy. Physical hardware is expected to be much faster but has not
+  been measured. If it needs to improve, the lever is opening fewer boxes
+  eagerly rather than changing how they are awaited.
+- Progress import/export from Settings is stubbed; analytics CSV/JSON
+  export does work. "Larger writing area" in Accessibility is not yet
+  implemented.
+- Android only — there is no `ios/` platform target yet.
 
 See `PROJECT_LOG.md` for the full milestone-by-milestone build history and
 `PROJECT_RULES.md` for the enforced architectural conventions.
