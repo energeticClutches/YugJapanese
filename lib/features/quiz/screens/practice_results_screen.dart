@@ -26,7 +26,7 @@ class PracticeResultsScreen extends ConsumerWidget {
               const Text('No completed session yet.'),
               const SizedBox(height: AppSpacing.md),
               FilledButton(
-                onPressed: () => context.go('/quiz'),
+                onPressed: () => _returnToPracticeHome(context),
                 child: const Text('Return to Practice'),
               ),
             ],
@@ -100,18 +100,18 @@ class PracticeResultsScreen extends ConsumerWidget {
               runSpacing: AppSpacing.md,
               children: [
                 OutlinedButton(
-                  onPressed: () => context.go('/quiz'),
+                  onPressed: () => _returnToPracticeHome(context),
                   child: const Text('Return Home'),
                 ),
                 if (hasMistakes)
                   OutlinedButton(
-                    onPressed: () => context.go(
+                    onPressed: () => context.push(
                       '/quiz/play?mode=${result.modeId}&items=${result.incorrectItemIds.join(',')}',
                     ),
                     child: const Text('Review Mistakes'),
                   ),
                 FilledButton(
-                  onPressed: () => context.go(
+                  onPressed: () => context.push(
                     '/quiz/play?mode=${result.modeId}&scripts=${result.contentIds.join(',')}&length=${result.totalQuestions}',
                   ),
                   child: const Text('Retry'),
@@ -129,5 +129,17 @@ class PracticeResultsScreen extends ConsumerWidget {
     final int minutes = duration.inMinutes;
     final int seconds = duration.inSeconds % 60;
     return '${minutes}m ${seconds}s';
+  }
+}
+
+/// Pops back to whatever pushed this results screen (normally the quiz
+/// session, which itself was pushed on top of Practice home) rather than
+/// resetting the navigation stack. Falls back to `go('/quiz')` only if
+/// there's nothing left to pop to (e.g. this screen was reached directly).
+void _returnToPracticeHome(BuildContext context) {
+  if (context.canPop()) {
+    context.pop();
+  } else {
+    context.go('/quiz');
   }
 }

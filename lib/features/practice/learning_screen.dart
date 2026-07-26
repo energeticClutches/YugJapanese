@@ -177,7 +177,17 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       if (!mounted) {
         return;
       }
-      context.go(widget.isReviewMode ? '/review' : '/$_contentId');
+      // Pop back to whatever screen pushed this lesson (the script's lesson
+      // list, or the review list in review mode) rather than `go()`, which
+      // would collapse the whole navigation stack down to a single entry
+      // and break Back navigation afterward. Falls back to `go()` only if
+      // there's nothing left to pop to.
+      final String fallbackRoute = widget.isReviewMode ? '/review' : '/$_contentId';
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(fallbackRoute);
+      }
       return;
     }
 

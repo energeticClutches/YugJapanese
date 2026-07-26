@@ -107,7 +107,7 @@ class _ReviewList extends StatelessWidget {
               for (final _ReviewDisplayInfo info in resolved) ...[
                 ReviewCard(
                   title: info.title,
-                  onTap: () => context.go(
+                  onTap: () => context.push(
                     '/practice/${info.lessonNumber}?mode=review&content=${info.contentId}',
                   ),
                 ),

@@ -76,7 +76,7 @@ class _HiraganaScreenState extends ConsumerState<HiraganaScreen> {
                     1,
                   ),
                   onStartPressed: () =>
-                      context.go('/practice/${lesson.lessonNumber}'),
+                      context.push('/practice/${lesson.lessonNumber}'),
                 ),
               ],
             ),

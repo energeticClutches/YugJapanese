@@ -81,7 +81,7 @@ class _KatakanaScreenState extends ConsumerState<KatakanaScreen> {
                         true
                         ? 100
                         : 0,
-                    onStartPressed: () => context.go(
+                    onStartPressed: () => context.push(
                       '/practice/${lesson.lessonNumber}?content=$_contentId',
                     ),
                   ),

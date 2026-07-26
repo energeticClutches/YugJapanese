@@ -81,7 +81,9 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
               const Text('Not enough content available for this mode yet.'),
               const SizedBox(height: AppSpacing.md),
               FilledButton(
-                onPressed: () => context.go('/quiz'),
+                onPressed: () => context.canPop()
+                    ? context.pop()
+                    : context.go('/quiz'),
                 child: const Text('Return to Practice'),
               ),
             ],
@@ -95,7 +97,10 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
         _navigatedToResults = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            context.go('/quiz/results');
+            // Replace this session on the stack rather than `go()`, which
+            // would reset the whole navigation stack back to a single
+            // entry and break Back navigation from the results screen.
+            context.pushReplacement('/quiz/results');
           }
         });
       }

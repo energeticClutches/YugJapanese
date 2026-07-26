@@ -262,7 +262,7 @@ class DashboardScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Settings',
-            onPressed: () => context.go('/settings'),
+            onPressed: () => context.push('/settings'),
           ),
         ],
       ),
@@ -339,7 +339,7 @@ class _DashboardContent extends StatelessWidget {
             icon: Icons.search,
             title: 'Quick Search',
             subtitle: 'Find any Hiragana, Katakana, or Kanji character',
-            onTap: () => context.go('/search'),
+            onTap: () => context.push('/search'),
           ),
           const SizedBox(height: AppSpacing.xl),
           Center(
@@ -390,14 +390,14 @@ class _DashboardContent extends StatelessWidget {
                   label: 'Get Started',
                   title: 'Begin your first lesson',
                   buttonLabel: 'Start Learning',
-                  onPressed: () => context.go('/hiragana'),
+                  onPressed: () => context.push('/hiragana'),
                 );
               }
               return ContinueLearningCard(
                 label: 'Continue',
                 title: info.displayTitle,
                 buttonLabel: 'Continue',
-                onPressed: () => context.go(
+                onPressed: () => context.push(
                   '/practice/${info.lessonNumber}?content=${info.contentId}',
                 ),
               );
@@ -411,7 +411,7 @@ class _DashboardContent extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           ReviewSummaryCard(
             dueCount: dueReviewsAsync.asData?.value.length ?? 0,
-            onTap: () => context.go('/review'),
+            onTap: () => context.push('/review'),
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(
@@ -425,7 +425,7 @@ class _DashboardContent extends StatelessWidget {
               return StreakCard(
                 currentStreak: streak.currentStreak,
                 longestStreak: streak.longestStreak,
-                onTap: () => context.go('/achievements'),
+                onTap: () => context.push('/achievements'),
               );
             },
           ),
@@ -464,7 +464,7 @@ class _DashboardContent extends StatelessWidget {
                 title: _practiceSummaryTitle(results),
                 buttonLabel:
                     results.isEmpty ? 'Start Practice' : 'Continue Last Practice',
-                onPressed: () => context.go('/quiz'),
+                onPressed: () => context.push('/quiz'),
               );
             },
           ),
@@ -508,7 +508,7 @@ class _DashboardContent extends StatelessWidget {
             icon: Icons.insights_outlined,
             title: 'View Analytics',
             subtitle: 'See trends, weak areas, and study insights',
-            onTap: () => context.go('/analytics'),
+            onTap: () => context.push('/analytics'),
           ),
           const SizedBox(height: AppSpacing.md),
           Builder(
@@ -571,7 +571,7 @@ class _DashboardContent extends StatelessWidget {
                           ? 'Loading...'
                           : '${summary.completionPercentage}% complete · ${summary.reviewCount} due',
                       enabled: true,
-                      onTap: () => context.go('/${source.contentId}'),
+                      onTap: () => context.push('/${source.contentId}'),
                     );
                   },
                 ),

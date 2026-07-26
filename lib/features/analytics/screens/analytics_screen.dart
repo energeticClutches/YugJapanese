@@ -206,7 +206,7 @@ class _AnalyticsContent extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () => context.go('/quiz/play?mode=weak_items&length=10'),
+              onPressed: () => context.push('/quiz/play?mode=weak_items&length=10'),
               icon: const Icon(Icons.fitness_center),
               label: const Text('Practice Now'),
             ),

@@ -38,6 +38,8 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
   progress, reviews, achievements, dashboard, search).
 - **Remote:** pushed to `https://github.com/energeticClutches/YugJapanese`
   (`main` branch). Commit and push only when the user explicitly asks.
+  Latest pushed commit: `1871059` — "chore: prepare v1.0 production
+  release" (Milestone 20, 2026-07-26).
 - **Toolchain:** Flutter 3.44.8, AGP 9.0.1, Gradle 9.1.0, Kotlin 2.3.20 — this
   is the working, verified combination. Do not change these versions; if
   `flutter run`/build ever fails again with an opaque Gradle
@@ -1722,13 +1724,54 @@ planning (application ID, signing strategy, icon/splash approach).
   `RELEASE_CHECKLIST.md` (new)
 - `PROJECT_LOG.md` (this entry; M19 performance claim corrected)
 
+## Bugfix (post-M20): Android Back button exited the app instead of navigating up the screen stack
+
+**BUG-001, critical.** From any drilled-down screen (e.g. Dashboard →
+Hiragana → Lesson), the hardware/gesture Back button exited straight to
+the Android home screen instead of retracing the in-app navigation one
+screen at a time.
+
+**Root cause**: almost every navigation call in the app used
+`context.go(...)`, which replaces go_router's entire navigation stack
+rather than pushing onto it. The only exceptions were the two `/legal/*`
+links added in M20. Since nothing else ever pushed, the stack never held
+more than one entry, so Back always had nowhere to go but out — regardless
+of how many screens deep the user actually was.
+
+**Fix** (no router restructuring — a flat push/pop discipline was
+sufficient): every navigation call was reclassified by intent, not
+blanket-swapped.
+- Drill-down navigation (Dashboard → any section; script lesson list →
+  lesson; search result → lesson; starting a quiz session) — `go()` →
+  `push()`. ~20 call sites across `dashboard_screen.dart`,
+  `hiragana_screen.dart`, `katakana_screen.dart`, `kanji_screen.dart`,
+  `search_screen.dart`, `review_screen.dart`, `analytics_screen.dart`,
+  `practice_home_screen.dart`, `practice_results_screen.dart`.
+- Returning from a finished/empty flow (lesson complete, quiz has no
+  content, "Return to Practice"/"Return Home") — `pop()` with a `go()`
+  fallback for the case where there's nothing left to pop to
+  (`learning_screen.dart`, `practice_session_screen.dart`,
+  `practice_results_screen.dart`).
+- Quiz session → results — `pushReplacement()`, so Back from results skips
+  the finished session but still returns through Quiz home → Dashboard
+  rather than exiting (`practice_session_screen.dart`).
+
+**Verified**: `flutter analyze` clean, `flutter test` 36/36 passing. On
+device, the exact reported repro (Dashboard → Hiragana → Lesson, 3 deep):
+Back #1 → Hiragana list, Back #2 → Dashboard, Back #3 (from root) → exits
+to Android home as expected. App process stayed alive throughout, no
+crash in logcat. As a side effect, screens reached via `push()` now
+correctly show a back arrow in their AppBar (Flutter only renders one when
+there's something to pop), which was also silently missing before.
+
 ## Next Required Action
 
-None. All 20 milestones are complete. The app is at v1.0.0, `flutter
-analyze` is clean, `flutter test` passes (36/36), and both the release APK
-and the App Bundle build and have been verified end-to-end on device from
-a clean install. Do not start post-release work, v1.1 planning, or Play
-Store submission until the user explicitly requests it and defines scope.
+None. All 20 milestones are complete plus the BUG-001 navigation fix
+above. The app is at v1.0.0, `flutter analyze` is clean, `flutter test`
+passes (36/36), and both the release APK and the App Bundle build and
+have been verified end-to-end on device from a clean install. Do not
+start post-release work, v1.1 planning, or Play Store submission until
+the user explicitly requests it and defines scope.
 
 **Open items are release blockers, not bugs**, and are tracked in
 `RELEASE_CHECKLIST.md`: a production upload keystore must be created

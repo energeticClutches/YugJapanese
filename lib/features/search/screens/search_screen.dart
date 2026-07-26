@@ -96,7 +96,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   void _openResult(SearchResult result) {
     ref.read(searchHistoryProvider).record(_controller.text);
-    context.go(
+    context.push(
       '/practice/${result.learningItem.lessonNumber}'
       '?content=${result.script}'
       '&char=${Uri.encodeComponent(result.learningItem.id)}',
@@ -275,7 +275,7 @@ class _SearchSuggestions extends ConsumerWidget {
                           _scriptTitles[suggestion.contentId] ??
                               suggestion.contentId,
                         ),
-                        onTap: () => context.go(
+                        onTap: () => context.push(
                           '/practice/${suggestion.lessonNumber}'
                           '?content=${suggestion.contentId}',
                         ),

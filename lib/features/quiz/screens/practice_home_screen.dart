@@ -72,7 +72,7 @@ class _PracticeHomeScreenState extends ConsumerState<PracticeHomeScreen> {
 
   void _startMode(BuildContext context, PracticeMode mode) {
     final String scripts = ContentRepositoryFactory.availableContentIds.join(',');
-    context.go('/quiz/play?mode=${mode.id}&scripts=$scripts&length=$_selectedLength');
+    context.push('/quiz/play?mode=${mode.id}&scripts=$scripts&length=$_selectedLength');
   }
 }
 
