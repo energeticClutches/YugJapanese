@@ -3,6 +3,8 @@ import '../../dashboard/models/learning_statistics.dart';
 import '../../dashboard/services/statistics_service.dart';
 import '../../progress/models/lesson_progress.dart';
 import '../../progress/repositories/progress_repository.dart';
+import '../../quiz/models/practice_statistics.dart';
+import '../../quiz/services/practice_statistics_service.dart';
 import '../../review/models/review_item.dart';
 import '../../review/repositories/review_repository.dart';
 import '../models/achievement.dart';
@@ -11,23 +13,26 @@ import '../models/streak_info.dart';
 import '../repositories/achievement_repository.dart';
 
 /// Calculates streaks and unlocks achievements from data already persisted
-/// by the progress, statistics, and review features. Reads only; never
-/// hooks into or modifies the learning flow itself.
+/// by the progress, statistics, review, and quiz-practice features. Reads
+/// only; never hooks into or modifies the learning flow itself.
 class AchievementService {
   const AchievementService({
     required AchievementRepository achievementRepository,
     required ProgressRepository progressRepository,
     required StatisticsService statisticsService,
     required ReviewRepository reviewRepository,
+    required PracticeStatisticsService practiceStatisticsService,
   })  : _achievementRepository = achievementRepository,
         _progressRepository = progressRepository,
         _statisticsService = statisticsService,
-        _reviewRepository = reviewRepository;
+        _reviewRepository = reviewRepository,
+        _practiceStatisticsService = practiceStatisticsService;
 
   final AchievementRepository _achievementRepository;
   final ProgressRepository _progressRepository;
   final StatisticsService _statisticsService;
   final ReviewRepository _reviewRepository;
+  final PracticeStatisticsService _practiceStatisticsService;
 
   static const List<Achievement> catalog = <Achievement>[
     Achievement(
@@ -78,6 +83,54 @@ class AchievementService {
       criteria: AchievementCriteria.averageAccuracy,
       threshold: 100,
     ),
+    Achievement(
+      id: 'first_practice_session',
+      title: 'Quiz Novice',
+      description: 'Complete your first practice session.',
+      iconKey: 'flag',
+      criteria: AchievementCriteria.practiceSessionsCompleted,
+      threshold: 1,
+    ),
+    Achievement(
+      id: 'perfect_practice_score',
+      title: 'Flawless Round',
+      description: 'Score 100% on a practice session.',
+      iconKey: 'target',
+      criteria: AchievementCriteria.perfectPracticeSessions,
+      threshold: 1,
+    ),
+    Achievement(
+      id: 'practice_sessions_10',
+      title: 'Dedicated Quizzer',
+      description: 'Complete 10 practice sessions.',
+      iconKey: 'stars',
+      criteria: AchievementCriteria.practiceSessionsCompleted,
+      threshold: 10,
+    ),
+    Achievement(
+      id: 'practice_questions_100',
+      title: 'Century Club',
+      description: 'Answer 100 practice questions.',
+      iconKey: 'stars',
+      criteria: AchievementCriteria.practiceQuestionsAnswered,
+      threshold: 100,
+    ),
+    Achievement(
+      id: 'practice_questions_500',
+      title: 'Quiz Master',
+      description: 'Answer 500 practice questions.',
+      iconKey: 'stars',
+      criteria: AchievementCriteria.practiceQuestionsAnswered,
+      threshold: 500,
+    ),
+    Achievement(
+      id: 'practice_streak_30',
+      title: 'Unstoppable',
+      description: 'Reach a 30-day practice streak.',
+      iconKey: 'streak',
+      criteria: AchievementCriteria.practiceStreakDays,
+      threshold: 30,
+    ),
   ];
 
   /// Computes the current and longest daily streak from every lesson's
@@ -125,6 +178,8 @@ class AchievementService {
       0,
       (int sum, ReviewItem item) => sum + item.reviewCount,
     );
+    final PracticeStatistics practiceStatistics =
+        await _practiceStatisticsService.getStatistics();
 
     final List<AchievementProgress> results = <AchievementProgress>[];
     for (final Achievement achievement in catalog) {
@@ -140,6 +195,7 @@ class AchievementService {
         statistics: statistics,
         streak: streak,
         totalReviewCount: totalReviewCount,
+        practiceStatistics: practiceStatistics,
       );
 
       if (meetsCriteria) {
@@ -168,6 +224,7 @@ class AchievementService {
     required LearningStatistics statistics,
     required StreakInfo streak,
     required int totalReviewCount,
+    required PracticeStatistics practiceStatistics,
   }) {
     switch (achievement.criteria) {
       case AchievementCriteria.lessonsCompleted:
@@ -178,6 +235,14 @@ class AchievementService {
         return totalReviewCount >= achievement.threshold;
       case AchievementCriteria.averageAccuracy:
         return statistics.averageAccuracy >= achievement.threshold;
+      case AchievementCriteria.practiceSessionsCompleted:
+        return practiceStatistics.totalSessions >= achievement.threshold;
+      case AchievementCriteria.practiceQuestionsAnswered:
+        return practiceStatistics.totalQuestionsAnswered >= achievement.threshold;
+      case AchievementCriteria.perfectPracticeSessions:
+        return practiceStatistics.perfectSessionCount >= achievement.threshold;
+      case AchievementCriteria.practiceStreakDays:
+        return practiceStatistics.longestStreakDays >= achievement.threshold;
     }
   }
 

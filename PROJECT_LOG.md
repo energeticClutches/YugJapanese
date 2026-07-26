@@ -7,14 +7,16 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
 
 ## Current State (read this first in a new session)
 
-- **Last completed milestone: 11 (Achievements & Streak System).** Fully
+- **Last completed milestone: 18 (Learning Analytics & Insights).** Fully
   implemented, `flutter analyze` clean, verified end-to-end on an Android
-  emulator (API 37, `emulator-5554`). No open work, no known bugs.
-- **Content:** only Hiragana Lesson 1 (vowels あいうえお) exists. Katakana and
-  Kanji screens are still "Coming Soon" placeholders; their `ContentSource`
-  entries are not yet added to `contentSourcesProvider`
-  (`lib/features/dashboard/providers/dashboard_providers.dart`) because they
-  have no `LessonRepository` implementation yet.
+  emulator (API 37, `emulator-5554`), including a real CSV/JSON export.
+  No open work, no known bugs.
+- **Content:** Hiragana (5 vowels, 1 lesson), Katakana (46 characters, 10
+  lessons), and Kanji (79 JLPT N5 / Grade-1 kyōiku characters, 8 lessons) all
+  have real content and are fully enabled end-to-end (learning flow,
+  progress, reviews, achievements, dashboard, search).
+- **Remote:** pushed to `https://github.com/energeticClutches/YugJapanese`
+  (`main` branch). Commit and push only when the user explicitly asks.
 - **Toolchain:** Flutter 3.44.8, AGP 9.0.1, Gradle 9.1.0, Kotlin 2.3.20 — this
   is the working, verified combination. Do not change these versions; if
   `flutter run`/build ever fails again with an opaque Gradle
@@ -26,12 +28,58 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
   - `progress` (M8) — generic `LessonProgress`, Hive box `lesson_progress`.
   - `dashboard` (M9) — `StatisticsService` + `ContentSource` is the reusable
     "which content exists" wiring; other features import it rather than
-    duplicating a Hiragana-only list.
+    duplicating a per-script list. `contentSourcesProvider` is now generated
+    from `ContentRepositoryFactory.availableContentIds` (M13), so it already
+    includes every registered script with no manual wiring.
   - `review` (M10) — spaced repetition, Hive box `review_schedule`, fixed
     interval scheduler (not SM-2 yet).
   - `achievements` (M11) — Hive box `achievement_progress`, streak +
     achievement unlocking computed entirely from existing progress/review
     data; touches nothing in `practice`/`writing`/`hiragana`.
+  - `settings` (M12) — Hive box `app_settings`. `AppSettings` (theme mode,
+    sound/haptics/auto-play toggles, learning prefs) is the single source of
+    truth other features read from (`currentSettingsProvider`).
+  - `katakana` / `kanji` (M13, M14) — thin per-script repositories following
+    the same shape as `HiraganaRepository`; see "Content repository factory"
+    below. `CharacterModel`/`LearningItem` gained optional Kanji-only fields
+    (`secondaryReadings`, `kunReadings`, `radical`, `grade`, `jlptLevel`,
+    `examples`, `notes`) — always empty/null for Hiragana/Katakana.
+  - `learning` (M14) — NOT a script; holds `KanjiExample` and the
+    Kanji-specific display widgets (`ReadingSection`, `RadicalCard`,
+    `ExampleWordCard`) shared by the introduction step and search results.
+  - `audio` (M15) — no persistence. `AudioService` (`ChangeNotifier`) wraps
+    `audioplayers`; `LocalAudioRepository` verifies a given asset path
+    actually exists (via `rootBundle.load` + cache) before ever reporting it
+    playable, so missing recordings degrade to a disabled button, never a
+    crash. Only 5 placeholder tone files exist today (Hiragana vowels) — see
+    the M15 log entry before assuming any audio is real pronunciation.
+  - `search` (M16) — Hive boxes `favorites` and `search_history`. Indexes
+    every script through `contentSourcesProvider` (same list dashboard
+    uses), so a future script needs zero search-specific code once it's
+    registered in `ContentRepositoryFactory`.
+  - `quiz` (M17) — NOT the same feature as `practice/` (that name was
+    already taken by the guided-lesson flow at `/practice/:lessonNumber`;
+    this is a deliberate deviation from the milestone brief's literal
+    folder name, see the M17 log entry). Hive box `practice_results`. Six
+    data-driven modes (`PracticeGenerator.catalog`) share one
+    `PracticeQuestion`/`PracticeSession`/`PracticeService` engine; pulls its
+    item pool through `contentSourcesProvider`/`ContentRepositoryFactory`
+    like every other cross-script feature. Routes `/quiz`, `/quiz/play`,
+    `/quiz/results`.
+  - `analytics` (M18) — read-only aggregation over every other feature's
+    existing repositories; adds no new source-of-truth data, only a
+    scalar `AnalyticsSnapshot` cache (Hive box `analytics_snapshot`)
+    written as a side effect of `AnalyticsService.getAnalytics()`, which
+    itself always recomputes fresh (no caching precedent broken — see the
+    M18 log entry). Route `/analytics`. `TrendChart`/`ActivityHeatmap` are
+    hand-rolled `CustomPainter`/`Wrap` widgets — no charting package is
+    approved for this project.
+- **Content repository factory**: `lib/repositories/content_repository_factory.dart`
+  maps a `contentId` string (`'hiragana'`, `'katakana'`, `'kanji'`) to its
+  `LessonRepository`. This is the **only** place that should ever branch on
+  contentId strings for "which repository". Introduced in M13 specifically
+  to replace the old hardcoded-per-screen resolution described below; add a
+  new script by registering it here and nowhere else needs to change.
 - **Established reactivity convention** (used by every feature since M9):
   a `FutureProvider` that needs to "refresh when X changes" calls
   `ref.watch(xProvider)` purely for its invalidation signal (ignoring the
@@ -41,15 +89,30 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
   triggers other features watch. `learning_screen.dart` still calls
   `ref.invalidate(dueReviewsProvider)` once after scheduling a review (that
   predates this convention and works fine); no other screen needs to.
-- **Screen-level content resolution pattern**: several screens (dashboard's
-  Continue Learning card, `ReviewScreen`, achievements are not affected)
-  turn a generic `"contentId:lessonNumber"` string back into a display title
-  by checking `contentId == 'hiragana'` and calling `HiraganaRepository()`
-  directly. This is a deliberate, repeated exception to strict genericity —
-  acceptable because only Hiragana has content today. When Katakana/Kanji
-  repositories are added, search for `contentId == 'hiragana'` across
-  `lib/features/` and extend each site.
-- Do not start Milestone 12 or any new feature without explicit instruction.
+- **Stateful feature controller pattern**: every feature needing live UI
+  updates after a mutation (settings, audio playback, favorites, search
+  history) uses a `ChangeNotifier` controller/service exposed via
+  `ChangeNotifierProvider`, matching `ProgressController` from M8. Screens
+  call `ref.watch(xProvider)` to rebuild automatically; there is no feature
+  using `StateNotifier`/Riverpod 3 codegen instead — stay consistent with
+  this rather than introducing a second state-management style.
+- **Screen-level content resolution pattern**: generic identifiers (e.g.
+  `"contentId:lessonNumber"`) are still resolved back to a display title
+  only at the screen/widget layer (dashboard's Continue Learning card,
+  `ReviewScreen`, `SearchScreen`'s Continue Learning suggestion) — never
+  inside a repository, service, or scheduler. As of M13 this resolution goes
+  through `ContentRepositoryFactory.tryRepositoryFor(contentId)` (generic),
+  **not** a hardcoded `contentId == 'hiragana'` check (that was the M9–M12
+  approach; if you find that pattern anywhere, it's a leftover and should be
+  updated to use the factory, not a template to copy).
+- **Learning flow can now jump to a specific character**: `LearningScreen`
+  and `LearningController.startLesson` accept an optional
+  `startCharacterId`, threaded through the router's `char` query param
+  (M16). Used by search results to open a lesson at the exact character
+  found instead of always at index 0; reuse this instead of building a
+  parallel "character detail" screen if something else ever needs the same
+  behavior.
+- Do not start Milestone 19 or any new feature without explicit instruction.
 
 ## Completed Milestones
 
@@ -101,7 +164,7 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
 - No handwriting canvas, OCR, AI, cloud service, or persistence was added to
   the evaluator.
 
-## Current Milestone: Persistent Progress
+## Milestone 8: Persistent Progress
 
 Implemented and analyzer-clean:
 
@@ -133,7 +196,7 @@ Implemented and analyzer-clean:
 - `lib/features/hiragana/hiragana_screen.dart`
 - `lib/shared/widgets/lesson_card.dart`
 
-## Verification Status
+### Verification Status
 
 `flutter analyze` was run successfully (flutter_riverpod 3.3.2, go_router
 17.3.0 resolved). It initially reported 6 errors, all caused by API surface
@@ -161,7 +224,7 @@ unrelated to progress persistence); left unchanged per scope.
 No Flutter, Android SDK, Gradle, Java, IDE, or dependency configuration was
 changed. No new packages were added.
 
-## Runtime Verification
+### Runtime Verification
 
 The app was built and launched on an Android emulator (API 37, `emulator-5554`)
 to verify the persistent progress milestone at runtime.
@@ -206,7 +269,8 @@ Implemented and verified on device:
   `ProgressController` cache), so stats are always correct even if no other
   screen has loaded progress yet. Pure Dart, no UI logic.
 - Riverpod `dashboard_providers.dart` exposes `statisticsServiceProvider`,
-  `contentSourcesProvider` (currently wires only Hiragana), and
+  `contentSourcesProvider` (wired only Hiragana at the time; generated from
+  `ContentRepositoryFactory` since M13), and
   `learningStatisticsProvider` (`FutureProvider`, watches
   `progressControllerProvider` so it recomputes automatically whenever
   progress is saved elsewhere in the app).
@@ -478,11 +542,775 @@ this time, unlike Milestone 10.
 No files under `lib/features/practice/`, `lib/features/writing/`,
 `lib/features/hiragana/`, or `lib/features/progress/` were touched.
 
+## Milestone 12: Settings & Data Management
+
+Implemented and verified on device.
+
+- `AppSettings` (`lib/features/settings/models/`): `themeMode`
+  (`AppThemeMode.system/light/dark`), `soundEnabled`, `hapticsEnabled`,
+  `showStrokeGuide`, `showGrid`, `autoPlayAudio`, `animationSpeed`
+  (`AnimationSpeed.slow/normal/fast`), `preferredWritingHand`
+  (`WritingHand.left/right`), `language`, `largerWritingArea`
+  (accessibility, future-ready). All fields have defaults via
+  `AppSettings.defaults`; `toMap()`/`fromMap()` follow the standard
+  convention. `supportedLanguages` validation lives in the service, not the
+  model.
+- `SettingsRepository` / `HiveSettingsRepository`: Hive box `app_settings`,
+  single key `settings`.
+- `SettingsService`: validates (currently just `language` against
+  `supportedLanguages`, falling back to the default), and owns
+  `resetAllProgress()` — clears the `lesson_progress`, `review_schedule`,
+  and `achievement_progress` Hive boxes directly via their repositories'
+  public `boxName` constants (no new repository methods needed on those
+  three repositories, no new coupling beyond reading a constant).
+- `SettingsController` (`ChangeNotifier`) + `currentSettingsProvider`
+  (`ChangeNotifierProvider`) — the pattern every later stateful feature
+  (`audio`, `search`) copies.
+- `SettingsScreen`: Appearance (theme), Learning (stroke guide/grid/
+  animation speed), Feedback (sound/haptics), Accessibility (larger writing
+  area, writing hand), Data Management (Export/Import placeholders — no
+  real implementation, intentionally out of scope; Reset Progress / Reset
+  Settings behind confirmation dialogs via `DangerZoneCard`), About
+  (`AboutListTile`). Reusable widgets: `SettingsSection`, `SettingsTile`,
+  `SettingsSwitchTile`, `SettingsDropdownTile`, `DangerZoneCard`.
+- **Theme integration**: `AppTheme` was refactored into a shared `_build()`
+  builder parameterized by color/text-theme inputs, adding `AppTheme.dark`
+  alongside the existing `AppTheme.light` (previously there was no dark
+  theme at all). `AppTypography` gained `darkTextTheme` alongside
+  `textTheme` via the same extraction. `main.dart`'s `JapaneseLearningApp`
+  wraps `MaterialApp.router` in a `Consumer` reading
+  `currentSettingsProvider` to set `themeMode` live — changing the setting
+  updates the whole app immediately, verified on device.
+
+`flutter analyze`: **No issues found.**
+
+### Files Added
+
+- `lib/features/settings/models/app_settings.dart`
+- `lib/features/settings/repositories/settings_repository.dart`
+- `lib/features/settings/repositories/hive_settings_repository.dart`
+- `lib/features/settings/services/settings_service.dart`
+- `lib/features/settings/services/settings_controller.dart`
+- `lib/features/settings/providers/settings_providers.dart`
+- `lib/features/settings/widgets/settings_section.dart`
+- `lib/features/settings/widgets/settings_tile.dart`
+- `lib/features/settings/widgets/settings_switch_tile.dart`
+- `lib/features/settings/widgets/settings_dropdown_tile.dart`
+- `lib/features/settings/widgets/danger_zone_card.dart`
+- `lib/features/settings/screens/settings_screen.dart` (replaces the old
+  `lib/features/settings/settings_screen.dart` placeholder — file moved)
+
+### Files Changed
+
+- `lib/main.dart` (opens `app_settings` Hive box; `MaterialApp.router` now
+  reads `currentSettingsProvider` for live theme switching)
+- `lib/core/theme/app_theme.dart` (adds `AppTheme.dark`, shared `_build()`)
+- `lib/core/theme/app_typography.dart` (adds `darkTextTheme`)
+- `lib/core/theme/app_colors.dart` (adds dark-mode color constants)
+- `lib/core/router/app_router.dart` (settings screen import path change)
+
+## Milestone 13: Katakana Learning Module
+
+Implemented and verified on device. This milestone introduced the
+`ContentRepositoryFactory` pattern that every later milestone builds on.
+
+- `assets/data/katakana_lessons.json`: all 46 basic Katakana characters,
+  grouped into 10 lessons by gojūon row (vowels, ka/sa/ta/na/ha/ma row = 5
+  each, ya row = 3, ra row = 5, wa+n = 3). Same field schema as
+  `hiragana_lessons.json` (`character`/`romaji`/`englishName`, not the
+  milestone brief's illustrative `symbol`/`primaryReading`/`meaning` names)
+  — deliberate, to keep reusing `CharacterModel`/`JsonLoaderService`
+  unmodified rather than maintaining two JSON conventions.
+- `JsonLoaderService.loadLessons(assetPath)`: generalized from the
+  Hiragana-only `loadHiraganaLessons()`, which now just calls it with a
+  fixed path. Zero behavior change for Hiragana.
+- `KatakanaRepository`: same shape as `HiraganaRepository` (not merged into
+  a shared base class — three ~40-line near-identical repositories was
+  judged an acceptable, low-risk level of duplication versus refactoring
+  two already-working files; the real duplication that mattered,
+  JSON-parsing, was already centralized in `JsonLoaderService`).
+- **`ContentRepositoryFactory`** (`lib/repositories/content_repository_factory.dart`,
+  new): `Map<String, LessonRepository Function()>` keyed by contentId.
+  `contentSourcesProvider` (dashboard) is now generated from
+  `availableContentIds` instead of a hardcoded single-entry list.
+  `LearningScreen`, `dashboard_screen.dart`'s Continue Learning resolution,
+  and `review_screen.dart`'s resolution were all switched from
+  `if (contentId == 'hiragana') HiraganaRepository()` to
+  `ContentRepositoryFactory.tryRepositoryFor(contentId)` — this is the
+  change that makes Katakana (and Kanji, one milestone later) need zero
+  special-case branches anywhere outside the factory.
+- Router: `/practice/:lessonNumber` gained a `content` query parameter
+  (defaults to `'hiragana'` for back-compat with existing review schedules
+  already keyed `"hiragana:N"`).
+- `KatakanaScreen`: real lesson-list screen (was a placeholder) — unlike
+  `HiraganaScreen` (which only ever shows lesson 1, since Hiragana has just
+  one), it lists all 10 lessons with per-lesson `LessonCard`s.
+- Dashboard: the `Scripts` `Wrap` is now generated from
+  `contentSourcesProvider` (`for (final source in contentSources) ...`)
+  instead of three hardcoded `ScriptCard` literals; each card's subtitle
+  (`"N% complete · N due"`) is computed per-script via a new
+  `_resolveScriptSummary` helper.
+- **Bug found and fixed during runtime verification**: `_resolveScriptSummary`
+  initially read completion percentage from `ProgressController`'s in-memory
+  cache (`progressController.completionPercentage(...)`), which is only
+  populated after some screen calls `loadProgress(contentId)` — the
+  Dashboard itself never does, so every card showed 0% regardless of real
+  progress. Fixed by reading `ProgressRepository.getProgressForContent(...)`
+  directly (matching how `StatisticsService` already did it), which needs
+  no cache to be pre-warmed. Verified on device: Hiragana correctly showed
+  100% after the fix, having shown 0% before it.
+
+`flutter analyze`: **No issues found.**
+
+### Files Added
+
+- `assets/data/katakana_lessons.json`
+- `lib/repositories/katakana_repository.dart`
+- `lib/repositories/content_repository_factory.dart`
+
+### Files Changed
+
+- `lib/services/json_loader_service.dart` (generalized `loadLessons`)
+- `lib/features/katakana/katakana_screen.dart` (placeholder → real screen)
+- `lib/features/practice/learning_screen.dart` (`contentId` param, uses the
+  factory instead of a hardcoded `HiraganaRepository`)
+- `lib/core/router/app_router.dart` (`content` query param)
+- `lib/features/dashboard/providers/dashboard_providers.dart`
+  (`contentSourcesProvider` generated from the factory)
+- `lib/features/dashboard/screens/dashboard_screen.dart` (generic Continue
+  Learning resolution, dynamic Scripts section, `_resolveScriptSummary` bug
+  fix)
+- `lib/features/review/screens/review_screen.dart` (generic resolution)
+- `pubspec.yaml` (registers the new JSON asset)
+
+## Milestone 14: Kanji Foundation
+
+Implemented and verified on device.
+
+- `assets/data/kanji_lessons.json`: 79 JLPT N5 kanji — the standard Grade-1
+  kyōiku (教育漢字) character set, chosen specifically because it's a
+  well-defined, verifiable list rather than an ad-hoc N5 selection. Split
+  into 8 lessons of ~10. Each entry adds (all optional on the shared
+  models): `secondaryReadings`, `kunReadings`, `radical`, `grade` (always
+  `1`), `jlptLevel` (always `"N5"`), `examples` (one `{word, reading,
+  meaning}` per character), `notes` (unused so far).
+- `CharacterModel` / `LearningItem` (`lib/models/`) extended with those same
+  seven optional fields, defaulting to empty list / `null` — zero JSON
+  changes needed for Hiragana/Katakana, and their `_toLearningItem` mapping
+  code in `HiraganaRepository`/`KatakanaRepository` was **not** touched.
+- `KanjiExample` (`lib/features/learning/models/`) — deliberately the only
+  new supporting model; a `KanjiReading` model (also suggested by the
+  brief) was judged unnecessary since plain `List<String>` already covers
+  on/kun readings without adding a class.
+- `KanjiRepository`: same shape as Hiragana/Katakana.
+- Introduction-step UI (`lib/features/learning/widgets/`): `ReadingSection`
+  (on/kun readings), `RadicalCard` (radical + stroke count),
+  `ExampleWordCard` (one example word). Wired into
+  `learning_screen.dart`'s introduction `Card`, gated on
+  `currentStep == LearningStep.introduction && currentCharacter.radical !=
+  null` — `radical` was chosen as the "is this actually Kanji metadata"
+  flag since every Kanji entry sets it and Hiragana/Katakana never do.
+- Dashboard: Kanji enabled (icon/title added to the existing per-script
+  maps), the old static "Coming Soon" Kanji `ScriptCard` removed now that
+  it comes through the same dynamic `contentSourcesProvider` loop as
+  Katakana.
+- **Bug found and fixed during runtime verification**: the new fields
+  showed as blank on the introduction screen despite the JSON/model/
+  repository all being correct. Root cause:
+  `LearningController.startLesson` builds `LearningItem`s **directly** from
+  `CharacterModel` in its own loop — it never calls the repository's
+  `_toLearningItem`, which is only used by `getItem(id)` lookups. Fixed by
+  threading the same seven fields through `LearningController`'s
+  construction too. Worth remembering: `KanjiRepository._toLearningItem` is
+  effectively dead code for the live learning session; the controller is
+  the actual construction path.
+
+`flutter analyze`: **No issues found.**
+
+### Files Added
+
+- `assets/data/kanji_lessons.json`
+- `lib/repositories/kanji_repository.dart`
+- `lib/features/learning/models/kanji_example.dart`
+- `lib/features/learning/widgets/reading_section.dart`
+- `lib/features/learning/widgets/radical_card.dart`
+- `lib/features/learning/widgets/example_word_card.dart`
+
+### Files Changed
+
+- `lib/models/character_model.dart` / `lib/models/learning_item.dart`
+  (seven new optional fields)
+- `lib/features/practice/learning_controller.dart` (threads the new fields
+  through — the actual bug fix)
+- `lib/features/practice/learning_screen.dart` (renders the new widgets on
+  the introduction step)
+- `lib/features/kanji/kanji_screen.dart` (placeholder → real lesson-list
+  screen, same pattern as `KatakanaScreen`)
+- `lib/repositories/content_repository_factory.dart` (registers `'kanji'`)
+- `lib/features/dashboard/screens/dashboard_screen.dart` (Kanji enabled,
+  static card removed)
+- `pubspec.yaml` (registers the new JSON asset)
+
+## Milestone 15: Audio & Pronunciation System
+
+Implemented and verified on device.
+
+- `lib/features/audio/`: `AudioItem` (`id`, `assetPath`, `type` —
+  `AudioType.character/word`, `script`). `AudioRepository` /
+  `LocalAudioRepository`: resolves an asset path to an `AudioItem` only if
+  `rootBundle.load(assetPath)` succeeds (try/catch, result cached per
+  path) — this is what makes a missing recording fail safe instead of
+  crashing. `AudioService` (`ChangeNotifier`, wraps `audioplayers`'
+  `AudioPlayer`): `play()`/`stop()`/`setVolume()` (the last unused today,
+  a "future-ready" extension point for a volume setting), exposes
+  `AudioPlaybackState { status: idle/loading/playing/error, currentId }`
+  so only the button for the character actually playing shows a spinner.
+  Providers: `audioRepositoryProvider`, `audioServiceProvider`
+  (`ChangeNotifierProvider`), `currentPlaybackStateProvider`.
+- Widgets: `AudioButton` (resolves availability itself via a cached
+  `Future<AudioItem?>` in a `ConsumerStatefulWidget`, so callers never
+  check availability; disables with "Audio not available" /
+  "Sound is off" / "Checking audio…" labels as appropriate),
+  `PlaybackIndicator` (the icon/spinner), `PronunciationCard` (symbol +
+  `AudioButton`, for future reuse outside the learning flow).
+- `learning_screen.dart`: `AudioButton` added under the symbol on every
+  step (not just introduction); auto-play on entering the introduction
+  step for a new character, gated on `settings.soundEnabled &&
+  settings.autoPlayAudio`, tracked via a `_autoPlayedItemId` guard so it
+  fires once per character (reset on Restart).
+- **Audio assets — read this before assuming anything plays real speech.**
+  Only 5 files exist: `assets/audio/hiragana/{a,i,u,e,o}.wav`, short
+  synthesized sine-wave tones (pure Python `wave` module, distinct
+  frequency per vowel) generated purely to prove the play → resolve →
+  asset-load → playback-complete pipeline works end-to-end without
+  throwing — **not** real Japanese pronunciation. `hiragana_lessons.json`'s
+  5 `audioAsset` paths were updated from `.mp3` to `.wav` to point at them.
+  Katakana and Kanji have **zero** audio files by design, specifically to
+  exercise and demonstrate the missing-asset path (verified on device:
+  あ shows a working "Play Pronunciation" button, ア shows a disabled
+  "Audio not available" button, no crash either way). `assets/audio/
+  {hiragana,katakana,kanji}/` are registered as folder-level pubspec asset
+  entries (with `.gitkeep` placeholders in the two empty ones) specifically
+  so that dropping real recordings in later requires **no pubspec or code
+  changes** — that was an explicit design goal, not an accident.
+- Not implemented (explicitly out of scope per the milestone): the
+  lesson-card speaker icon (marked "optional" in the brief, absent from its
+  stop-condition list), and a settings-screen volume control (marked
+  "future-ready"). The "sound disabled" `AudioButton` state was verified by
+  code review, not live on-device — there's no navigation entry point from
+  the Dashboard to `/settings` yet (pre-existing gap, still open).
+
+`flutter analyze`: **No issues found.**
+
+### Files Added
+
+- `lib/features/audio/models/audio_item.dart`
+- `lib/features/audio/repositories/audio_repository.dart`
+- `lib/features/audio/repositories/local_audio_repository.dart`
+- `lib/features/audio/services/audio_service.dart`
+- `lib/features/audio/providers/audio_providers.dart`
+- `lib/features/audio/widgets/audio_button.dart`
+- `lib/features/audio/widgets/playback_indicator.dart`
+- `lib/features/audio/widgets/pronunciation_card.dart`
+- `assets/audio/hiragana/{a,i,u,e,o}.wav`
+
+### Files Changed
+
+- `assets/data/hiragana_lessons.json` (5 `audioAsset` paths → `.wav`)
+- `lib/features/practice/learning_screen.dart` (`AudioButton` + auto-play)
+- `pubspec.yaml` (registers `assets/audio/{hiragana,katakana,kanji}/`)
+
+## Milestone 16: Universal Search & Dictionary
+
+Implemented and verified on device.
+
+- `lib/features/search/`: `SearchResult` (`id`, `symbol`, `script`, `title`,
+  `subtitle`, `searchKeywords`, `matchedField`, `learningItem`) and
+  `FavoriteItem` (`script`, `itemId`, `symbol`, `createdAt`) models.
+- `OfflineSearchRepository`: builds its index from `contentSourcesProvider`
+  (the same list the dashboard uses — no parallel per-script data access),
+  calling each repository's `getAllLessons()` then `getItem(id)` per
+  character (O(n²) in character count, but n ≈ 130 today so this is free;
+  revisit only if content grows by an order of magnitude). Matching walks
+  a fixed field priority (`symbol → romaji → reading → meaning → jlptLevel
+  → radical → strokeCount`) and returns the first field that contains the
+  (already-lowercased) query, plus a digits-only fallback so `"5 strokes"`
+  matches stroke count `5`. `SearchResult.matchedField` is therefore always
+  computed at query time, never cached on the index.
+- `SearchService`: normalizes (trim + lowercase), takes the repository's
+  direct matches, adds a Levenshtein-distance-≤1 fuzzy fallback against the
+  full index only when direct matches are sparse (< 5 results) and the
+  query is ≥ 2 characters, ranks everything (exact symbol match > exact
+  keyword > prefix match > substring match > fuzzy-only), and groups by
+  script for the UI.
+- `FavoritesRepository`/`HiveFavoritesRepository` (Hive box `favorites`) and
+  `SearchHistoryRepository`/`HiveSearchHistoryRepository` (Hive box
+  `search_history`, capped at 10, most-recent-first, de-duplicated
+  case-insensitively) — each paired with a `ChangeNotifier` controller
+  (`FavoritesController`, `SearchHistoryController`) following the M12
+  pattern.
+- Providers: `searchRepositoryProvider`, `searchServiceProvider`,
+  `favoritesProvider`, `searchHistoryProvider`, `searchQueryProvider`
+  (`StateProvider<String>`), `searchResultsProvider` (`FutureProvider`,
+  watches the query provider — real-time search with no debounce needed at
+  this data scale), `allSearchResultsProvider` (the unfiltered index, used
+  for "Popular" suggestions without re-running a search).
+- `SearchScreen`: `AppSearchBar` (named to avoid colliding with Flutter's
+  own Material 3 `SearchBar` widget) at top; when the query is empty shows
+  Recent (chips from history), Popular (first 2 lesson-1 characters per
+  script from the index — an honest "commonly-learned basics" proxy, not a
+  claim of real usage analytics), and Continue Learning (same resolution
+  pattern as the dashboard's card, duplicated locally per the established
+  screen-level-resolution convention); otherwise shows results grouped by
+  script via `SearchSection`/`SearchResultTile`. Reusable widgets:
+  `AppSearchBar`, `SearchResultTile`, `SearchSection`, `EmptySearchState`,
+  `RecentSearchChip`, `FavoriteButton`.
+- Dashboard: new "Quick Search" `FeatureCard` (that widget existed since
+  early milestones but was unused until now) linking to `/search`.
+- **Selecting a result reuses the existing learning flow, not a new detail
+  screen** — `LearningController.startLesson` and `LearningScreen` gained
+  an optional `startCharacterId`; if set, the session's initial character
+  index is looked up by id instead of defaulting to `0`. The router's
+  `/practice/:lessonNumber` gained a `char` query parameter for this.
+  Preserved across `restartLesson()`. Verified on device: searching
+  `"water"` → tapping 水 opens Kanji Lesson 5 already on "Character 2 of
+  10" (水 itself), not lesson start.
+- **Bug found and fixed during runtime verification**: opening a Kanji
+  character from search (or, it turns out, normally) showed a 44px bottom
+  overflow on the Previous/Next/Restart button row. Root cause predates
+  this milestone: `learning_screen.dart`'s practice `Column` was never
+  wrapped in a scrollable — harmless while the introduction card was short
+  (Hiragana/Katakana), but M14's Kanji introduction content (readings +
+  radical + example) made it taller than the viewport. Fixed by wrapping
+  the `Column` in a `SingleChildScrollView`; verified the same 水 screen
+  scrolls cleanly with all four buttons reachable.
+
+`flutter analyze`: **No issues found.**
+
+### Files Added
+
+- `lib/features/search/models/search_result.dart`
+- `lib/features/search/models/favorite_item.dart`
+- `lib/features/search/repositories/search_repository.dart`
+- `lib/features/search/repositories/offline_search_repository.dart`
+- `lib/features/search/repositories/favorites_repository.dart`
+- `lib/features/search/repositories/hive_favorites_repository.dart`
+- `lib/features/search/repositories/search_history_repository.dart`
+- `lib/features/search/repositories/hive_search_history_repository.dart`
+- `lib/features/search/services/search_service.dart`
+- `lib/features/search/services/favorites_controller.dart`
+- `lib/features/search/services/search_history_controller.dart`
+- `lib/features/search/providers/search_providers.dart`
+- `lib/features/search/screens/search_screen.dart`
+- `lib/features/search/widgets/search_bar_field.dart` (`AppSearchBar`)
+- `lib/features/search/widgets/search_result_tile.dart`
+- `lib/features/search/widgets/search_section.dart`
+- `lib/features/search/widgets/empty_search_state.dart`
+- `lib/features/search/widgets/recent_search_chip.dart`
+- `lib/features/search/widgets/favorite_button.dart`
+
+### Files Changed
+
+- `lib/features/practice/learning_controller.dart` (`startCharacterId`)
+- `lib/features/practice/learning_screen.dart` (`startCharacterId` param;
+  **`SingleChildScrollView` overflow fix**)
+- `lib/core/router/app_router.dart` (`char` query param; `/search` route)
+- `lib/features/dashboard/screens/dashboard_screen.dart` ("Quick Search"
+  `FeatureCard`)
+- `lib/main.dart` (opens `favorites` and `search_history` Hive boxes)
+
+## Milestone 17: Advanced Practice Modes (Quiz Engine)
+
+Implemented and verified on device.
+
+- **Naming deviation from the milestone brief, deliberate**: the brief
+  specified `lib/features/practice/{models,repositories,...}`, but
+  `lib/features/practice/` already existed — it's the guided-lesson flow
+  (`learning_controller.dart` + `learning_screen.dart`, routed at
+  `/practice/:lessonNumber`), added long before this milestone and not a
+  standard multi-subfolder feature. Per `PROJECT_RULES.md` ("do not rename
+  files, folders, classes, or public APIs unless required"), renaming that
+  existing feature to free up the name was rejected — it would have touched
+  `app_router.dart`, `dashboard_screen.dart`, `review_screen.dart`, and
+  `search_screen.dart`, all of which build `/practice/...` URLs today. The
+  new engine lives in **`lib/features/quiz/`** instead (full
+  `models/repositories/services/providers/screens/widgets` shape, matching
+  `search/`), with routes `/quiz`, `/quiz/play`, `/quiz/results`. All
+  user-facing copy still says "Practice" (dashboard section, screen
+  headings, card titles) — only the internal folder/route name differs from
+  the brief.
+- Models (`lib/features/quiz/models/`): `PracticeMode` (static catalog
+  entry — id/title/description/iconKey/difficulty/supportedScripts, not
+  persisted); `PracticeQuestion` (`QuestionType` enum
+  `recognition/meaning/reading/listening`, one shared model every mode
+  builds); `PracticeSession` (in-memory only, mirrors `LearningSession`'s
+  immutable-state-machine shape — not Hive-persisted, since nested
+  `LearningItem`/`PracticeQuestion` data doesn't fit the flat `toMap`
+  convention); `PracticeResult` (the persisted session summary — flat
+  fields, `toMap`/`fromMap` with ISO8601 dates, exactly the
+  `LessonProgress`/`ReviewItem` convention; carries `incorrectItemIds` which
+  is what powers Weak Items generation from history); `PracticeStatistics`
+  (aggregate value object computed from every `PracticeResult`, mirrors
+  `LearningStatistics`'s relationship to `StatisticsService`).
+- `PracticeRepository` / `HivePracticeRepository`: Hive box
+  `practice_results`, keyed by result id — exact shape of
+  `HiveReviewRepository`.
+- `PracticeGenerator` (`lib/features/quiz/services/`): `static const
+  catalog` of exactly 6 modes (`recognition`, `meaning`, `reading`,
+  `listening`, `mixed`, `weak_items`). One private question-type builder per
+  `QuestionType` shared across every mode — a mode only decides which
+  builder(s) and which item pool to use, so quiz logic isn't duplicated 6
+  times. Item pool is pulled via `getAllLessons()` then `getItem(id)` per
+  character through `ContentRepositoryFactory` — the same pattern
+  `OfflineSearchRepository` established in M16 — deliberately **not** a
+  manual `LearningItem` reconstruction from `CharacterModel` (that was the
+  exact bug class fixed in M14; calling the repository's own `getItem`
+  avoids repeating it a third place). Distractors: 3 random items from the
+  same script, falling back cross-script if a script's pool has fewer than
+  4 items (relevant because Hiragana has only 5 characters total).
+  Configurable session length (10/20/50) cycles through a reshuffled pool
+  when the requested count exceeds the available unique items.
+  - **Listening mode and the audio-honesty rule**: the item pool is
+    filtered to characters with audio verified via
+    `AudioRepository.resolveAudio` — today that's effectively only the 5
+    Hiragana vowels (Katakana/Kanji have zero audio files, per M15). No new
+    placeholder audio was added to work around this, per
+    `PROJECT_RULES.md`'s "Audio asset honesty" rule. `PracticeHomeScreen`
+    disables the Listening card with "Not enough audio available yet." if
+    the filtered pool has fewer than 4 items (`listeningModeAvailableProvider`),
+    the same graceful-degradation pattern the M15 `AudioButton` already
+    uses for missing assets — verified true (enabled) on device today,
+    since the 5 Hiragana vowels are exactly enough.
+  - **Weak Items mode**: pool built from lessons with
+    `bestWritingAccuracy < 70` (`ProgressRepository`), overdue reviews
+    (`ReviewRepository`), and every past `PracticeResult.incorrectItemIds`
+    (`PracticeRepository`) — deduped, falls back to the full pool if no
+    weak-signal data exists yet so the mode never returns empty.
+- `PracticeService` (`ChangeNotifier`, exact shape of `AudioService`):
+  `startSession`/`startReviewMistakes`/`submitAnswer`/`clearSession`. On the
+  final answer it persists a `PracticeResult` via `PracticeRepository` and
+  exposes it as `lastResult`.
+- `PracticeStatisticsService`: aggregates every `PracticeResult` into
+  `PracticeStatistics` (total sessions/questions, accuracy/best-score/
+  last-played per mode, most-practiced and weakest script, a practice
+  streak computed the same "distinct dates, walk backward" way
+  `AchievementService.calculateStreak` already does — sourced from
+  `PracticeResult.endTime` instead of `LessonProgress.lastAccessedAt`;
+  duplicated rather than shared, matching the project's existing tolerance
+  for this kind of small duplication over a forced cross-feature
+  abstraction, e.g. the three near-identical script repositories from M13).
+- Providers (`lib/features/quiz/providers/practice_providers.dart`) follow
+  the established repository → service → `ChangeNotifierProvider`/
+  `FutureProvider` shape; `practiceStatisticsProvider` and
+  `practiceResultsProvider` both `ref.watch(practiceServiceProvider)` purely
+  as an invalidation trigger — the same reactivity convention every feature
+  since M9 uses, no manual `ref.invalidate()` calls added.
+- Screens: `PracticeHomeScreen` (`/quiz` — mode grid with per-mode best
+  score/last played, session-length selector), `PracticeSessionScreen`
+  (`/quiz/play?mode=&scripts=&length=`, or `?mode=&items=` for "Review
+  Mistakes" — reads query params once via a `_started` guard, submits
+  answers with a brief reveal delay, auto-navigates to results when the
+  session completes), `PracticeResultsScreen` (`/quiz/results` — score/
+  accuracy/correct/incorrect/time/characters practiced/areas to review;
+  Retry, Review Mistakes, Return Home actions). Widgets: `PracticeCard`,
+  `QuestionCard` (reuses the existing `AudioButton` for Listening
+  questions), `AnswerOption`, `ScoreCard`, `SessionSummaryCard`,
+  `PracticeModeSelector`, `practice_icons.dart`.
+- **Achievement integration**: `AchievementCriteria` gained 4 values
+  (`practiceSessionsCompleted`, `practiceQuestionsAnswered`,
+  `perfectPracticeSessions`, `practiceStreakDays`); `AchievementService`
+  gained a `required PracticeStatisticsService practiceStatisticsService`
+  constructor dependency (same shape as its existing `ReviewRepository`/
+  `StatisticsService` deps) and 4 new `_meetsCriteria` switch cases
+  (Dart-enforced exhaustive, so a 5th criteria without a case would be a
+  compile error, not a silent no-op). 6 new catalog entries reuse those 4
+  criteria at different thresholds: `first_practice_session` (1 session),
+  `perfect_practice_score` (1 perfect session), `practice_sessions_10` (10
+  sessions), `practice_questions_100` / `practice_questions_500`, and
+  `practice_streak_30` (30-day streak). `AchievementsScreen` needed **zero**
+  changes — it already iterates `AchievementService.catalog` generically.
+  `achievementProgressListProvider` and its dependents additionally
+  `ref.watch(practiceServiceProvider)` as an invalidation trigger.
+- **Dashboard integration**: new "Practice" section between "Achievements"
+  and "Scripts" — `SessionSummaryCard` ("Start Practice" / "Continue Last
+  Practice", resolving the most recent `PracticeResult`'s mode title via
+  `PracticeGenerator.modeById`), plus three `StatisticCard`s (Sessions This
+  Week, Weekly Accuracy — both computed inline from `practiceResultsProvider`
+  the same way `_resolveScriptSummary` is computed inline elsewhere in this
+  file — and Best Quiz Score from `PracticeStatistics.bestScore`).
+  `dashboard_providers.dart` needed no changes; the quiz feature has its own
+  providers file, imported directly into `dashboard_screen.dart` the same
+  way achievements/review already are.
+- `lib/main.dart` opens the new `practice_results` Hive box via
+  `HivePracticeRepository.boxName` (the newer constant-reference style, not
+  the older string-literal style the first two boxes use).
+
+`flutter analyze`: **No issues found.**
+
+### Runtime Verification
+
+Verified on the same Android emulator (API 37, `emulator-5554`) used for
+every prior milestone.
+
+- Dashboard's new "Practice" section rendered correctly pre-session ("Get
+  Started" / "Try a quiz mode..." / "Start Practice", all three stat cards
+  showing placeholder `--`/`0` states).
+- `PracticeHomeScreen` showed all 6 modes with correct titles, difficulty
+  labels, descriptions, and "Best: -- · Not played yet"; Listening Quiz was
+  enabled (not greyed out), confirming the audio-pool availability check
+  correctly found the 5 real Hiragana vowel recordings.
+- Started a 10-question Listening Quiz: each question correctly showed the
+  reused `AudioButton` ("Play Pronunciation") and 4 Hiragana-symbol choices;
+  answering advanced through all 10 questions with the reveal delay working
+  and no repeated/stuck questions, confirming the reshuffle-and-cycle logic
+  for a session length (10) larger than the unique pool (5 Hiragana vowels).
+- Results screen correctly showed **20% Accuracy, 2 Correct, 8 Incorrect,
+  2m 20s Time, 10 Characters Practiced**, "8 character(s) to review.", and
+  all three actions (Return Home / Review Mistakes / Retry) present only
+  where applicable.
+- Returning to `/quiz` immediately showed the Listening Quiz card updated
+  to **"Best: 20% · Last played 7/26/2026"**, confirming persistence and
+  the `practiceStatisticsProvider` invalidation trigger both work.
+- Dashboard's Practice section updated to **"Continue" / "Listening Quiz" /
+  "Continue Last Practice"**, **"1" Sessions This Week**, **"20%" Weekly
+  Accuracy** — confirming the dashboard's own invalidation watch works
+  without any manual refresh.
+- Achievements section's "recently unlocked" card updated to **"Quiz
+  Novice — Complete your first practice session."**, confirming the new
+  `AchievementCriteria.practiceSessionsCompleted` case fired correctly
+  end-to-end through the new `PracticeStatisticsService` dependency, with
+  **zero changes needed in `AchievementsScreen`** itself.
+- Force-restarted the app (killed and relaunched, cold start) and confirmed
+  the dashboard still showed the same 20% best score / session data —
+  verifies the `practice_results` Hive box is opened correctly at boot in
+  `main.dart` and survives a real app restart, not just in-memory state.
+- Checked the full `flutter run` log across the entire session: no Dart
+  exceptions, no `FlutterError` output, only benign platform log lines
+  (frame-skip warnings, an unrelated `HWUI` EGL format notice).
+- Regression spot check: Hiragana/Katakana/Kanji dashboard stats, the
+  existing "Today's Reviews" section, and the guided-lesson `/practice/1`
+  flow were all visible and unaffected in the same screenshots — nothing
+  under `lib/features/practice/`, `lib/features/writing/`,
+  `lib/features/hiragana/`/`katakana/`/`kanji/`, or `lib/features/review/`
+  was touched by this milestone.
+
+### Files Added
+
+- `lib/features/quiz/models/practice_mode.dart`
+- `lib/features/quiz/models/practice_question.dart`
+- `lib/features/quiz/models/practice_session.dart`
+- `lib/features/quiz/models/practice_result.dart`
+- `lib/features/quiz/models/practice_statistics.dart`
+- `lib/features/quiz/repositories/practice_repository.dart`
+- `lib/features/quiz/repositories/hive_practice_repository.dart`
+- `lib/features/quiz/services/practice_generator.dart`
+- `lib/features/quiz/services/practice_service.dart`
+- `lib/features/quiz/services/practice_statistics_service.dart`
+- `lib/features/quiz/providers/practice_providers.dart`
+- `lib/features/quiz/screens/practice_home_screen.dart`
+- `lib/features/quiz/screens/practice_session_screen.dart`
+- `lib/features/quiz/screens/practice_results_screen.dart`
+- `lib/features/quiz/widgets/practice_card.dart`
+- `lib/features/quiz/widgets/question_card.dart`
+- `lib/features/quiz/widgets/answer_option.dart`
+- `lib/features/quiz/widgets/score_card.dart`
+- `lib/features/quiz/widgets/session_summary_card.dart`
+- `lib/features/quiz/widgets/practice_mode_selector.dart`
+- `lib/features/quiz/widgets/practice_icons.dart`
+
+### Files Changed
+
+- `lib/main.dart` (opens `practice_results` Hive box)
+- `lib/core/router/app_router.dart` (adds `/quiz`, `/quiz/play`,
+  `/quiz/results`)
+- `lib/features/achievements/models/achievement.dart` (4 new
+  `AchievementCriteria` values)
+- `lib/features/achievements/services/achievement_service.dart` (6 new
+  catalog entries, `practiceStatisticsService` constructor dependency, 4
+  new `_meetsCriteria` cases)
+- `lib/features/achievements/providers/achievement_providers.dart` (wires
+  the new dependency; adds an invalidation watch)
+- `lib/features/dashboard/screens/dashboard_screen.dart` (new "Practice"
+  section between Achievements and Scripts)
+
+No files under `lib/features/practice/`, `lib/features/writing/`,
+`lib/features/hiragana/`/`katakana/`/`kanji/`, or `lib/features/review/`
+were touched.
+
+## Milestone 18: Learning Analytics & Insights
+
+Implemented and verified on device. Purely additive/read-only — no
+existing repository, service, or model in any other feature was modified;
+every number shown here is derived live from data those features already
+persist.
+
+- **No chart package.** No charting library is in the approved dependency
+  list, and `PROJECT_RULES.md` forbids adding dependencies without
+  explicit approval. `TrendChart` (`lib/features/analytics/widgets/`) is a
+  small `CustomPainter` line chart instead — a `List<TrendSeries>` in, a
+  painted widget out, so a real charting package could replace the
+  internals later without touching callers. `ActivityHeatmap` is similarly
+  a plain `Wrap` of colored `Container`s (no package).
+- **`AnalyticsRepository`/`HiveAnalyticsRepository`** (Hive box
+  `analytics_snapshot`) persist only a small `AnalyticsSnapshot` (scalar
+  totals + timestamp) as a side effect of every `AnalyticsService
+  .getAnalytics()` call — not a competing read path. Every other *Service
+  in this app (`StatisticsService`, `AchievementService`,
+  `PracticeStatisticsService`) recomputes fresh on every call with no
+  caching precedent, and this app's data volume is small enough that this
+  is free; `AnalyticsService.getAnalytics()` follows the same rule and is
+  what every screen actually watches.
+- **`AnalyticsService`** (`lib/features/analytics/services/`) aggregates,
+  reusing existing services/repositories directly rather than
+  recomputing their logic: `PracticeStatisticsService` for quiz stats,
+  `AchievementService.calculateStreak` for the *same* streak already shown
+  on the dashboard/achievements screen (not a second parallel one),
+  `AchievementRepository.getAllProgress()` for unlock state (read-only,
+  unlike `evaluateAchievements` which has persistence side effects). Produces
+  a `LearningAnalytics`: script breakdown, a trailing-30-day
+  `DailyLearningStat` activity log, sorted/capped `WeakArea`s (low writing
+  accuracy, most-missed quiz items via `PracticeResult.incorrectItemIds`,
+  most-overdue reviews), a handful of deterministic `insights` strings
+  (streak callout, week-over-week accuracy delta, strongest/weakest quiz
+  mode, days-since-last-review per script), and `NextAchievement` progress
+  fractions for locked achievements (computed via a `_currentValueFor`
+  switch that mirrors `AchievementService._meetsCriteria`'s shape — the
+  same small, accepted duplication `PracticeStatisticsService`'s streak
+  calc already established in M17).
+- **Disclosed data limitations** (real data, not fabricated, but worth
+  knowing before trusting these numbers):
+  - `ReviewScheduler` has no failure-tracking path (`recordSuccessfulReview`
+    is the only outcome ever recorded), so "Review success rate" in the
+    trend chart is always 100% on any day with a review — an honest
+    reflection of the current scheduler, not invented pass/fail data.
+  - `ReviewItem` stores only the single most recent `lastReviewed`
+    timestamp per lesson (no full review-event history), so the 30-day
+    activity log's reviews-per-day undercounts lessons reviewed more than
+    once in that window.
+  - `PracticeResult` (M17) records session-level accuracy across every
+    script touched in that session, not a per-script breakdown, so
+    `ScriptAnalytics.averageQuizAccuracy` is an approximation (average of
+    sessions that touched that script at all).
+  - "Estimated Study Minutes" is a heuristic, clearly labeled "(est.)" in
+    the UI: real `PracticeResult` durations + 3 minutes per completed
+    lesson + 1 minute per recorded review.
+- **`AnalyticsExportService`**: pure `toCsv`/`toJson` string builders plus
+  `exportToFile` using `path_provider`'s `getApplicationDocumentsDirectory()`
+  (already an approved, previously-unused dependency) and `dart:io`'s
+  `File` — the first file I/O in this codebase. Analytics-only, distinct
+  from the still-placeholder full-progress Export/Import on the Settings
+  screen (M12, untouched).
+- Providers (`lib/features/analytics/providers/analytics_providers.dart`):
+  `learningAnalyticsProvider` (`FutureProvider`, watches
+  `progressControllerProvider`/`dueReviewsProvider`/`practiceServiceProvider`/
+  `achievementProgressListProvider` purely as invalidation triggers — the
+  established reactivity convention) and `scriptAnalyticsProvider` (a
+  plain `Provider` deriving `.scriptBreakdown` from the same computation,
+  not a second aggregation).
+- `AnalyticsScreen` (`/analytics`): Overall Progress (`ProgressRing` +
+  `StatisticCard`s), Script Breakdown (`ScriptSummaryCard` per script),
+  Accuracy Trends (`TrendChart`), Activity Calendar (`ActivityHeatmap`),
+  Weak Areas (`WeakAreaCard` list + a "Practice Now" button that routes to
+  `/quiz/play?mode=weak_items&length=10` — reuses `PracticeGenerator`'s
+  existing weak-item generation exactly as-is, zero new wiring), Achievement
+  Summary (unlocked/total + next-achievement progress bars, reusing
+  `achievementIconForKey`), Study Insights (`InsightCard` list). An export
+  menu in the app bar calls `AnalyticsExportService` and shows a snackbar
+  with the saved path or an error.
+- Dashboard integration: new "View Analytics" `FeatureCard` (same shape as
+  the existing "Quick Search" card) plus a 3-stat row — Weekly Activity,
+  Average Accuracy, Practice Trend (Improving/Declining/Steady/"No data
+  yet", comparing the trailing 7 days of `dailyActivity` against the
+  preceding 7) — both sourced from the same `learningAnalyticsProvider`,
+  no dashboard-specific computation added.
+
+`flutter analyze`: **No issues found.**
+
+### Runtime Verification
+
+Verified on the same Android emulator (API 37, `emulator-5554`), using the
+real data already on the device from Milestone 17's testing (1 completed
+Listening Quiz session, 8/10 answers incorrect, 2 completed lessons).
+
+- Dashboard's new "View Analytics" card and quick-metrics row (Weekly
+  Activity: 5, Average Accuracy: 1%, Practice Trend: "No data yet" — correct,
+  since fewer than 14 days of history exist) rendered correctly and linked
+  to `/analytics`.
+- Overall Progress matched the dashboard's own numbers exactly: 11%
+  completion, 2 lessons completed, 1 practice session, 1 total review, 9
+  min estimated study time, 1-day current/longest streak.
+- Script Breakdown showed all three scripts with correct per-script
+  numbers (Hiragana: 100% complete, 1% writing accuracy, 20% quiz
+  accuracy, 1 practice session; Katakana/Kanji correctly near-zero).
+- Accuracy Trends and the Activity Calendar both rendered against the
+  sparse real history (a `CustomPainter` line segment and two highlighted
+  heatmap cells on the two most recent active days) with no rendering
+  errors on a chart with mostly-null data points.
+- Weak Areas correctly surfaced **Lesson あ** and **Lesson ア** (1% writing
+  accuracy) plus **あ/お/え** (missed 2× in quizzes) and **い/う** (missed
+  1× each) — an exact match for the M17 test session's 8 incorrect
+  answers. Tapping "Practice Now" launched a real Weak Items quiz session
+  starting on カ タ カ ナ オ, confirming the same weak-signal data
+  `PracticeGenerator._generateWeakItems` already used is what Analytics
+  surfaces.
+- Achievement Summary correctly showed **3 / 12** unlocked.
+- Study Insights showed "Listening Quiz is your strongest practice mode
+  (20% accuracy)" — correct, it's the only mode played so far.
+- Exported both CSV and JSON via the app bar menu; both saved successfully
+  (snackbar confirmed the file path) and were pulled from the device via
+  `adb shell run-as` for inspection: the CSV contained well-formed summary/
+  script/daily-activity/weak-areas sections, and the JSON parsed cleanly
+  with `json.load` and contained the same data structured as nested
+  objects.
+- No Dart exceptions or `FlutterError` output anywhere in the `flutter run`
+  log across the full session (dashboard → analytics → weak items quiz →
+  export ×2); only benign platform log lines.
+- Regression check: dashboard's pre-existing sections, the quiz flow
+  (including a real Weak Items session launched from Analytics), and app
+  restart persistence were all exercised in the same session with no
+  issues.
+
+### Files Added
+
+- `lib/features/analytics/models/daily_learning_stat.dart`
+- `lib/features/analytics/models/script_analytics.dart`
+- `lib/features/analytics/models/weak_area.dart`
+- `lib/features/analytics/models/learning_analytics.dart`
+- `lib/features/analytics/models/analytics_snapshot.dart`
+- `lib/features/analytics/repositories/analytics_repository.dart`
+- `lib/features/analytics/repositories/hive_analytics_repository.dart`
+- `lib/features/analytics/services/analytics_service.dart`
+- `lib/features/analytics/services/analytics_export_service.dart`
+- `lib/features/analytics/providers/analytics_providers.dart`
+- `lib/features/analytics/screens/analytics_screen.dart`
+- `lib/features/analytics/widgets/statistic_card.dart`
+- `lib/features/analytics/widgets/trend_chart.dart`
+- `lib/features/analytics/widgets/progress_ring.dart`
+- `lib/features/analytics/widgets/insight_card.dart`
+- `lib/features/analytics/widgets/script_summary_card.dart`
+- `lib/features/analytics/widgets/activity_heatmap.dart`
+- `lib/features/analytics/widgets/weak_area_card.dart`
+
+### Files Changed
+
+- `lib/main.dart` (opens `analytics_snapshot` Hive box)
+- `lib/core/router/app_router.dart` (adds `/analytics`)
+- `lib/features/dashboard/screens/dashboard_screen.dart` (new "View
+  Analytics" section)
+
+No files under `lib/features/progress/`, `lib/features/review/`,
+`lib/features/quiz/`, or `lib/features/achievements/` were modified —
+this milestone only reads from their existing repositories/services.
+
 ## Next Required Action
 
-None. All 11 milestones to date are complete, `flutter analyze` is clean,
-and the full app (dashboard, Hiragana lesson, review mode, achievements) is
-verified working end-to-end on device. Do not start Milestone 12 or any new
-feature (the suggested next one mentioned in prior instructions was a more
-advanced SM-2 spaced-repetition algorithm, or expanding Katakana/Kanji
-content) until the user explicitly requests it and defines its scope.
+None. All 18 milestones to date are complete, `flutter analyze` is clean,
+and the full app (dashboard, all three scripts, review mode, achievements,
+settings, audio, search, practice/quiz, analytics) is verified working
+end-to-end on device, including a real file-based CSV/JSON export. Do not
+start Milestone 19 or any new feature until the user explicitly requests
+it and defines its scope.
+
+Known open item (not a bug, not blocking): there is still no navigation
+entry point from the Dashboard to `/settings` — the route and screen exist
+and work when reached directly, but nothing in the UI links to it yet.

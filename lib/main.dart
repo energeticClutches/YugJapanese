@@ -4,6 +4,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/analytics/repositories/hive_analytics_repository.dart';
+import 'features/quiz/repositories/hive_practice_repository.dart';
 import 'features/search/repositories/hive_favorites_repository.dart';
 import 'features/search/repositories/hive_search_history_repository.dart';
 import 'features/settings/models/app_settings.dart';
@@ -19,6 +21,8 @@ Future<void> main() async {
   await Hive.openBox<dynamic>(HiveSettingsRepository.boxName);
   await Hive.openBox<dynamic>(HiveFavoritesRepository.boxName);
   await Hive.openBox<dynamic>(HiveSearchHistoryRepository.boxName);
+  await Hive.openBox<dynamic>(HivePracticeRepository.boxName);
+  await Hive.openBox<dynamic>(HiveAnalyticsRepository.boxName);
   runApp(const JapaneseLearningApp());
 }
 

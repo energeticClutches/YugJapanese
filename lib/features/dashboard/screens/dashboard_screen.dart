@@ -14,9 +14,17 @@ import '../../achievements/services/achievement_service.dart';
 import '../../achievements/widgets/achievement_card.dart';
 import '../../achievements/widgets/achievement_icons.dart';
 import '../../achievements/widgets/streak_card.dart';
+import '../../analytics/models/daily_learning_stat.dart';
+import '../../analytics/models/learning_analytics.dart';
+import '../../analytics/providers/analytics_providers.dart';
 import '../../progress/models/lesson_progress.dart';
 import '../../progress/providers/progress_providers.dart';
 import '../../progress/repositories/progress_repository.dart';
+import '../../quiz/models/practice_result.dart';
+import '../../quiz/models/practice_statistics.dart';
+import '../../quiz/providers/practice_providers.dart';
+import '../../quiz/services/practice_generator.dart';
+import '../../quiz/widgets/session_summary_card.dart';
 import '../../review/models/review_item.dart';
 import '../../review/providers/review_providers.dart';
 import '../../review/widgets/review_summary_card.dart';
@@ -27,6 +35,91 @@ import '../widgets/continue_learning_card.dart';
 import '../widgets/progress_summary_card.dart';
 import '../widgets/script_card.dart';
 import '../widgets/statistic_card.dart';
+
+class _WeeklyPracticeSummary {
+  const _WeeklyPracticeSummary({
+    required this.sessionCount,
+    required this.averageAccuracy,
+  });
+
+  final int sessionCount;
+  final double averageAccuracy;
+}
+
+_WeeklyPracticeSummary _resolveWeeklyPracticeSummary(
+  List<PracticeResult> results,
+) {
+  final DateTime weekAgo = DateTime.now().subtract(const Duration(days: 7));
+  final List<PracticeResult> recent = results
+      .where((PracticeResult result) => result.endTime.isAfter(weekAgo))
+      .toList();
+  if (recent.isEmpty) {
+    return const _WeeklyPracticeSummary(sessionCount: 0, averageAccuracy: 0);
+  }
+  final double totalAccuracy = recent.fold(
+    0.0,
+    (double sum, PracticeResult result) => sum + result.accuracy,
+  );
+  return _WeeklyPracticeSummary(
+    sessionCount: recent.length,
+    averageAccuracy: totalAccuracy / recent.length,
+  );
+}
+
+String _practiceSummaryTitle(List<PracticeResult>? results) {
+  if (results == null || results.isEmpty) {
+    return "Try a quiz mode to reinforce what you've learned.";
+  }
+  final PracticeResult mostRecent = results.reduce(
+    (PracticeResult a, PracticeResult b) =>
+        a.endTime.isAfter(b.endTime) ? a : b,
+  );
+  return PracticeGenerator.modeById(mostRecent.modeId)?.title ??
+      mostRecent.modeId;
+}
+
+double _averageScriptAccuracy(LearningAnalytics analytics) {
+  if (analytics.scriptBreakdown.isEmpty) {
+    return 0;
+  }
+  final double total = analytics.scriptBreakdown.fold(
+    0.0,
+    (double sum, script) => sum + script.averageWritingAccuracy,
+  );
+  return total / analytics.scriptBreakdown.length;
+}
+
+String _resolvePracticeTrend(List<DailyLearningStat> dailyActivity) {
+  if (dailyActivity.length < 14) {
+    return 'No data yet';
+  }
+  final List<DailyLearningStat> last7 = dailyActivity.sublist(dailyActivity.length - 7);
+  final List<DailyLearningStat> prev7 = dailyActivity.sublist(
+    dailyActivity.length - 14,
+    dailyActivity.length - 7,
+  );
+  final List<double> lastValues = last7
+      .map((DailyLearningStat d) => d.averageQuizAccuracy)
+      .whereType<double>()
+      .toList();
+  final List<double> prevValues = prev7
+      .map((DailyLearningStat d) => d.averageQuizAccuracy)
+      .whereType<double>()
+      .toList();
+  if (lastValues.isEmpty || prevValues.isEmpty) {
+    return 'No data yet';
+  }
+  final double lastAvg = lastValues.reduce((a, b) => a + b) / lastValues.length;
+  final double prevAvg = prevValues.reduce((a, b) => a + b) / prevValues.length;
+  final double delta = lastAvg - prevAvg;
+  if (delta > 1) {
+    return 'Improving';
+  }
+  if (delta < -1) {
+    return 'Declining';
+  }
+  return 'Steady';
+}
 
 const Map<String, String> _scriptTitles = <String, String>{
   'hiragana': 'Hiragana',
@@ -154,6 +247,12 @@ class DashboardScreen extends ConsumerWidget {
         ref.watch(contentSourcesProvider);
     final ProgressRepository progressRepository =
         ref.watch(progressRepositoryProvider);
+    final AsyncValue<PracticeStatistics> practiceStatisticsAsync =
+        ref.watch(practiceStatisticsProvider);
+    final AsyncValue<List<PracticeResult>> practiceResultsAsync =
+        ref.watch(practiceResultsProvider);
+    final AsyncValue<LearningAnalytics> analyticsAsync =
+        ref.watch(learningAnalyticsProvider);
 
     return AppScaffold(
       child: statisticsAsync.when(
@@ -164,6 +263,9 @@ class DashboardScreen extends ConsumerWidget {
           achievementsAsync: achievementsAsync,
           contentSources: contentSources,
           progressRepository: progressRepository,
+          practiceStatisticsAsync: practiceStatisticsAsync,
+          practiceResultsAsync: practiceResultsAsync,
+          analyticsAsync: analyticsAsync,
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (Object error, StackTrace stackTrace) => _DashboardContent(
@@ -173,6 +275,9 @@ class DashboardScreen extends ConsumerWidget {
           achievementsAsync: achievementsAsync,
           contentSources: contentSources,
           progressRepository: progressRepository,
+          practiceStatisticsAsync: practiceStatisticsAsync,
+          practiceResultsAsync: practiceResultsAsync,
+          analyticsAsync: analyticsAsync,
         ),
       ),
     );
@@ -187,6 +292,9 @@ class _DashboardContent extends StatelessWidget {
     required this.achievementsAsync,
     required this.contentSources,
     required this.progressRepository,
+    required this.practiceStatisticsAsync,
+    required this.practiceResultsAsync,
+    required this.analyticsAsync,
   });
 
   final LearningStatistics statistics;
@@ -195,6 +303,9 @@ class _DashboardContent extends StatelessWidget {
   final AsyncValue<List<AchievementProgress>> achievementsAsync;
   final List<ContentSource> contentSources;
   final ProgressRepository progressRepository;
+  final AsyncValue<PracticeStatistics> practiceStatisticsAsync;
+  final AsyncValue<List<PracticeResult>> practiceResultsAsync;
+  final AsyncValue<LearningAnalytics> analyticsAsync;
 
   @override
   Widget build(BuildContext context) {
@@ -324,6 +435,100 @@ class _DashboardContent extends StatelessWidget {
                 description: recent.description,
                 icon: achievementIconForKey(recent.iconKey),
                 isUnlocked: true,
+              );
+            },
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Text(
+            'Practice',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Builder(
+            builder: (context) {
+              final List<PracticeResult> results =
+                  practiceResultsAsync.asData?.value ?? const <PracticeResult>[];
+              return SessionSummaryCard(
+                label: results.isEmpty ? 'Get Started' : 'Continue',
+                title: _practiceSummaryTitle(results),
+                buttonLabel:
+                    results.isEmpty ? 'Start Practice' : 'Continue Last Practice',
+                onPressed: () => context.go('/quiz'),
+              );
+            },
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Builder(
+            builder: (context) {
+              final PracticeStatistics practiceStatistics =
+                  practiceStatisticsAsync.asData?.value ?? PracticeStatistics.empty;
+              final _WeeklyPracticeSummary weekly = _resolveWeeklyPracticeSummary(
+                practiceResultsAsync.asData?.value ?? const <PracticeResult>[],
+              );
+              return Wrap(
+                spacing: AppSpacing.md,
+                runSpacing: AppSpacing.md,
+                children: [
+                  StatisticCard(
+                    icon: Icons.quiz_outlined,
+                    label: 'Sessions This Week',
+                    value: '${weekly.sessionCount}',
+                  ),
+                  StatisticCard(
+                    icon: Icons.percent,
+                    label: 'Weekly Accuracy',
+                    value: weekly.sessionCount == 0
+                        ? '--'
+                        : '${weekly.averageAccuracy.round()}%',
+                  ),
+                  StatisticCard(
+                    icon: Icons.emoji_events_outlined,
+                    label: 'Best Quiz Score',
+                    value: practiceStatistics.totalSessions == 0
+                        ? '--'
+                        : '${practiceStatistics.bestScore.round()}%',
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          FeatureCard(
+            icon: Icons.insights_outlined,
+            title: 'View Analytics',
+            subtitle: 'See trends, weak areas, and study insights',
+            onTap: () => context.go('/analytics'),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Builder(
+            builder: (context) {
+              final LearningAnalytics analytics =
+                  analyticsAsync.asData?.value ?? LearningAnalytics.empty;
+              final int weeklyActivity = analytics.dailyActivity
+                  .where((DailyLearningStat d) => d.hasActivity)
+                  .fold<int>(0, (int sum, DailyLearningStat d) => sum + d.activityCount);
+              return Wrap(
+                spacing: AppSpacing.md,
+                runSpacing: AppSpacing.md,
+                children: [
+                  StatisticCard(
+                    icon: Icons.event_available_outlined,
+                    label: 'Weekly Activity',
+                    value: '$weeklyActivity',
+                  ),
+                  StatisticCard(
+                    icon: Icons.gps_fixed,
+                    label: 'Average Accuracy',
+                    value: analytics.totalLessonsCompleted == 0
+                        ? '--'
+                        : '${_averageScriptAccuracy(analytics).round()}%',
+                  ),
+                  StatisticCard(
+                    icon: Icons.trending_up,
+                    label: 'Practice Trend',
+                    value: _resolvePracticeTrend(analytics.dailyActivity),
+                  ),
+                ],
               );
             },
           ),

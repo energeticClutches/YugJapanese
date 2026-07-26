@@ -3,6 +3,10 @@ enum AchievementCriteria {
   longestStreakDays,
   reviewsCompleted,
   averageAccuracy,
+  practiceSessionsCompleted,
+  practiceQuestionsAnswered,
+  perfectPracticeSessions,
+  practiceStreakDays,
 }
 
 /// Static definition of an achievement. Instances live in
