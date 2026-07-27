@@ -14,7 +14,8 @@
           "lessonNumber": 1,
           "unicode": "U+30A2",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/a.mp3"
+          "audioAsset": "assets/audio/katakana/a.mp3",
+          "notes": "Like a capital 'A' missing its right leg."
         },
         {
           "id": "katakana-i",
@@ -25,7 +26,8 @@
           "lessonNumber": 1,
           "unicode": "U+30A4",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/i.mp3"
+          "audioAsset": "assets/audio/katakana/i.mp3",
+          "notes": "Two strokes leaning, like an 'i' without its dot."
         },
         {
           "id": "katakana-u",
@@ -36,7 +38,8 @@
           "lessonNumber": 1,
           "unicode": "U+30A6",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/u.mp3"
+          "audioAsset": "assets/audio/katakana/u.mp3",
+          "notes": "A roof with a small chimney on top."
         },
         {
           "id": "katakana-e",
@@ -47,7 +50,8 @@
           "lessonNumber": 1,
           "unicode": "U+30A8",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/e.mp3"
+          "audioAsset": "assets/audio/katakana/e.mp3",
+          "notes": "Two bars joined by a post — the kanji 工."
         },
         {
           "id": "katakana-o",
@@ -58,7 +62,8 @@
           "lessonNumber": 1,
           "unicode": "U+30AA",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/o.mp3"
+          "audioAsset": "assets/audio/katakana/o.mp3",
+          "notes": "A cross with a hook curling up at the base."
         }
       ]
     },
@@ -76,7 +81,8 @@
           "lessonNumber": 2,
           "unicode": "U+30AB",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ka.mp3"
+          "audioAsset": "assets/audio/katakana/ka.mp3",
+          "notes": "The same shape as the kanji 力 (power)."
         },
         {
           "id": "katakana-ki",
@@ -87,7 +93,8 @@
           "lessonNumber": 2,
           "unicode": "U+30AD",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ki.mp3"
+          "audioAsset": "assets/audio/katakana/ki.mp3",
+          "notes": "A key (ki) with two crossbars."
         },
         {
           "id": "katakana-ku",
@@ -98,7 +105,8 @@
           "lessonNumber": 2,
           "unicode": "U+30AF",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ku.mp3"
+          "audioAsset": "assets/audio/katakana/ku.mp3",
+          "notes": "A sharp hook — like ケ without the vertical stroke."
         },
         {
           "id": "katakana-ke",
@@ -109,7 +117,8 @@
           "lessonNumber": 2,
           "unicode": "U+30B1",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ke.mp3"
+          "audioAsset": "assets/audio/katakana/ke.mp3",
+          "notes": "A 'K' shape with a slanted top stroke."
         },
         {
           "id": "katakana-ko",
@@ -120,7 +129,8 @@
           "lessonNumber": 2,
           "unicode": "U+30B3",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ko.mp3"
+          "audioAsset": "assets/audio/katakana/ko.mp3",
+          "notes": "Two strokes forming a bracket — half a box."
         }
       ]
     },
@@ -138,7 +148,8 @@
           "lessonNumber": 3,
           "unicode": "U+30B5",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/sa.mp3"
+          "audioAsset": "assets/audio/katakana/sa.mp3",
+          "notes": "A plant sprouting, with two stems through a bar."
         },
         {
           "id": "katakana-shi",
@@ -149,7 +160,8 @@
           "lessonNumber": 3,
           "unicode": "U+30B7",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/shi.mp3"
+          "audioAsset": "assets/audio/katakana/shi.mp3",
+          "notes": "Two dots and a sweep to the right — a smile."
         },
         {
           "id": "katakana-su",
@@ -160,7 +172,8 @@
           "lessonNumber": 3,
           "unicode": "U+30B9",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/su.mp3"
+          "audioAsset": "assets/audio/katakana/su.mp3",
+          "notes": "A hook with a leg kicking down to the left."
         },
         {
           "id": "katakana-se",
@@ -171,7 +184,8 @@
           "lessonNumber": 3,
           "unicode": "U+30BB",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/se.mp3"
+          "audioAsset": "assets/audio/katakana/se.mp3",
+          "notes": "Like hiragana せ, but drawn with straight lines."
         },
         {
           "id": "katakana-so",
@@ -182,7 +196,8 @@
           "lessonNumber": 3,
           "unicode": "U+30BD",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/so.mp3"
+          "audioAsset": "assets/audio/katakana/so.mp3",
+          "notes": "Two short strokes — シ turned upright."
         }
       ]
     },
@@ -200,7 +215,8 @@
           "lessonNumber": 4,
           "unicode": "U+30BF",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ta.mp3"
+          "audioAsset": "assets/audio/katakana/ta.mp3",
+          "notes": "Like ク with a slash — the kanji 夕 (evening)."
         },
         {
           "id": "katakana-chi",
@@ -211,7 +227,8 @@
           "lessonNumber": 4,
           "unicode": "U+30C1",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/chi.mp3"
+          "audioAsset": "assets/audio/katakana/chi.mp3",
+          "notes": "A '7' with a bar drawn across it."
         },
         {
           "id": "katakana-tsu",
@@ -222,7 +239,8 @@
           "lessonNumber": 4,
           "unicode": "U+30C4",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/tsu.mp3"
+          "audioAsset": "assets/audio/katakana/tsu.mp3",
+          "notes": "Three marks along the top — シ stood upright."
         },
         {
           "id": "katakana-te",
@@ -233,7 +251,8 @@
           "lessonNumber": 4,
           "unicode": "U+30C6",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/te.mp3"
+          "audioAsset": "assets/audio/katakana/te.mp3",
+          "notes": "A 'T' with two bars stacked above it."
         },
         {
           "id": "katakana-to",
@@ -244,7 +263,8 @@
           "lessonNumber": 4,
           "unicode": "U+30C8",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/to.mp3"
+          "audioAsset": "assets/audio/katakana/to.mp3",
+          "notes": "A post with a wedge — a 'T' rotated."
         }
       ]
     },
@@ -262,7 +282,8 @@
           "lessonNumber": 5,
           "unicode": "U+30CA",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/na.mp3"
+          "audioAsset": "assets/audio/katakana/na.mp3",
+          "notes": "A leaning cross — the top of the kanji 名."
         },
         {
           "id": "katakana-ni",
@@ -273,7 +294,8 @@
           "lessonNumber": 5,
           "unicode": "U+30CB",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ni.mp3"
+          "audioAsset": "assets/audio/katakana/ni.mp3",
+          "notes": "Two horizontal bars — the kanji 二 (two)."
         },
         {
           "id": "katakana-nu",
@@ -284,7 +306,8 @@
           "lessonNumber": 5,
           "unicode": "U+30CC",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/nu.mp3"
+          "audioAsset": "assets/audio/katakana/nu.mp3",
+          "notes": "Like ス, but with an extra slash across it."
         },
         {
           "id": "katakana-ne",
@@ -295,7 +318,8 @@
           "lessonNumber": 5,
           "unicode": "U+30CD",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ne.mp3"
+          "audioAsset": "assets/audio/katakana/ne.mp3",
+          "notes": "A cross with strokes beneath — the top of 社."
         },
         {
           "id": "katakana-no",
@@ -306,7 +330,8 @@
           "lessonNumber": 5,
           "unicode": "U+30CE",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/no.mp3"
+          "audioAsset": "assets/audio/katakana/no.mp3",
+          "notes": "A single diagonal slash, top-right to bottom-left."
         }
       ]
     },
@@ -324,7 +349,8 @@
           "lessonNumber": 6,
           "unicode": "U+30CF",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ha.mp3"
+          "audioAsset": "assets/audio/katakana/ha.mp3",
+          "notes": "Two strokes spreading apart — the kanji 八 (eight)."
         },
         {
           "id": "katakana-hi",
@@ -335,7 +361,8 @@
           "lessonNumber": 6,
           "unicode": "U+30D2",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/hi.mp3"
+          "audioAsset": "assets/audio/katakana/hi.mp3",
+          "notes": "An 'L' with a bar across — a heel (hi)."
         },
         {
           "id": "katakana-fu",
@@ -346,7 +373,8 @@
           "lessonNumber": 6,
           "unicode": "U+30D5",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/fu.mp3"
+          "audioAsset": "assets/audio/katakana/fu.mp3",
+          "notes": "A single hook — the top-right corner of ワ."
         },
         {
           "id": "katakana-he",
@@ -357,7 +385,8 @@
           "lessonNumber": 6,
           "unicode": "U+30D8",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/he.mp3"
+          "audioAsset": "assets/audio/katakana/he.mp3",
+          "notes": "The same as hiragana へ — an arrow bending."
         },
         {
           "id": "katakana-ho",
@@ -368,7 +397,8 @@
           "lessonNumber": 6,
           "unicode": "U+30DB",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ho.mp3"
+          "audioAsset": "assets/audio/katakana/ho.mp3",
+          "notes": "Like the kanji 木 (tree) with a flat top stroke."
         }
       ]
     },
@@ -386,7 +416,8 @@
           "lessonNumber": 7,
           "unicode": "U+30DE",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ma.mp3"
+          "audioAsset": "assets/audio/katakana/ma.mp3",
+          "notes": "A hook with a slash running through it."
         },
         {
           "id": "katakana-mi",
@@ -397,7 +428,8 @@
           "lessonNumber": 7,
           "unicode": "U+30DF",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/mi.mp3"
+          "audioAsset": "assets/audio/katakana/mi.mp3",
+          "notes": "Three bars stacked — シ laid flat."
         },
         {
           "id": "katakana-mu",
@@ -408,7 +440,8 @@
           "lessonNumber": 7,
           "unicode": "U+30E0",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/mu.mp3"
+          "audioAsset": "assets/audio/katakana/mu.mp3",
+          "notes": "A small angular hook sitting on a base."
         },
         {
           "id": "katakana-me",
@@ -419,7 +452,8 @@
           "lessonNumber": 7,
           "unicode": "U+30E1",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/me.mp3"
+          "audioAsset": "assets/audio/katakana/me.mp3",
+          "notes": "An 'X' shape, slightly open at the top."
         },
         {
           "id": "katakana-mo",
@@ -430,7 +464,8 @@
           "lessonNumber": 7,
           "unicode": "U+30E2",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/mo.mp3"
+          "audioAsset": "assets/audio/katakana/mo.mp3",
+          "notes": "A bar with a hook — the kanji 毛 simplified."
         }
       ]
     },
@@ -448,7 +483,8 @@
           "lessonNumber": 8,
           "unicode": "U+30E4",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ya.mp3"
+          "audioAsset": "assets/audio/katakana/ya.mp3",
+          "notes": "Like hiragana や, drawn with straight lines."
         },
         {
           "id": "katakana-yu",
@@ -459,7 +495,8 @@
           "lessonNumber": 8,
           "unicode": "U+30E6",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/yu.mp3"
+          "audioAsset": "assets/audio/katakana/yu.mp3",
+          "notes": "A vertical stroke on a base — コ rotated."
         },
         {
           "id": "katakana-yo",
@@ -470,7 +507,8 @@
           "lessonNumber": 8,
           "unicode": "U+30E8",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/yo.mp3"
+          "audioAsset": "assets/audio/katakana/yo.mp3",
+          "notes": "Three bars joined on the right — a reversed 'E'."
         }
       ]
     },
@@ -488,7 +526,8 @@
           "lessonNumber": 9,
           "unicode": "U+30E9",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ra.mp3"
+          "audioAsset": "assets/audio/katakana/ra.mp3",
+          "notes": "A short bar sitting above a hook."
         },
         {
           "id": "katakana-ri",
@@ -499,7 +538,8 @@
           "lessonNumber": 9,
           "unicode": "U+30EA",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ri.mp3"
+          "audioAsset": "assets/audio/katakana/ri.mp3",
+          "notes": "Two vertical strokes — the kanji radical 刂."
         },
         {
           "id": "katakana-ru",
@@ -510,7 +550,8 @@
           "lessonNumber": 9,
           "unicode": "U+30EB",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ru.mp3"
+          "audioAsset": "assets/audio/katakana/ru.mp3",
+          "notes": "Two legs, the right one flicking upward."
         },
         {
           "id": "katakana-re",
@@ -521,7 +562,8 @@
           "lessonNumber": 9,
           "unicode": "U+30EC",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/re.mp3"
+          "audioAsset": "assets/audio/katakana/re.mp3",
+          "notes": "A single 'L' shape that flicks up at the end."
         },
         {
           "id": "katakana-ro",
@@ -532,7 +574,8 @@
           "lessonNumber": 9,
           "unicode": "U+30ED",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/ro.mp3"
+          "audioAsset": "assets/audio/katakana/ro.mp3",
+          "notes": "A square box — the kanji 口 (mouth)."
         }
       ]
     },
@@ -550,7 +593,8 @@
           "lessonNumber": 10,
           "unicode": "U+30EF",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/wa.mp3"
+          "audioAsset": "assets/audio/katakana/wa.mp3",
+          "notes": "A wide bracket — like ク with a flat top."
         },
         {
           "id": "katakana-wo",
@@ -561,7 +605,8 @@
           "lessonNumber": 10,
           "unicode": "U+30F2",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/wo.mp3"
+          "audioAsset": "assets/audio/katakana/wo.mp3",
+          "notes": "Like ラ, but with an extra bar through it."
         },
         {
           "id": "katakana-n",
@@ -572,7 +617,8 @@
           "lessonNumber": 10,
           "unicode": "U+30F3",
           "isLearned": false,
-          "audioAsset": "assets/audio/katakana/n.mp3"
+          "audioAsset": "assets/audio/katakana/n.mp3",
+          "notes": "A short slash with a hook — ソ, but curved."
         }
       ]
     }

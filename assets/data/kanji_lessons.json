@@ -28,7 +28,8 @@
               "reading": "ひとり",
               "meaning": "one person"
             }
-          ]
+          ],
+          "notes": "One single horizontal stroke."
         },
         {
           "id": "右",
@@ -53,7 +54,8 @@
               "reading": "みぎて",
               "meaning": "right hand"
             }
-          ]
+          ],
+          "notes": "A hand over a mouth (口) — the hand you eat with."
         },
         {
           "id": "雨",
@@ -78,7 +80,8 @@
               "reading": "うてん",
               "meaning": "rainy weather"
             }
-          ]
+          ],
+          "notes": "Raindrops falling inside a window frame."
         },
         {
           "id": "円",
@@ -103,7 +106,8 @@
               "reading": "えん",
               "meaning": "yen"
             }
-          ]
+          ],
+          "notes": "A round coin with a line through it."
         },
         {
           "id": "王",
@@ -126,7 +130,8 @@
               "reading": "おうさま",
               "meaning": "king"
             }
-          ]
+          ],
+          "notes": "Three levels ruled by one vertical stroke — a crown."
         },
         {
           "id": "音",
@@ -153,7 +158,8 @@
               "reading": "おんがく",
               "meaning": "music"
             }
-          ]
+          ],
+          "notes": "Stand (立) over sun (日) — standing up and speaking."
         },
         {
           "id": "下",
@@ -181,7 +187,8 @@
               "reading": "ちか",
               "meaning": "underground"
             }
-          ]
+          ],
+          "notes": "A line with a mark hanging beneath it."
         },
         {
           "id": "火",
@@ -206,7 +213,8 @@
               "reading": "かようび",
               "meaning": "Tuesday"
             }
-          ]
+          ],
+          "notes": "A person with sparks flying off both sides."
         },
         {
           "id": "花",
@@ -231,7 +239,8 @@
               "reading": "はなみ",
               "meaning": "flower viewing"
             }
-          ]
+          ],
+          "notes": "Grass (艹) above change (化) — a plant blooming."
         },
         {
           "id": "貝",
@@ -256,7 +265,8 @@
               "reading": "かいがら",
               "meaning": "seashell"
             }
-          ]
+          ],
+          "notes": "A shell with two little legs beneath it."
         }
       ]
     },
@@ -288,7 +298,8 @@
               "reading": "がっこう",
               "meaning": "school"
             }
-          ]
+          ],
+          "notes": "A child (子) under the roof of a school."
         },
         {
           "id": "気",
@@ -313,7 +324,8 @@
               "reading": "てんき",
               "meaning": "weather"
             }
-          ]
+          ],
+          "notes": "Steam rising and curling upward."
         },
         {
           "id": "九",
@@ -340,7 +352,8 @@
               "reading": "くがつ",
               "meaning": "September"
             }
-          ]
+          ],
+          "notes": "A hook curling round — one short of ten."
         },
         {
           "id": "休",
@@ -365,7 +378,8 @@
               "reading": "きゅうじつ",
               "meaning": "holiday"
             }
-          ]
+          ],
+          "notes": "A person (亻) resting against a tree (木)."
         },
         {
           "id": "玉",
@@ -390,7 +404,8 @@
               "reading": "たまご",
               "meaning": "egg"
             }
-          ]
+          ],
+          "notes": "Like king (王) with a dot — a jewel in the crown."
         },
         {
           "id": "金",
@@ -417,7 +432,8 @@
               "reading": "きんようび",
               "meaning": "Friday"
             }
-          ]
+          ],
+          "notes": "A roof over nuggets buried in the earth."
         },
         {
           "id": "空",
@@ -443,7 +459,8 @@
               "reading": "くうき",
               "meaning": "air"
             }
-          ]
+          ],
+          "notes": "A hole (穴) above a workman (工) — empty space."
         },
         {
           "id": "月",
@@ -470,7 +487,8 @@
               "reading": "げつようび",
               "meaning": "Monday"
             }
-          ]
+          ],
+          "notes": "A crescent moon with two lines inside."
         },
         {
           "id": "犬",
@@ -495,7 +513,8 @@
               "reading": "こいぬ",
               "meaning": "puppy"
             }
-          ]
+          ],
+          "notes": "Like big (大) with a dot — a dog's ear flicking."
         },
         {
           "id": "見",
@@ -520,7 +539,8 @@
               "reading": "けんがく",
               "meaning": "observation tour"
             }
-          ]
+          ],
+          "notes": "An eye (目) on legs — eyes that walk and look."
         }
       ]
     },
@@ -552,7 +572,8 @@
               "reading": "ごがつ",
               "meaning": "May"
             }
-          ]
+          ],
+          "notes": "A hand with the fingers folded over."
         },
         {
           "id": "口",
@@ -579,7 +600,8 @@
               "reading": "いりぐち",
               "meaning": "entrance"
             }
-          ]
+          ],
+          "notes": "An open square mouth."
         },
         {
           "id": "校",
@@ -602,7 +624,8 @@
               "reading": "こうちょう",
               "meaning": "principal"
             }
-          ]
+          ],
+          "notes": "A tree (木) beside a crossing (交) — the schoolyard."
         },
         {
           "id": "左",
@@ -627,7 +650,8 @@
               "reading": "ひだりて",
               "meaning": "left hand"
             }
-          ]
+          ],
+          "notes": "A hand above a workbench (工) — the helping hand."
         },
         {
           "id": "三",
@@ -652,7 +676,8 @@
               "reading": "さんがつ",
               "meaning": "March"
             }
-          ]
+          ],
+          "notes": "Three horizontal strokes stacked up."
         },
         {
           "id": "山",
@@ -677,7 +702,8 @@
               "reading": "ふじさん",
               "meaning": "Mt. Fuji"
             }
-          ]
+          ],
+          "notes": "Three peaks rising from one base."
         },
         {
           "id": "子",
@@ -704,7 +730,8 @@
               "reading": "こども",
               "meaning": "child"
             }
-          ]
+          ],
+          "notes": "A baby with its arms out and body swaddled."
         },
         {
           "id": "四",
@@ -730,7 +757,8 @@
               "reading": "しがつ",
               "meaning": "April"
             }
-          ]
+          ],
+          "notes": "A box with legs inside — four walls."
         },
         {
           "id": "糸",
@@ -755,7 +783,8 @@
               "reading": "けいと",
               "meaning": "wool yarn"
             }
-          ]
+          ],
+          "notes": "A spool with threads hanging below it."
         },
         {
           "id": "字",
@@ -778,7 +807,8 @@
               "reading": "かんじ",
               "meaning": "kanji character"
             }
-          ]
+          ],
+          "notes": "A child (子) under a roof, learning to write."
         }
       ]
     },
@@ -810,7 +840,8 @@
               "reading": "みみたぶ",
               "meaning": "earlobe"
             }
-          ]
+          ],
+          "notes": "The outline of an ear with the canal inside."
         },
         {
           "id": "七",
@@ -835,7 +866,8 @@
               "reading": "しちがつ",
               "meaning": "July"
             }
-          ]
+          ],
+          "notes": "A single cut slicing across a stroke."
         },
         {
           "id": "車",
@@ -860,7 +892,8 @@
               "reading": "でんしゃ",
               "meaning": "train"
             }
-          ]
+          ],
+          "notes": "A cart seen from above — axle and wheels."
         },
         {
           "id": "手",
@@ -885,7 +918,8 @@
               "reading": "てがみ",
               "meaning": "letter"
             }
-          ]
+          ],
+          "notes": "A palm with fingers above and a wrist below."
         },
         {
           "id": "十",
@@ -912,7 +946,8 @@
               "reading": "じゅうがつ",
               "meaning": "October"
             }
-          ]
+          ],
+          "notes": "A simple cross — ten fingers, two hands."
         },
         {
           "id": "出",
@@ -938,7 +973,8 @@
               "reading": "でぐち",
               "meaning": "exit"
             }
-          ]
+          ],
+          "notes": "A plant pushing up and out of its container."
         },
         {
           "id": "女",
@@ -965,7 +1001,8 @@
               "reading": "じょし",
               "meaning": "girl"
             }
-          ]
+          ],
+          "notes": "A figure seated with its legs crossed."
         },
         {
           "id": "小",
@@ -991,7 +1028,8 @@
               "reading": "しょうがっこう",
               "meaning": "elementary school"
             }
-          ]
+          ],
+          "notes": "A tiny centre stroke with a speck either side."
         },
         {
           "id": "上",
@@ -1018,7 +1056,8 @@
               "reading": "じょうず",
               "meaning": "skilled"
             }
-          ]
+          ],
+          "notes": "A line with a mark standing above it."
         },
         {
           "id": "森",
@@ -1043,7 +1082,8 @@
               "reading": "しんりん",
               "meaning": "forest"
             }
-          ]
+          ],
+          "notes": "Three trees (木) together — a forest."
         }
       ]
     },
@@ -1077,7 +1117,8 @@
               "reading": "にほんじん",
               "meaning": "Japanese person"
             }
-          ]
+          ],
+          "notes": "Two legs walking."
         },
         {
           "id": "水",
@@ -1102,7 +1143,8 @@
               "reading": "すいようび",
               "meaning": "Wednesday"
             }
-          ]
+          ],
+          "notes": "A stream splitting into droplets."
         },
         {
           "id": "正",
@@ -1130,7 +1172,8 @@
               "reading": "しょうがつ",
               "meaning": "New Year"
             }
-          ]
+          ],
+          "notes": "Stop (止) exactly at the line — correct."
         },
         {
           "id": "生",
@@ -1159,7 +1202,8 @@
               "reading": "せんせい",
               "meaning": "teacher"
             }
-          ]
+          ],
+          "notes": "A sprout pushing up through the soil."
         },
         {
           "id": "青",
@@ -1186,7 +1230,8 @@
               "reading": "あおぞら",
               "meaning": "blue sky"
             }
-          ]
+          ],
+          "notes": "Life (生) over moon (月) — fresh blue-green."
         },
         {
           "id": "夕",
@@ -1211,7 +1256,8 @@
               "reading": "ゆうがた",
               "meaning": "evening"
             }
-          ]
+          ],
+          "notes": "A moon with one stroke missing — dusk."
         },
         {
           "id": "石",
@@ -1238,7 +1284,8 @@
               "reading": "こいし",
               "meaning": "pebble"
             }
-          ]
+          ],
+          "notes": "A rock lying beneath a cliff."
         },
         {
           "id": "赤",
@@ -1263,7 +1310,8 @@
               "reading": "あかちゃん",
               "meaning": "baby"
             }
-          ]
+          ],
+          "notes": "Earth (土) above a fire — glowing red."
         },
         {
           "id": "川",
@@ -1288,7 +1336,8 @@
               "reading": "おがわ",
               "meaning": "stream"
             }
-          ]
+          ],
+          "notes": "Three lines of flowing water."
         },
         {
           "id": "先",
@@ -1313,7 +1362,8 @@
               "reading": "せんしゅう",
               "meaning": "last week"
             }
-          ]
+          ],
+          "notes": "A foot stepping out ahead of the rest."
         }
       ]
     },
@@ -1345,7 +1395,8 @@
               "reading": "そうちょう",
               "meaning": "early morning"
             }
-          ]
+          ],
+          "notes": "The sun (日) just above the horizon at dawn."
         },
         {
           "id": "草",
@@ -1370,7 +1421,8 @@
               "reading": "くさばな",
               "meaning": "flowers and plants"
             }
-          ]
+          ],
+          "notes": "Grass (艹) over early (早) — the morning's growth."
         },
         {
           "id": "足",
@@ -1396,7 +1448,8 @@
               "reading": "あしおと",
               "meaning": "footsteps"
             }
-          ]
+          ],
+          "notes": "A knee above a foot."
         },
         {
           "id": "村",
@@ -1421,7 +1474,8 @@
               "reading": "むらびと",
               "meaning": "villager"
             }
-          ]
+          ],
+          "notes": "A tree (木) beside a measure (寸) — a settlement."
         },
         {
           "id": "大",
@@ -1448,7 +1502,8 @@
               "reading": "だいがく",
               "meaning": "university"
             }
-          ]
+          ],
+          "notes": "A person with arms and legs stretched wide."
         },
         {
           "id": "男",
@@ -1475,7 +1530,8 @@
               "reading": "だんし",
               "meaning": "boy"
             }
-          ]
+          ],
+          "notes": "Power (力) applied in the rice field (田)."
         },
         {
           "id": "竹",
@@ -1500,7 +1556,8 @@
               "reading": "ちくりん",
               "meaning": "bamboo grove"
             }
-          ]
+          ],
+          "notes": "Two bamboo stalks with drooping leaves."
         },
         {
           "id": "中",
@@ -1525,7 +1582,8 @@
               "reading": "ちゅうがっこう",
               "meaning": "middle school"
             }
-          ]
+          ],
+          "notes": "A line drawn straight through the centre of a box."
         },
         {
           "id": "虫",
@@ -1550,7 +1608,8 @@
               "reading": "むしば",
               "meaning": "cavity (tooth decay)"
             }
-          ]
+          ],
+          "notes": "A bug with a round body and antennae."
         },
         {
           "id": "町",
@@ -1575,7 +1634,8 @@
               "reading": "しちょうそん",
               "meaning": "municipalities"
             }
-          ]
+          ],
+          "notes": "A rice field (田) beside a measure (丁) — laid-out streets."
         }
       ]
     },
@@ -1608,7 +1668,8 @@
               "reading": "てんさい",
               "meaning": "genius"
             }
-          ]
+          ],
+          "notes": "A big person (大) with a lid above — the sky."
         },
         {
           "id": "田",
@@ -1633,7 +1694,8 @@
               "reading": "たんぼ",
               "meaning": "rice paddy"
             }
-          ]
+          ],
+          "notes": "A field divided into four plots."
         },
         {
           "id": "土",
@@ -1660,7 +1722,8 @@
               "reading": "どようび",
               "meaning": "Saturday"
             }
-          ]
+          ],
+          "notes": "A mound of soil sitting on the ground."
         },
         {
           "id": "二",
@@ -1685,7 +1748,8 @@
               "reading": "にがつ",
               "meaning": "February"
             }
-          ]
+          ],
+          "notes": "Two horizontal strokes stacked up."
         },
         {
           "id": "日",
@@ -1713,7 +1777,8 @@
               "reading": "にちようび",
               "meaning": "Sunday"
             }
-          ]
+          ],
+          "notes": "The sun — a box with a line through the middle."
         },
         {
           "id": "入",
@@ -1739,7 +1804,8 @@
               "reading": "にゅうがく",
               "meaning": "school enrollment"
             }
-          ]
+          ],
+          "notes": "Two strokes meeting, like a doorway."
         },
         {
           "id": "年",
@@ -1764,7 +1830,8 @@
               "reading": "ことし",
               "meaning": "this year"
             }
-          ]
+          ],
+          "notes": "A person carrying the harvest — one year's crop."
         },
         {
           "id": "白",
@@ -1791,7 +1858,8 @@
               "reading": "はくちょう",
               "meaning": "swan"
             }
-          ]
+          ],
+          "notes": "The sun (日) with a ray above it — bright white."
         },
         {
           "id": "八",
@@ -1816,7 +1884,8 @@
               "reading": "はちがつ",
               "meaning": "August"
             }
-          ]
+          ],
+          "notes": "Two strokes spreading apart."
         },
         {
           "id": "百",
@@ -1839,7 +1908,8 @@
               "reading": "ひゃくにん",
               "meaning": "one hundred people"
             }
-          ]
+          ],
+          "notes": "One (一) above white (白) — a hundred."
         }
       ]
     },
@@ -1873,7 +1943,8 @@
               "reading": "ぶんがく",
               "meaning": "literature"
             }
-          ]
+          ],
+          "notes": "A figure with its arms crossed — writing."
         },
         {
           "id": "木",
@@ -1900,7 +1971,8 @@
               "reading": "もくようび",
               "meaning": "Thursday"
             }
-          ]
+          ],
+          "notes": "A trunk with branches above and roots below."
         },
         {
           "id": "本",
@@ -1925,7 +1997,8 @@
               "reading": "にほん",
               "meaning": "Japan"
             }
-          ]
+          ],
+          "notes": "A tree (木) with a mark at its root — the origin."
         },
         {
           "id": "名",
@@ -1952,7 +2025,8 @@
               "reading": "なまえ",
               "meaning": "name"
             }
-          ]
+          ],
+          "notes": "Evening (夕) and mouth (口) — calling a name in the dark."
         },
         {
           "id": "目",
@@ -1977,7 +2051,8 @@
               "reading": "めだま",
               "meaning": "eyeball"
             }
-          ]
+          ],
+          "notes": "An eye stood upright, pupil inside."
         },
         {
           "id": "立",
@@ -2002,7 +2077,8 @@
               "reading": "きりつ",
               "meaning": "stand up"
             }
-          ]
+          ],
+          "notes": "A person standing firmly on the ground."
         },
         {
           "id": "力",
@@ -2029,7 +2105,8 @@
               "reading": "ちからもち",
               "meaning": "strong person"
             }
-          ]
+          ],
+          "notes": "A flexed arm."
         },
         {
           "id": "林",
@@ -2054,7 +2131,8 @@
               "reading": "りんどう",
               "meaning": "forest road"
             }
-          ]
+          ],
+          "notes": "Two trees (木) side by side."
         },
         {
           "id": "六",
@@ -2079,7 +2157,8 @@
               "reading": "ろくがつ",
               "meaning": "June"
             }
-          ]
+          ],
+          "notes": "A roof standing on two legs."
         }
       ]
     }

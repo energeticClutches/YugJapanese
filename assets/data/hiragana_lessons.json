@@ -14,7 +14,8 @@
           "lessonNumber": 1,
           "unicode": "U+3042",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/a.wav"
+          "audioAsset": "assets/audio/hiragana/a.wav",
+          "notes": "Looks like an 'A' with a ribbon looped at its side."
         },
         {
           "id": "hiragana-i",
@@ -25,7 +26,8 @@
           "lessonNumber": 1,
           "unicode": "U+3044",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/i.wav"
+          "audioAsset": "assets/audio/hiragana/i.wav",
+          "notes": "Two people standing side by side, the left one taller."
         },
         {
           "id": "hiragana-u",
@@ -36,7 +38,8 @@
           "lessonNumber": 1,
           "unicode": "U+3046",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/u.wav"
+          "audioAsset": "assets/audio/hiragana/u.wav",
+          "notes": "A bird's beak curving down to the right."
         },
         {
           "id": "hiragana-e",
@@ -47,7 +50,8 @@
           "lessonNumber": 1,
           "unicode": "U+3048",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/e.wav"
+          "audioAsset": "assets/audio/hiragana/e.wav",
+          "notes": "A flag on a pole with a swooping base."
         },
         {
           "id": "hiragana-o",
@@ -58,7 +62,8 @@
           "lessonNumber": 1,
           "unicode": "U+304A",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/o.wav"
+          "audioAsset": "assets/audio/hiragana/o.wav",
+          "notes": "Like あ, but with an extra flick — an 'o' with a knot."
         }
       ]
     },
@@ -76,7 +81,8 @@
           "lessonNumber": 2,
           "unicode": "U+304B",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ka.wav"
+          "audioAsset": "assets/audio/hiragana/ka.wav",
+          "notes": "A katana (ka) slicing down past a shoulder."
         },
         {
           "id": "hiragana-ki",
@@ -87,7 +93,8 @@
           "lessonNumber": 2,
           "unicode": "U+304D",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ki.wav"
+          "audioAsset": "assets/audio/hiragana/ki.wav",
+          "notes": "A key (ki) with two teeth along its shaft."
         },
         {
           "id": "hiragana-ku",
@@ -98,7 +105,8 @@
           "lessonNumber": 2,
           "unicode": "U+304F",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ku.wav"
+          "audioAsset": "assets/audio/hiragana/ku.wav",
+          "notes": "A cuckoo's (ku) open beak pointing left."
         },
         {
           "id": "hiragana-ke",
@@ -109,7 +117,8 @@
           "lessonNumber": 2,
           "unicode": "U+3051",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ke.wav"
+          "audioAsset": "assets/audio/hiragana/ke.wav",
+          "notes": "A keg (ke) with a tall handle on its left."
         },
         {
           "id": "hiragana-ko",
@@ -120,7 +129,8 @@
           "lessonNumber": 2,
           "unicode": "U+3053",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ko.wav"
+          "audioAsset": "assets/audio/hiragana/ko.wav",
+          "notes": "Two short strokes, like a coiled rope in two loops."
         }
       ]
     },
@@ -138,7 +148,8 @@
           "lessonNumber": 3,
           "unicode": "U+3055",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/sa.wav"
+          "audioAsset": "assets/audio/hiragana/sa.wav",
+          "notes": "A fish hook cutting across — the catch of the day."
         },
         {
           "id": "hiragana-shi",
@@ -149,7 +160,8 @@
           "lessonNumber": 3,
           "unicode": "U+3057",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/shi.wav"
+          "audioAsset": "assets/audio/hiragana/shi.wav",
+          "notes": "A single fishing line dropping and hooking up."
         },
         {
           "id": "hiragana-su",
@@ -160,7 +172,8 @@
           "lessonNumber": 3,
           "unicode": "U+3059",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/su.wav"
+          "audioAsset": "assets/audio/hiragana/su.wav",
+          "notes": "A loop with a long tail, like a swing (su) hanging."
         },
         {
           "id": "hiragana-se",
@@ -171,7 +184,8 @@
           "lessonNumber": 3,
           "unicode": "U+305B",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/se.wav"
+          "audioAsset": "assets/audio/hiragana/se.wav",
+          "notes": "A set of scales tipping over to the right."
         },
         {
           "id": "hiragana-so",
@@ -182,7 +196,8 @@
           "lessonNumber": 3,
           "unicode": "U+305D",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/so.wav"
+          "audioAsset": "assets/audio/hiragana/so.wav",
+          "notes": "A zigzag sewing (so) stitch."
         }
       ]
     },
@@ -200,7 +215,8 @@
           "lessonNumber": 4,
           "unicode": "U+305F",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ta.wav"
+          "audioAsset": "assets/audio/hiragana/ta.wav",
+          "notes": "A 't' and an 'a' stacked together."
         },
         {
           "id": "hiragana-chi",
@@ -211,7 +227,8 @@
           "lessonNumber": 4,
           "unicode": "U+3061",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/chi.wav"
+          "audioAsset": "assets/audio/hiragana/chi.wav",
+          "notes": "A chair facing left, with a curved seat."
         },
         {
           "id": "hiragana-tsu",
@@ -222,7 +239,8 @@
           "lessonNumber": 4,
           "unicode": "U+3064",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/tsu.wav"
+          "audioAsset": "assets/audio/hiragana/tsu.wav",
+          "notes": "A tsunami wave curling from left to right."
         },
         {
           "id": "hiragana-te",
@@ -233,7 +251,8 @@
           "lessonNumber": 4,
           "unicode": "U+3066",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/te.wav"
+          "audioAsset": "assets/audio/hiragana/te.wav",
+          "notes": "A telephone (te) pole with the wire hanging down."
         },
         {
           "id": "hiragana-to",
@@ -244,7 +263,8 @@
           "lessonNumber": 4,
           "unicode": "U+3068",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/to.wav"
+          "audioAsset": "assets/audio/hiragana/to.wav",
+          "notes": "A toe (to) with a thorn stuck into it."
         }
       ]
     },
@@ -262,7 +282,8 @@
           "lessonNumber": 5,
           "unicode": "U+306A",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/na.wav"
+          "audioAsset": "assets/audio/hiragana/na.wav",
+          "notes": "A knot (na) tied onto a cross."
         },
         {
           "id": "hiragana-ni",
@@ -273,7 +294,8 @@
           "lessonNumber": 5,
           "unicode": "U+306B",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ni.wav"
+          "audioAsset": "assets/audio/hiragana/ni.wav",
+          "notes": "A knee (ni) bending beside a wall."
         },
         {
           "id": "hiragana-nu",
@@ -284,7 +306,8 @@
           "lessonNumber": 5,
           "unicode": "U+306C",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/nu.wav"
+          "audioAsset": "assets/audio/hiragana/nu.wav",
+          "notes": "Noodles (nu) twisted into a loop."
         },
         {
           "id": "hiragana-ne",
@@ -295,7 +318,8 @@
           "lessonNumber": 5,
           "unicode": "U+306D",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ne.wav"
+          "audioAsset": "assets/audio/hiragana/ne.wav",
+          "notes": "A cat's (neko) tail curling into a loop."
         },
         {
           "id": "hiragana-no",
@@ -306,7 +330,8 @@
           "lessonNumber": 5,
           "unicode": "U+306E",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/no.wav"
+          "audioAsset": "assets/audio/hiragana/no.wav",
+          "notes": "The diagonal slash of a 'no entry' sign."
         }
       ]
     },
@@ -324,7 +349,8 @@
           "lessonNumber": 6,
           "unicode": "U+306F",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ha.wav"
+          "audioAsset": "assets/audio/hiragana/ha.wav",
+          "notes": "An 'H' with a curl on the end — ha!"
         },
         {
           "id": "hiragana-hi",
@@ -335,7 +361,8 @@
           "lessonNumber": 6,
           "unicode": "U+3072",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/hi.wav"
+          "audioAsset": "assets/audio/hiragana/hi.wav",
+          "notes": "A wide smile — hee hee (hi)."
         },
         {
           "id": "hiragana-fu",
@@ -346,7 +373,8 @@
           "lessonNumber": 6,
           "unicode": "U+3075",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/fu.wav"
+          "audioAsset": "assets/audio/hiragana/fu.wav",
+          "notes": "Mount Fuji (fu) seen from the side, with clouds."
         },
         {
           "id": "hiragana-he",
@@ -357,7 +385,8 @@
           "lessonNumber": 6,
           "unicode": "U+3078",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/he.wav"
+          "audioAsset": "assets/audio/hiragana/he.wav",
+          "notes": "An arrow bending — a gentle hill."
         },
         {
           "id": "hiragana-ho",
@@ -368,7 +397,8 @@
           "lessonNumber": 6,
           "unicode": "U+307B",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ho.wav"
+          "audioAsset": "assets/audio/hiragana/ho.wav",
+          "notes": "Like は with an extra bar — a house (ho) with a chimney."
         }
       ]
     },
@@ -386,7 +416,8 @@
           "lessonNumber": 7,
           "unicode": "U+307E",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ma.wav"
+          "audioAsset": "assets/audio/hiragana/ma.wav",
+          "notes": "Mama's (ma) two arms crossed, tied with a bow."
         },
         {
           "id": "hiragana-mi",
@@ -397,7 +428,8 @@
           "lessonNumber": 7,
           "unicode": "U+307F",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/mi.wav"
+          "audioAsset": "assets/audio/hiragana/mi.wav",
+          "notes": "The number 21, swirling — mi has a curl at the base."
         },
         {
           "id": "hiragana-mu",
@@ -408,7 +440,8 @@
           "lessonNumber": 7,
           "unicode": "U+3080",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/mu.wav"
+          "audioAsset": "assets/audio/hiragana/mu.wav",
+          "notes": "A cow's face — 'muu' is how a cow moos."
         },
         {
           "id": "hiragana-me",
@@ -419,7 +452,8 @@
           "lessonNumber": 7,
           "unicode": "U+3081",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/me.wav"
+          "audioAsset": "assets/audio/hiragana/me.wav",
+          "notes": "An eye (me) with a loop for the pupil."
         },
         {
           "id": "hiragana-mo",
@@ -430,7 +464,8 @@
           "lessonNumber": 7,
           "unicode": "U+3082",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/mo.wav"
+          "audioAsset": "assets/audio/hiragana/mo.wav",
+          "notes": "A fishing hook with two bars — more (mo) fish."
         }
       ]
     },
@@ -448,7 +483,8 @@
           "lessonNumber": 8,
           "unicode": "U+3084",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ya.wav"
+          "audioAsset": "assets/audio/hiragana/ya.wav",
+          "notes": "A yacht's (ya) sail leaning to the right."
         },
         {
           "id": "hiragana-yu",
@@ -459,7 +495,8 @@
           "lessonNumber": 8,
           "unicode": "U+3086",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/yu.wav"
+          "audioAsset": "assets/audio/hiragana/yu.wav",
+          "notes": "A fish curled into a loop, tail flicking up."
         },
         {
           "id": "hiragana-yo",
@@ -470,7 +507,8 @@
           "lessonNumber": 8,
           "unicode": "U+3088",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/yo.wav"
+          "audioAsset": "assets/audio/hiragana/yo.wav",
+          "notes": "A yo-yo hanging from its string."
         }
       ]
     },
@@ -488,7 +526,8 @@
           "lessonNumber": 9,
           "unicode": "U+3089",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ra.wav"
+          "audioAsset": "assets/audio/hiragana/ra.wav",
+          "notes": "A rabbit sitting up with one ear raised."
         },
         {
           "id": "hiragana-ri",
@@ -499,7 +538,8 @@
           "lessonNumber": 9,
           "unicode": "U+308A",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ri.wav"
+          "audioAsset": "assets/audio/hiragana/ri.wav",
+          "notes": "Two reeds (ri) bending in the same direction."
         },
         {
           "id": "hiragana-ru",
@@ -510,7 +550,8 @@
           "lessonNumber": 9,
           "unicode": "U+308B",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ru.wav"
+          "audioAsset": "assets/audio/hiragana/ru.wav",
+          "notes": "A route (ru) that ends in a tight loop."
         },
         {
           "id": "hiragana-re",
@@ -521,7 +562,8 @@
           "lessonNumber": 9,
           "unicode": "U+308C",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/re.wav"
+          "audioAsset": "assets/audio/hiragana/re.wav",
+          "notes": "Like ね, but the tail flicks outward instead of looping."
         },
         {
           "id": "hiragana-ro",
@@ -532,7 +574,8 @@
           "lessonNumber": 9,
           "unicode": "U+308D",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/ro.wav"
+          "audioAsset": "assets/audio/hiragana/ro.wav",
+          "notes": "Like る without the loop — an open road (ro)."
         }
       ]
     },
@@ -550,7 +593,8 @@
           "lessonNumber": 10,
           "unicode": "U+308F",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/wa.wav"
+          "audioAsset": "assets/audio/hiragana/wa.wav",
+          "notes": "Like れ, but ending in a wide loop — a wave (wa)."
         },
         {
           "id": "hiragana-wo",
@@ -561,7 +605,8 @@
           "lessonNumber": 10,
           "unicode": "U+3092",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/wo.wav"
+          "audioAsset": "assets/audio/hiragana/wo.wav",
+          "notes": "A person carrying a bar across their back."
         },
         {
           "id": "hiragana-n",
@@ -572,7 +617,8 @@
           "lessonNumber": 10,
           "unicode": "U+3093",
           "isLearned": false,
-          "audioAsset": "assets/audio/hiragana/n.wav"
+          "audioAsset": "assets/audio/hiragana/n.wav",
+          "notes": "A single 'n' squiggle, written in one stroke."
         }
       ]
     }

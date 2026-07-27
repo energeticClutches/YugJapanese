@@ -29,6 +29,7 @@ class HiraganaRepository implements LessonRepository {
         'unicode': character.unicode,
         'isLearned': character.isLearned,
       },
+      notes: character.notes,
     );
   }
 
