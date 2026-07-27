@@ -163,6 +163,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       expectedBoundingBox: expectedBox,
       canvasSize: canvasSize,
       isDrawingCompleted: _strokes.isNotEmpty,
+      referenceStrokes: guide,
     );
   }
 
