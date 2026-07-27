@@ -2064,6 +2064,42 @@ Files changed: `lib/features/review/models/review_item.dart`,
 `lib/features/{hiragana,katakana,kanji}/*_screen.dart`,
 `assets/data/{hiragana,katakana,kanji}_lessons.json`.
 
+Commits: `b0ac8b6` (scheduling), `ba0b463` (stroke direction),
+`fc3668c` (mnemonic data), `4243fbd` (pacing, rendering, this log).
+
+### Success Criteria — Outcome
+
+All four met.
+
+1. **Review scheduling prioritizes weaker material.** `getDueReviews` now
+   ranks by overdue-ness, inverted ease, and lapse count instead of due
+   date alone, and reviews are recorded from the learner's actual score
+   rather than assumed successful. Note the scheduling unit is the
+   *lesson* (`hiragana:1`), not the individual character — the app has no
+   per-character progress store, and adding one would have been a new
+   system rather than an improvement to an existing one.
+2. **Stroke direction has meaningful impact.** Everything backwards fell
+   from 85% to 50%; a single slip on a multi-stroke character costs ~11%.
+   Repeated mistakes are capped out of the top band.
+3. **Mnemonic hints without clutter.** All 171 characters carry a hint,
+   rendered as one lightbulb row during the introduction step only. No new
+   widget and no layout change; verified on device that it is absent from
+   the stroke-order, tracing, and writing steps.
+4. **Pacing reflects performance.** Lesson accuracy now averages across
+   the whole attempt rather than recording only the final character, which
+   is what makes `isMastered` / `needsMorePractice` and the shorter first
+   review interval for weak lessons meaningful.
+
+**Verified on device:** the mnemonic on あ and 一 (present during
+introduction, absent afterwards) and the flat-glyph scoring fix (一 traced
+correctly now scores 84% on a real stroke, previously capped near 71%).
+
+**Not verified on device:** the scheduling and pacing changes. Both need
+multi-day review intervals or completed lessons to observe, so they rest
+on the 20 new unit tests. Treat them as tested, not witnessed — if a
+future session can leave lessons completed and come back to them, that is
+worth doing.
+
 ## Next Required Action
 
 None. All 20 milestones are complete, plus the BUG-001 through BUG-006
