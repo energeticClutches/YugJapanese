@@ -208,6 +208,55 @@ void main() {
         expect(result.accuracy, lessThan(_score(_perfectTrace(_cross), _cross)));
       });
 
+      test('writing every stroke backwards costs far more than one slip', () {
+        final List<Stroke> allReversed = <Stroke>[
+          for (final StrokeTemplate t in _cross)
+            _stroke(t.scaledTo(_canvas).reversed.toList()),
+        ];
+        final List<Stroke> oneReversed = <Stroke>[
+          _stroke(_cross[0].scaledTo(_canvas).reversed.toList()),
+          _stroke(_cross[1].scaledTo(_canvas)),
+        ];
+
+        final double all = _score(allReversed, _cross);
+        final double one = _score(oneReversed, _cross);
+        final double none = _score(_perfectTrace(_cross), _cross);
+
+        expect(all, lessThan(one));
+        expect(one, lessThan(none));
+        // Shapes are flawless, so this is purely a technique penalty — but it
+        // must be a real one, not the old flat 15% ceiling.
+        expect(all, lessThan(0.6));
+      });
+
+      test('repeated wrong directions cannot reach the top band', () {
+        final List<Stroke> allReversed = <Stroke>[
+          for (final StrokeTemplate t in _cross)
+            _stroke(t.scaledTo(_canvas).reversed.toList()),
+        ];
+        expect(_score(allReversed, _cross), lessThan(0.75));
+      });
+
+      test('a symmetric stroke drawn correctly is not flagged as backwards',
+          () {
+        // A single centred horizontal line: forward and reversed readings are
+        // close, so a marginless comparison would flip on noise.
+        final List<StrokeTemplate> dash = <StrokeTemplate>[
+          _template(const Offset(0.2, 0.5), const Offset(0.8, 0.5)),
+        ];
+        final result = evaluator.evaluate(
+          strokes: _perfectTrace(dash),
+          expectedStrokeCount: 1,
+          expectedBoundingBox: _expectedBox,
+          canvasSize: _canvas,
+          isDrawingCompleted: true,
+          referenceStrokes: dash,
+        );
+
+        expect(result.feedbackMessage, isNot(contains('wrong direction')));
+        expect(result.accuracy, greaterThan(0.9));
+      });
+
       test('a correct character written small still scores well', () {
         // Same shape, half size, shifted — normalization should absorb this.
         final List<Stroke> small = <Stroke>[

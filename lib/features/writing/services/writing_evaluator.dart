@@ -26,6 +26,16 @@ class WritingEvaluator {
   /// Falloff exponent: keeps near-misses generous and punishes real divergence.
   static const double _distanceExponent = 1.5;
 
+  /// How much better the reversed match must be before a stroke is called
+  /// backwards. Without a margin, a near-symmetric stroke (a short dash, a
+  /// dot) flips on floating-point noise and gets penalised for a direction
+  /// mistake the learner did not make.
+  static const double _directionMargin = 0.02;
+
+  /// Beyond this share of strokes drawn backwards, the attempt reads as
+  /// "written the wrong way round" rather than an occasional slip.
+  static const double _reversedShareForCap = 0.5;
+
   WritingResult evaluate({
     required List<Stroke> strokes,
     required int expectedStrokeCount,
@@ -95,14 +105,29 @@ class WritingEvaluator {
       reference.length,
     );
     final double proportionScore = _proportionScore(userNorm, refNorm);
+
+    // Direction is technique, not shape: one slip on a long character is a
+    // small deduction, but writing most strokes backwards is a different
+    // (wrong) way of forming the character and is penalised steeply.
+    final double reversedShare =
+        match.matched == 0 ? 0 : match.reversed / match.matched;
     final double directionFactor =
-        match.matched == 0 ? 1 : 1 - (0.15 * match.reversed / match.matched);
+        1 - (0.20 * reversedShare) - (0.30 * reversedShare * reversedShare);
 
     // Shape is the backbone; the rest can only scale it down.
     double accuracy = match.score;
     accuracy *= _lerp(0.55, 1, countScore);
     accuracy *= directionFactor;
     accuracy *= _lerp(0.85, 1, proportionScore);
+
+    // Repeated direction mistakes should keep an attempt out of the top band
+    // however clean the shapes are — otherwise the app teaches learners that
+    // stroke direction is cosmetic.
+    if (match.reversed >= 2 || reversedShare >= _reversedShareForCap) {
+      accuracy = math.min(accuracy, 0.74);
+    } else if (match.reversed == 1) {
+      accuracy = math.min(accuracy, 0.89);
+    }
 
     final double clamped = _clamp01(accuracy);
 
@@ -254,7 +279,9 @@ class WritingEvaluator {
     final List<Offset> r = _resample(reference, _samplesPerStroke);
     final double forward = _meanDistance(u, r);
     final double backward = _meanDistance(u, r.reversed.toList(growable: false));
-    final bool reversed = backward < forward;
+    // Only call it backwards when the reversed reading is clearly better, so
+    // symmetric strokes are not flagged on noise alone.
+    final bool reversed = forward - backward > _directionMargin;
     final double best = math.min(forward, backward);
     final double normalized = (best / _maxStrokeDistance).clamp(0, 1).toDouble();
     final double score =
@@ -339,7 +366,12 @@ class WritingEvaluator {
   ) {
     final Rect u = _boundsOf(user);
     final Rect r = _boundsOf(reference);
-    if (u.isEmpty || r.isEmpty) {
+    // Deliberately not Rect.isEmpty: that is true when *either* side is zero,
+    // which is exactly the case for a legitimately flat glyph like 一. Only a
+    // stroke with no extent at all is unscoreable.
+    final bool degenerate = (u.width <= 0 && u.height <= 0) ||
+        (r.width <= 0 && r.height <= 0);
+    if (degenerate) {
       return 0;
     }
     final double userAspect = u.width / math.max(u.height, 1e-6);
