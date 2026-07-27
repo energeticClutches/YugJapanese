@@ -49,8 +49,8 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
   dashboard, search, writing practice).
 - **Remote:** pushed to `https://github.com/energeticClutches/YugJapanese`
   (`main` branch). Commit and push only when the user explicitly asks.
-  Latest pushed commit: `1871059` — "chore: prepare v1.0 production
-  release" (Milestone 20, 2026-07-26).
+  Latest pushed commit: `70adb40` — "fix: build the writing canvas, which
+  never existed (BUG-002)" (2026-07-27).
 - **Toolchain:** Flutter 3.44.8, AGP 9.0.1, Gradle 9.1.0, Kotlin 2.3.20 — this
   is the working, verified combination. Do not change these versions; if
   `flutter run`/build ever fails again with an opaque Gradle
