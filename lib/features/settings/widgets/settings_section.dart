@@ -22,7 +22,13 @@ class SettingsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        // titleLarge, not titleMedium: every other screen (Dashboard,
+        // Analytics) renders this same role — a section-group heading
+        // within a scrollable body — one step larger. Settings and Search
+        // (search_section.dart) were the only two screens a size down,
+        // which is what read as "several headings appear noticeably
+        // smaller than expected" (Milestone 21, Issue 3).
+        Text(title, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.sm),
         Material(
           color: colorScheme.surface,

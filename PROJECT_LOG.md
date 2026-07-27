@@ -1784,8 +1784,6 @@ crash in logcat. As a side effect, screens reached via `push()` now
 correctly show a back arrow in their AppBar (Flutter only renders one when
 there's something to pop), which was also silently missing before.
 
-## Next Required Action
-
 ## Bugfix (post-M20): BUG-002 — writing canvas never existed
 
 **Critical.** Reported: the lesson screen showed navigation controls and
@@ -2209,13 +2207,537 @@ one clear line instead of one ambiguous line.
 Covered by 5 widget tests, including the exact reported case — a
 completed lesson scored 0% must not render "100%" anywhere.
 
+## Release Candidate QA Audit (in progress)
+
+A full pre-RC1 production-readiness pass: static review for lifecycle/
+provider/error-handling bugs that `flutter analyze` and the existing test
+suite don't catch, plus dynamic testing on an Android emulator (API 37)
+across a fresh install, light and dark theme, and real lesson/quiz
+activity. This entry records what has been found and fixed **so far**;
+the audit is not finished (see Outstanding below), so treat this as a
+checkpoint, not a final RC1 sign-off.
+
+**Baseline before touching anything:** `flutter analyze` clean, `flutter
+test` 78/78 passing.
+
+### BUG-010: Retry/Review Mistakes silently buries "Return Home" under stacked results screens — confirmed and fixed
+
+Found on device, not from code reading: after retrying a quiz or using
+"Review Mistakes" from the results screen, "Return Home" stopped
+appearing to do anything. Repeated taps and even the hardware Back button
+produced no visible change, on a real device frame rate — this was not
+the emulator lag described below, since it was reproducible after
+generous waits.
+
+Root cause: `PracticeResultsScreen`'s "Retry" and "Review Mistakes"
+buttons used `context.push('/quiz/play?...')`. When that session
+finishes, `PracticeSessionScreen` does `context.pushReplacement(
+'/quiz/results')` (`practice_session_screen.dart`) — replacing only the
+`/quiz/play` frame it just pushed. The **older** `/quiz/results` frame
+underneath is never touched, so every retry/review-mistakes round trip
+nets +1 stacked `/quiz/results` route. Every one of those stacked copies
+renders pixel-identical content, because the screen reads a single shared
+`PracticeService.lastResult`, not per-route data — so a learner who
+retries twice has to tap "Return Home" three times before anything
+appears to happen, with zero visual feedback on the first two taps.
+Confirmed by tapping Return Home repeatedly: the fourth tap (after one
+initial quiz + one Review Mistakes + one Retry) finally landed back on
+Practice Home.
+
+Fix: both buttons now use `context.pushReplacement(...)` instead of
+`context.push(...)` (`practice_results_screen.dart`), so a retry replaces
+the results screen it was launched from rather than stacking on top of
+it. The stack depth stays constant (`/quiz`, `/quiz/results`) no matter
+how many times the learner retries. Preserves the existing comment's
+documented intent — Back from results always lands on Practice Home —
+which a plain `go()` would have broken.
+
+**Not yet re-verified on a rebuilt APK.** The fix is in the source but the
+running emulator session was still on the pre-fix build when this was
+written up; re-verification is on the Outstanding list below.
+
+### Static findings reviewed, not changed
+
+A static sweep (separate read-only pass over the codebase, since
+`flutter analyze`/tests give no signal on these) surfaced several
+fire-and-forget `Future`s with no `try/catch` and a couple of
+`FutureBuilder`s with no explicit error branch. Each was checked against
+the actual call graph before deciding whether to touch it:
+
+- **`ReviewScreen._ReviewList`'s `FutureBuilder` has no `hasError`
+  branch** (`review_screen.dart`) — if `_resolveReviewItem` throws (e.g. a
+  bundled lesson JSON fails to parse), `snapshot.hasData` stays false
+  forever and the Review tab shows a permanent spinner instead of an
+  error state. Real gap, cheap and safe to fix, but not yet done —
+  carried onto the Outstanding list rather than rushed in alongside
+  BUG-010.
+- **`PracticeSessionScreen._start()` and `LearningScreen`'s lesson-save
+  path call async work with no `try/catch`** — if `generateSession`
+  throws (only reachable via a malformed `modeId`, and every real UI path
+  supplies one from the fixed mode catalog) or a Hive write throws, the
+  screen's "saving" flag never resets, permanently disabling the button
+  it guards. Same class of bug as BUG-007. Not reachable through any
+  actual button in this app today, so left alone rather than hardening
+  code with no live path to it — noted here so it isn't rediscovered from
+  scratch later.
+- **Three script screens (`hiragana_screen.dart`, `katakana_screen.dart`,
+  `kanji_screen.dart`) fire `Future<void>.microtask(() =>
+  progressController.loadProgress(...))` in `initState` with no
+  try/catch.** Only fails if a Hive box that already opened successfully
+  at app startup somehow throws on a later read — not observed, not
+  changed.
+- **`DashboardScreen`'s per-card `FutureBuilder`s
+  (`_resolveContinueLesson`, `_resolveScriptSummary`) build a new `Future`
+  on every rebuild**, so any of the 7 providers it watches changing (e.g.
+  `ref.invalidate(dueReviewsProvider)` after finishing a lesson) resets
+  those cards to their loading state for a frame. Real, but a
+  single-frame flicker with no data loss — the correct fix is routing
+  these through cached `FutureProvider` families instead of inline
+  `FutureBuilder`s, which is a bigger structural change than this audit's
+  scope. Documented here rather than attempted under time pressure.
+
+### Environment note: this emulator has severe input/render lag
+
+Worth recording so a future session doesn't mistake it for an app bug
+again. The running emulator logged `Davey! duration=6348ms` (a single
+frame taking 6.3 **seconds**) and repeated `Skipped 375 frames!` warnings.
+Early in this pass that lag produced a false alarm — a tap that looked
+completely unresponsive for 10+ seconds, then landed. `drive.ps1`'s
+per-action wait was raised from 1000ms to 2500ms as a partial mitigation.
+Two other apparent "dead buttons" during this session turned out to be
+my own screenshot-coordinate math (forgetting the 1.2x scale between the
+900x2000 display crop and the device's actual 1080x2400), not app or
+emulator behavior — worth the reminder that a silent tap failure needs
+both explanations ruled out before it's written up as a finding.
+
+### Outstanding — audit not yet complete
+
+- Re-verify BUG-010 on a rebuilt APK (fix is in source, not yet re-run).
+- Landscape orientation pass — not started.
+- Force-stop/relaunch persistence check and offline (airplane-mode)
+  behavior — not started.
+- Dark theme pass covered Dashboard, Hiragana list, and the lesson
+  introduction/stroke-order/tracing steps so far, all clean; Quiz,
+  Search, Analytics, Achievements, and Settings not yet re-checked in
+  dark mode specifically (they were only exercised in light mode this
+  session).
+- The three static findings above are logged, not fixed — revisit if a
+  future pass has time, or if one of them stops being purely theoretical.
+
+## Milestone 21: UX Polish, Responsive Layout & Notification Behaviour
+
+A stabilization milestone — five targeted issues, no new features, no
+redesign. Each was investigated for root cause before touching anything.
+
+### Issue 1: Export/Import notification spam
+
+`SettingsScreen._showComingSoon` called `ScaffoldMessenger.showSnackBar`
+unconditionally on every tap, with no dedup or cooldown state anywhere —
+`SettingsScreen` is a stateless `ConsumerWidget`, so there was nowhere for
+a "last shown at" timestamp to live. `ScaffoldMessenger` queues rather
+than replaces, so rapid taps played the whole backlog back one after
+another instead of coalescing.
+
+Added `ComingSoonGate` (`features/settings/services/coming_soon_gate.dart`),
+a small in-memory class tracking a last-shown `DateTime` per feature key,
+exposed as an app-lifetime `Provider` (`comingSoonGateProvider`) rather
+than converting the screen to stateful — matches this app's existing
+convention of putting behaviour in providers, not widget state. Session-only
+by design: a 15-minute UI cooldown has no reason to survive an app
+restart, so it isn't persisted to Hive. Export and Import key on separate
+feature strings, so exhausting one's cooldown doesn't silence the other.
+4 unit tests (`test/unit/coming_soon_gate_test.dart`) cover first-tap,
+mid-cooldown, post-cooldown, and cross-feature independence.
+
+### Issue 2: Dashboard tile alignment
+
+Root cause: three `Wrap(children: [StatisticCard(...), ...])` sections
+(Learning Statistics, weekly practice stats, Scripts) sized every card to
+its own intrinsic content width. `StatisticCard`'s `Column` has no width
+constraint, so "Lessons Completed" and "Average Accuracy" — different
+label lengths — produced different-width cards in the same row, and the
+number of cards per row changed unpredictably with available width rather
+than settling into a clean grid. This is what read as "uneven or
+improperly spaced" across screen sizes and orientations.
+
+Added `EqualWidthGrid` (`shared/widgets/equal_width_grid.dart`): a
+`LayoutBuilder` + `Wrap` that gives every child in a row the same computed
+width, leaving height intrinsic (unlike a fixed-aspect-ratio `GridView`,
+which risked overflow the moment a longer label wrapped to a second line).
+Column count comes from `Responsive.isTablet`/`isLandscape` — 2 columns on
+mobile portrait, 3 otherwise — which is the app's existing `core/utils/
+responsive.dart` utility. It was written for exactly this and had zero
+callers anywhere in the codebase until now. All three `Wrap` sites in
+`dashboard_screen.dart` now use `EqualWidthGrid`.
+
+### Issue 3: Typography consistency
+
+No hardcoded `fontSize`s or raw `TextStyle`s exist anywhere in `lib/`
+(confirmed by grep) — BUG-004's fix (dark-mode `Theme.of(context)`
+lookups replacing `AppTypography`'s static getters) held, and no static
+getter usages have crept back in. The actual inconsistency was a role
+mismatch: the section-heading role (a group label within a scrollable
+screen body — "Learning Statistics", "Scripts" on Dashboard; every section
+title on Analytics) renders at `titleLarge` everywhere **except**
+`SettingsSection` and `SearchSection`, which used `titleMedium` — one
+step smaller, for the identical role. That's what read as "several
+headings appear noticeably smaller than expected." Fixed both shared
+widgets, plus the four standalone section headers written directly in
+`settings_screen.dart` ("Data Management", "About", "Legal",
+"Diagnostics") that had the same `titleMedium` mismatch. `legal_document_
+screen.dart`'s `#`/`##` Markdown heading styles were left alone — that's
+a real, self-contained two-level heading hierarchy for one document
+renderer, not an inconsistency with the rest of the app. Dialogs need no
+change either: no `dialogTheme` override exists, so `AlertDialog` already
+uses Material 3's own default hierarchy (`headlineSmall` title,
+`bodyMedium` content) consistently everywhere. No bottom sheets exist in
+this app.
+
+### Issue 4: Lesson screen visual clutter
+
+`LearningScreen`'s header was four stacked `Text` rows — title, character,
+step, position — each separated by the same `AppSpacing.sm`, reading as an
+undifferentiated status dump rather than a heading with context under it.
+Merged the step and position facts onto one line ("Introduction ·
+Character 1 of 5"), reusing the "·"-joined compact-fact pattern already
+used elsewhere in this app (the dashboard's script summary cards). Also
+tightened the gap under the "Lesson N" title from `sm` to `xs`, so it
+reads as a heading with a subtitle, and widened the gap between the two
+action-button rows (step navigation vs. character navigation/restart)
+from `md` to `lg`, so the two groups of actions read as separate stages
+rather than one four-button block. No functionality changed — same
+buttons, same handlers, same information, fewer equally-weighted lines.
+
+### Issue 5: Tracing-stage CTA wording
+
+Root cause, confirmed against the state machine: `_submitWriting` branches
+on `currentStep == LearningStep.tracing` — during tracing it clears the
+canvas and calls `_controller.nextStep()`; only the `else` branch (free
+writing) calls `_evaluateDrawnStrokes`. So "Check my writing," shown by
+`WritingPracticePanel` for both steps, was never true during tracing —
+nothing gets evaluated there at all. Added a `submitLabel` parameter to
+`WritingPracticePanel` (default `'Check my writing'`, so its one other
+caller needed no change beyond passing the new value), and
+`LearningScreen` now passes `'Continue to Free Writing'` specifically for
+the tracing step. Free writing keeps the original label, since that's the
+step the evaluator actually scores.
+
+### Verification
+
+`flutter analyze`: clean. `flutter test`: 82/82 (78 baseline + 4 new
+`ComingSoonGate` tests).
+
+**Not verified on device for this milestone** — explicitly at the user's
+direction; the development emulator was running unusably slowly this
+session. Every change here is layout/wording/state-tracking, not lesson
+or scoring logic, and all five are backed by the reasoning above plus a
+clean analyzer/test run, but none of it has been seen rendered. Treat
+Issues 2–5 in particular (all visual) as code-reviewed, not
+device-confirmed, until someone opens the app on a working emulator or
+device and checks: Settings/Search headers now match Dashboard's section
+heading size in both themes, the three dashboard `Wrap` sections form a
+clean grid in portrait and landscape, the lesson header/button spacing
+reads as intended, and the tracing step's button says "Continue to Free
+Writing" rather than "Check my writing."
+
+## Milestone 22: Writing Engine Accuracy & Canvas State Management
+
+Critical stabilization milestone: two correctness bugs in the writing
+evaluator, and one P0 state-leak bug in the lesson flow. No OCR/AI/cloud
+handwriting recognition introduced — every fix works within the existing
+geometric evaluator (`WritingEvaluator`) and the existing per-character
+canvas-reset pattern in `LearningScreen`.
+
+### Issue 1: incomplete drawings received a score
+
+Root cause, in `writing_evaluator.dart`: `_denoise` filters out taps and
+flecks below a minimum arc-length threshold, but when **every** stroke
+was noise, it fell back to returning the *unfiltered* original strokes —
+"so the attempt scores badly rather than being treated as empty," per the
+old comment. That fallback was the bug: it hands a stray dot straight to
+`_matchShapes`, which resamples a single point to 32 identical copies and
+compares it against real reference strokes — a dot sitting anywhere near
+the glyph's centre can score a non-trivial, non-zero similarity purely by
+proximity. Separately, even a *real* partial attempt (say, one correct
+stroke where three were expected) was never bounded by how much of the
+character was actually drawn: `_strokeCountScore`'s multiplicative floor
+is 0.55, so a lone accurate stroke against a 3-stroke character could
+still land respectably above zero.
+
+Two fixes, both reusing the evaluator's existing multiplicative-factor
+architecture rather than adding a parallel mechanism:
+
+1. `_denoise` no longer falls back to the unfiltered strokes — if
+   everything is noise, the result is empty, and `evaluate()`'s existing
+   `drawn.isEmpty` branch (previously reachable only for a truly empty
+   canvas) now correctly also catches "drew nothing but taps." Feedback
+   for this case is now distinct ("too small to count as a stroke")
+   rather than reusing the generic "finish before submitting" line, via a
+   new `tooSmallToScore` flag through `_buildFeedback`.
+2. A new **completion factor**: total (normalized) ink drawn versus total
+   (normalized) ink the reference needs, raised to a 1.5 exponent so a
+   near-complete attempt (ratio ≥ ~0.8) stays near full weight while a
+   partial one (ratio ≤ ~0.3) is pushed under 5%. Normalizing both sides
+   independently before comparing arc length is what makes this
+   scale-and-position-independent, consistent with how the rest of the
+   evaluator already compares shapes.
+
+5 new unit tests (`test/unit/writing_evaluator_test.dart`): a single dot
+scores exactly 0 with distinct feedback, an extremely short stroke scores
+0, one correct stroke out of three expected scores well under half
+credit, and a faithful full-length trace is confirmed unaffected by the
+new factor. All 19 pre-existing evaluator tests still pass unchanged —
+verified by hand against the new math before running them, not just
+after: the existing "single diagonal line," "missing strokes," and
+"extra strokes" tests only assert `lessThan` bounds, which the new
+(always ≤ 1) completion factor can only tighten, never violate; the
+tests with `greaterThan` bounds (faithful trace, small-but-correct
+character, order-preserved trace) all have a drawn/reference ink ratio
+at or near 1.0, where the new factor is a no-op.
+
+### Issue 2: tracing accepted anything
+
+Root cause: tracing was never scored at all. `_submitWriting`'s tracing
+branch cleared the canvas and advanced unconditionally; the button itself
+was only gated on `hasInk` (any non-empty canvas), not on resembling the
+guide in any way. "Detecting that the user touched the screen" was a
+literal description of the existing behaviour, not an exaggeration.
+
+Fixed by scoring tracing with the *same* `WritingEvaluator.evaluate()`
+call already used for the graded free-writing attempt, run against the
+character's guide strokes (already resolved and available regardless of
+the learner's "Show stroke guides" display preference — that setting only
+controls the on-canvas overlay, not whether the underlying reference data
+exists). A deliberately lenient floor (`_minTracingAccuracyToAdvance =
+0.3`) blocks advancing only when the trace is essentially unrelated to
+the guide; a genuine, if imperfect, beginner trace clears it comfortably
+given the evaluator's already-generous shape-match falloff. Below the
+floor, a SnackBar asks the learner to trace closer to the guide and the
+step does not advance — ink is left in place (not cleared) so they can
+adjust rather than start over. This does not touch scoring shown to the
+learner as their "result": tracing's score is used only as a gate, never
+displayed or persisted; free writing remains the sole graded attempt.
+
+### Issue 3 (P0): canvas leaked traced ink into the memory-writing stage
+
+Root cause, in `learning_screen.dart`: the canvas-reset logic
+(`_strokesForItemId != currentCharacter.id`) only fired on a **character**
+change, never on a **step** change within the same character. The
+generic "Next" button — present on every step, including tracing and
+free writing, via the always-visible Previous/Next row — calls
+`_controller.nextStep()` directly and never goes through
+`_submitWriting`, which was the only place that (partially) cleared
+`_strokes`. So: trace the guide, skip the check button, tap the generic
+Next instead, and the traced ink carried straight into the free-writing
+canvas — showing the answer during the stage meant to test recall
+without it. Confirmed against the state machine, not just observed
+behaviour, before touching anything.
+
+Fixed at the single point all step transitions pass through:
+`build()`. A new `_strokesForStep` field tracks which step `_strokes`
+currently belongs to, alongside the existing `_strokesForItemId`. The
+reset condition now fires whenever *either* the character or the step
+changes — the character branch does the full reset (strokes, guide
+strokes, result) exactly as before; a new step-only branch resets
+strokes and the writing result (not guide strokes, which belong to the
+character, not the step, so re-fetching them on every step would just be
+a wasted flicker). Because this lives in `build()` rather than inside any
+one button's handler, it fires regardless of which control ends a step —
+the writing panel's own submit button, the generic Next button, Previous,
+Restart, all of them — which is what "regardless of how the previous
+stage was exited" requires. The redundant manual `_strokes = <Stroke>[]`
+inside `_submitWriting`'s tracing branch was removed, since the build()
+guard now covers it unconditionally — one reset mechanism instead of two.
+
+There is no separate undo/redo history to reset: `Undo`/`Clear` in
+`WritingPracticePanel` operate directly on the current `_strokes` list
+(`sublist`/empty list), so clearing `_strokes` inherently clears both.
+`WritingEvaluator` itself holds no mutable state across calls (a `const`
+class, pure functions), so there is nothing evaluator-side to reset
+beyond the `_writingResult` this fix already clears.
+
+### Cross-script and theme consistency
+
+Deliverable 4 (Hiragana/Katakana/Kanji consistency) and deliverable 5
+(light/dark theme) are satisfied **by construction** rather than by
+separately testing three scripts and two themes: `WritingEvaluator` and
+`LearningScreen` contain no script-specific or theme-specific branching
+anywhere — every script routes through the same `LearningScreen` widget
+via `ContentRepositoryFactory`, and none of this milestone's changes
+touch color, styling, or theme data at all (Issues 1–3 are evaluator
+math and canvas-state logic only). There was nothing to make consistent
+across scripts or themes that wasn't already shared.
+
+### Verification
+
+`flutter analyze`: clean. `flutter test`: 87/87 (82 baseline-after-M21 +
+5 new evaluator tests).
+
+**Not verified on a running app** — explicitly at the user's direction
+for this session (the development emulator is currently too slow to use).
+Issue 3 in particular is the kind of bug that is easiest to trust once
+seen: open a lesson, trace a character, skip the check button, tap Next,
+and confirm the free-writing canvas comes up blank. That has not been
+done. All three fixes rest on tracing the exact code path by hand (this
+entry documents that reasoning above) plus a clean analyzer/test run, not
+on watching it happen.
+
+## Milestone 23: Review System & Quiz Navigation Audit
+
+Four reported issues. Two of them (2 and 4) turned out to share a single
+root cause that also explains the "identical navigation" symptom, so
+they're documented together below rather than as separate fixes.
+
+### Issues 2 & 4: one stale-session bug behind both
+
+**Root cause.** `PracticeService` is an app-lifetime
+`ChangeNotifierProvider` singleton, and its `clearSession()` method has
+**no callers anywhere in the codebase** — it is dead code. So once any
+quiz finishes, `currentSession` keeps pointing at that finished session
+forever, with `isComplete == true` (`currentIndex >= questions.length`).
+
+`PracticeSessionScreen` starts its own session from an
+`addPostFrameCallback`, which by definition runs *after* the first
+`build()`. That first build therefore observed the **previous** session:
+not generating, not null, not empty, and complete. It fell straight into
+the `session.isComplete` branch and immediately
+`pushReplacement`ed to `/quiz/results`.
+
+That single defect produces both reported symptoms:
+
+- **Issue 4** ("multiple Quiz menu buttons navigate to the same screen"):
+  every mode card — Recognition, Meaning, Reading, Listening, Mixed, Weak
+  Items — bounced instantly to the same stale results screen. The routing
+  was never wrong: `go_router` parses `mode` correctly, `_startMode`
+  builds a distinct URL per mode, and `generateSession` switches on it
+  properly. Nothing in the navigation layer needed changing.
+- **Issue 2** ("Review Mistakes performs the same action as Retake
+  Quiz"): both buttons launch `/quiz/play`, so both hit the same bounce
+  and returned to the results screen they were launched from — two
+  different buttons that both appeared to do nothing, which is exactly
+  what "the same action" looks like from outside. `startReviewMistakes`
+  (scoped to the missed item ids) and `startSession` (a fresh full
+  session) were already correctly distinct in the service layer.
+
+Neither reproduces on a fresh install — both need one completed quiz
+first — which is why they showed up during testing rather than earlier.
+
+**Fix.** One guard: `!_started` added to the loading condition in
+`PracticeSessionScreen.build`. Until this screen's own `_start()` has
+run, it shows the loading indicator instead of interpreting whatever
+session the singleton happens to be holding. That closes exactly the
+one-frame window the bug lived in, without touching routing, the
+service, or the generator.
+
+**Also fixed for Issue 2**, separately from the bounce: the session
+screen had no `AppBar` at all, so once the bounce was fixed, Recognition
+and Meaning (both "a glyph plus four text options") would still have been
+visually indistinguishable. It now shows a title — the mode's own name
+from `PracticeGenerator.modeById`, or "Review Mistakes" when scoped to
+mistake ids. Reuses the existing catalog lookup rather than adding a
+second title table.
+
+4 unit tests (`test/unit/practice_session_staleness_test.dart`) pin the
+state facts the guard depends on: a completed session reports
+`isComplete` and returns a null `currentQuestion` (so the screen cannot
+simply fall through to rendering it), while a fresh one does neither.
+
+### Issue 1: Review section showed the wrong information
+
+Three separate defects, all in the presentation layer — the scheduler,
+repository, providers, and due-item calculation were all correct on
+inspection (`getDueReviews` filters by `isDue` and sorts by a priority
+combining overdue-ness, inverted ease, and lapse count, exactly as the
+Milestone 21 enhancement pass built it).
+
+1. **The card title was malformed.** It was built as
+   `'Lesson ${lesson.characters.first.character}'` — the literal word
+   "Lesson" glued to the lesson's first *glyph* — rendering as
+   **"Lesson あ"**. That names neither the script nor the lesson number,
+   so with more than one script in rotation the list was a column of
+   near-identical unidentifiable rows. `LessonModel` already carries
+   `lessonNumber`, `title` ("Lesson 1") and `description` ("Vowels");
+   the title is now `"Hiragana · Lesson 1"`.
+2. **No progress or priority information reached the screen.**
+   `ReviewCard` accepted only a `title`, so the carefully priority-ordered
+   list rendered flat — nothing indicated which item was most urgent or
+   how overdue anything was. Added an optional `subtitle` (the same
+   title-over-subtitle shape `LessonCard` and `PracticeCard` already use,
+   not a new pattern) carrying the lesson topic plus a "Due today" /
+   "N days overdue" label derived from `nextReview`.
+3. **The list header showed no count.** The dashboard's
+   `ReviewSummaryCard` says "N Lessons Due", but tapping through landed
+   on a list that stated no total. Added a matching count line so the two
+   screens agree, noting the list is ordered most-fragile-first.
+
+**Also fixed here** (a finding logged during the earlier RC1 QA audit as
+"logged, not fixed"): `_ReviewList`'s `FutureBuilder` checked only
+`!snapshot.hasData`. `Future.wait` rejects if any lesson lookup throws,
+and on rejection `hasData` stays false permanently — so a load failure
+became an infinite spinner with no way out. It now checks `hasError`
+first and falls back to the existing empty state rather than inventing a
+new error UI. Since Issue 1 was specifically "the Review section doesn't
+present correct information", leaving a known permanent-spinner path in
+the same widget would have been an odd omission.
+
+3 widget tests (`test/widget/review_card_test.dart`) cover the corrected
+title/subtitle rendering, the no-subtitle case, and tap-through.
+
+### Issue 3: removed the redundant "Return Home" button
+
+`_returnToPracticeHome` popped back to whatever pushed the results
+screen — the same thing a back action already does. Removed.
+
+One thing the report didn't mention but that removal exposed: this screen
+had **no `AppBar` at all**, unlike every other pushed screen in the app
+(Search, Settings, Learning Flow). Flutter only renders the automatic
+back arrow when a screen has one, so removing the button as-asked would
+have left the system back gesture as the only way off the screen. Added
+an `AppBar` titled "Quiz Results", restoring the same affordance
+everything else already has. "Review Mistakes" and "Retry" are untouched.
+
+The empty-state "Return to Practice" button (shown when there is no
+completed session at all) was deliberately left alone — that is a
+different screen state, not the completion screen the issue was about,
+and it is the only control on it.
+
+### Cross-script verification
+
+Deliverable 5 (Hiragana/Katakana/Kanji) is satisfied structurally rather
+than by three manual passes: none of the changed code branches on script.
+The quiz fix is in a screen shared by all modes and scripts; the review
+fix resolves scripts through `ContentRepositoryFactory` and the new
+script-name map covers all three registered ids, falling back to the raw
+`contentId` for anything unregistered.
+
+### Verification
+
+`flutter analyze`: clean. `flutter test`: 94/94 (87 after M22 + 4 staleness
++ 3 review-card).
+
+**Not verified on a running app** — the emulator remains too slow to use
+this session, per the same standing direction as Milestones 21 and 22.
+The stale-session fix (Issues 2 & 4) is the one most worth confirming by
+hand, and it has a precise repro: complete any quiz, return to the
+Practice menu, tap a *different* mode, and confirm that mode's own quiz
+starts (with its name in the app bar) instead of the previous result
+reappearing.
+
 ## Next Required Action
 
-None. All 20 milestones are complete, plus the BUG-001 through BUG-009
-fixes and the learning-systems enhancement pass above. The app is at
-v1.0.0, `flutter analyze` is clean, `flutter test` passes (78/78). Do not
-start post-release work, v1.1 planning, or Play Store submission until the
-user explicitly requests it and defines scope.
+Four things are open, none signed off:
+
+1. **Milestone 23** — confirm the stale-session repro above, and that the
+   Review list now names scripts and lessons correctly with real data.
+2. **Milestone 22** — the tracing→free-writing canvas-reset repro.
+3. **Milestone 21** — the visual checks (header sizes, dashboard grid,
+   lesson spacing, tracing CTA wording).
+4. **The RC1 QA audit** — orientation, persistence, offline, remaining
+   dark-theme screens, and re-verifying BUG-010 on a rebuilt APK.
+
+All four are on-device checks; none needs new code unless a check fails.
+Do not start post-release work, v1.1 planning, or Play Store submission
+until they are closed out.
 
 **Open items are release blockers, not bugs**, and are tracked in
 `RELEASE_CHECKLIST.md`: a production upload keystore must be created
@@ -2223,6 +2745,7 @@ user explicitly requests it and defines scope.
 launcher icon and splash artwork should be replaced with real branding,
 startup performance and tablet/landscape layouts need verification on
 physical hardware, store assets are not started, and iOS platform support
-is deferred to a future milestone. The release APK/AAB have not been
-rebuilt since BUG-002 — do that before considering the release artifacts
-current again.
+is deferred to a future milestone. The release APK was rebuilt after
+BUG-007/008/009 (debug-signed, as above); nothing since then — the RC1
+audit's BUG-010 fix, or Milestones 21, 22 and 23 — is in that APK yet.
+Rebuild once all four outstanding on-device checks above have been done.

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../repositories/content_repository_factory.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/equal_width_grid.dart';
 import '../../../shared/widgets/feature_card.dart';
 import '../../../shared/widgets/loading_indicator.dart';
 import '../../achievements/models/achievement.dart';
@@ -354,9 +355,7 @@ class _DashboardContent extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.md,
-            runSpacing: AppSpacing.md,
+          EqualWidthGrid(
             children: [
               StatisticCard(
                 icon: Icons.check_circle_outline,
@@ -476,9 +475,7 @@ class _DashboardContent extends StatelessWidget {
               final _WeeklyPracticeSummary weekly = _resolveWeeklyPracticeSummary(
                 practiceResultsAsync.asData?.value ?? const <PracticeResult>[],
               );
-              return Wrap(
-                spacing: AppSpacing.md,
-                runSpacing: AppSpacing.md,
+              return EqualWidthGrid(
                 children: [
                   StatisticCard(
                     icon: Icons.quiz_outlined,
@@ -518,9 +515,7 @@ class _DashboardContent extends StatelessWidget {
               final int weeklyActivity = analytics.dailyActivity
                   .where((DailyLearningStat d) => d.hasActivity)
                   .fold<int>(0, (int sum, DailyLearningStat d) => sum + d.activityCount);
-              return Wrap(
-                spacing: AppSpacing.md,
-                runSpacing: AppSpacing.md,
+              return EqualWidthGrid(
                 children: [
                   StatisticCard(
                     icon: Icons.event_available_outlined,
@@ -549,9 +544,7 @@ class _DashboardContent extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.md,
-            runSpacing: AppSpacing.md,
+          EqualWidthGrid(
             children: [
               for (final ContentSource source in contentSources)
                 FutureBuilder<_ScriptSummary>(

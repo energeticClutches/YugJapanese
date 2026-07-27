@@ -8,6 +8,7 @@ import '../../../shared/widgets/loading_indicator.dart';
 import '../models/practice_question.dart';
 import '../models/practice_session.dart';
 import '../providers/practice_providers.dart';
+import '../services/practice_generator.dart';
 import '../services/practice_service.dart';
 import '../widgets/answer_option.dart';
 import '../widgets/question_card.dart';
@@ -63,17 +64,55 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
     }
   }
 
+  /// "Review Mistakes" and "Retry" are already functionally distinct —
+  /// `startReviewMistakes` scopes to exactly the missed items,
+  /// `startSession` generates a fresh full-length session — but this
+  /// screen showed no indication of which one was running: no `AppBar`
+  /// anywhere, just "Question X of Y" either way. Two workflows that look
+  /// pixel-identical read as "the same action" no matter how different
+  /// the underlying item set is (Milestone 23, Issue 2). Reuses
+  /// `PracticeGenerator.modeById`, the same lookup already used by the
+  /// results and dashboard screens, rather than a second title table.
+  String get _screenTitle {
+    final List<String>? reviewIds = widget.reviewItemIds;
+    if (reviewIds != null && reviewIds.isNotEmpty) {
+      return 'Review Mistakes';
+    }
+    return PracticeGenerator.modeById(widget.modeId)?.title ?? 'Practice';
+  }
+
   @override
   Widget build(BuildContext context) {
     final PracticeService service = ref.watch(practiceServiceProvider);
     final PracticeSession? session = service.currentSession;
+    final AppBar appBar = AppBar(title: Text(_screenTitle));
 
-    if (service.isGenerating || session == null) {
-      return const AppScaffold(child: LoadingIndicator());
+    // `!_started` is load-bearing, not defensive padding. `PracticeService`
+    // is an app-lifetime singleton and nothing ever calls its
+    // `clearSession()` (it has no callers at all), so after any completed
+    // quiz `currentSession` stays populated and `isComplete` stays true
+    // forever. `_start()` runs in a post-frame callback — i.e. *after*
+    // this first build — so without this guard the first build of a
+    // freshly-pushed session screen saw the previous, already-complete
+    // session: not generating, not null, not empty, `isComplete` true.
+    // It therefore fell into the `isComplete` branch below and immediately
+    // `pushReplacement`ed to `/quiz/results`, showing the OLD result.
+    //
+    // That is Milestone 23's Issue 4 ("multiple Quiz menu buttons navigate
+    // to the same screen regardless of which option is selected") — every
+    // mode card bounced to the same stale results screen — and also the
+    // functional half of Issue 2: "Review Mistakes" and "Retry" both did
+    // nothing except bounce back to the results screen they were launched
+    // from, which is exactly why they looked like the same action. Both
+    // only reproduce after finishing one quiz, which is why a fresh
+    // install looks fine.
+    if (!_started || service.isGenerating || session == null) {
+      return AppScaffold(appBar: appBar, child: const LoadingIndicator());
     }
 
     if (session.questions.isEmpty) {
       return AppScaffold(
+        appBar: appBar,
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -104,12 +143,13 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
           }
         });
       }
-      return const AppScaffold(child: LoadingIndicator());
+      return AppScaffold(appBar: appBar, child: const LoadingIndicator());
     }
 
     final PracticeQuestion question = session.currentQuestion!;
 
     return AppScaffold(
+      appBar: appBar,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

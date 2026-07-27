@@ -93,7 +93,14 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showComingSoon(BuildContext context, String feature) {
+  /// Shows the "not built yet" notice, but at most once per 15 minutes per
+  /// feature. Without this, mashing Export/Import queued a SnackBar per
+  /// tap — `ScaffoldMessenger` queues rather than dedupes, so rapid taps
+  /// played the whole backlog back one after another.
+  void _showComingSoon(BuildContext context, WidgetRef ref, String feature) {
+    if (!ref.read(comingSoonGateProvider).shouldShow(feature)) {
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('$feature is not available yet.')),
     );
@@ -205,7 +212,10 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.xl),
                   Text(
                     'Data Management',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    // titleLarge to match the section-heading size used
+                    // by SettingsSection above and every other screen's
+                    // section headers (Milestone 21, Issue 3).
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsTile(
@@ -213,7 +223,7 @@ class SettingsScreen extends ConsumerWidget {
                     subtitle: 'Save your progress to a file',
                     leading: Icons.upload_outlined,
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _showComingSoon(context, 'Export progress'),
+                    onTap: () => _showComingSoon(context, ref, 'Export progress'),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsTile(
@@ -221,7 +231,7 @@ class SettingsScreen extends ConsumerWidget {
                     subtitle: 'Restore progress from a file',
                     leading: Icons.download_outlined,
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _showComingSoon(context, 'Import progress'),
+                    onTap: () => _showComingSoon(context, ref, 'Import progress'),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   DangerZoneCard(
@@ -258,7 +268,10 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.xl),
                   Text(
                     'About',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    // titleLarge to match the section-heading size used
+                    // by SettingsSection above and every other screen's
+                    // section headers (Milestone 21, Issue 3).
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Material(
@@ -291,7 +304,10 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.xl),
                   Text(
                     'Legal',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    // titleLarge to match the section-heading size used
+                    // by SettingsSection above and every other screen's
+                    // section headers (Milestone 21, Issue 3).
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsTile(
@@ -320,7 +336,10 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.xl),
                   Text(
                     'Diagnostics',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    // titleLarge to match the section-heading size used
+                    // by SettingsSection above and every other screen's
+                    // section headers (Milestone 21, Issue 3).
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Consumer(

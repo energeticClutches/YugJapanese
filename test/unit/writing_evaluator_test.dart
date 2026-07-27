@@ -279,6 +279,66 @@ void main() {
       });
     });
 
+    group('incomplete drawings (Milestone 22, Issue 1)', () {
+      test('a single dot scores zero, not a lucky partial match', () {
+        final double score = _score(
+          <Stroke>[_stroke(const <Offset>[Offset(150, 150), Offset(151, 151)])],
+          _cross,
+        );
+        expect(score, 0);
+      });
+
+      test('a single dot produces "too small" feedback, not a shape verdict',
+          () {
+        final result = evaluator.evaluate(
+          strokes: <Stroke>[
+            _stroke(const <Offset>[Offset(150, 150), Offset(151, 151)]),
+          ],
+          expectedStrokeCount: 2,
+          expectedBoundingBox: _expectedBox,
+          canvasSize: _canvas,
+          isDrawingCompleted: true,
+          referenceStrokes: _cross,
+        );
+        expect(result.feedbackMessage, contains('too small to count'));
+      });
+
+      test('an extremely short stroke scores zero', () {
+        // Below _denoise's own noise-length threshold, same as a dot.
+        final double score = _score(
+          <Stroke>[_strokeAcross(const Offset(150, 150), const Offset(152, 151))],
+          _cross,
+        );
+        expect(score, 0);
+      });
+
+      test('one full stroke out of three expected scores well under half',
+          () {
+        final List<StrokeTemplate> threeStrokes = <StrokeTemplate>[
+          ..._cross,
+          _template(const Offset(0.2, 0.2), const Offset(0.8, 0.8)),
+        ];
+        final double score = _score(
+          _perfectTrace(threeStrokes).take(1).toList(),
+          threeStrokes,
+        );
+        expect(
+          score,
+          lessThan(0.35),
+          reason: 'one accurate stroke out of three is incomplete, not '
+              'roughly-a-third correct',
+        );
+      });
+
+      test('a faithful full-length trace is unaffected by the completion check',
+          () {
+        // Guards the completion factor itself: a complete attempt must not
+        // be penalised by the new gate — covered here directly rather than
+        // relying only on the pre-existing "faithful trace" test above.
+        expect(_score(_perfectTrace(_cross), _cross), greaterThan(0.9));
+      });
+    });
+
     group('without reference geometry', () {
       test('cannot award a confident high score', () {
         final result = evaluator.evaluate(

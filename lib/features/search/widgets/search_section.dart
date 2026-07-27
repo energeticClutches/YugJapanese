@@ -17,7 +17,10 @@ class SearchSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        // titleLarge to match the section-heading size used everywhere
+        // else this same role appears (Dashboard, Analytics, Settings —
+        // see settings_section.dart). Milestone 21, Issue 3.
+        Text(title, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.sm),
         ...children,
       ],

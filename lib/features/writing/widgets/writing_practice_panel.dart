@@ -20,12 +20,21 @@ class WritingPracticePanel extends StatelessWidget {
     this.instructions,
     this.onCanvasSize,
     this.onDrawingActive,
+    this.submitLabel = 'Check my writing',
   });
 
   final List<Stroke> strokes;
   final ValueChanged<List<Stroke>> onStrokesChanged;
   final VoidCallback onSubmit;
   final int expectedStrokeCount;
+
+  /// Label for the primary action button. Defaults to the free-writing
+  /// wording ("Check my writing" — accurate there, since that step is the
+  /// one that actually gets scored). Tracing passes something that
+  /// describes what really happens when you tap it: nothing is graded
+  /// mid-trace, the canvas just clears and the lesson moves on
+  /// (Milestone 21, Issue 5 — see `learning_screen.dart`'s `_submitWriting`).
+  final String submitLabel;
 
   /// Reference strokes shown faintly behind the ink, or `null` for none.
   final List<StrokeTemplate>? guideStrokes;
@@ -97,7 +106,7 @@ class WritingPracticePanel extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         FilledButton(
           onPressed: hasInk ? onSubmit : null,
-          child: const Text('Check my writing'),
+          child: Text(submitLabel),
         ),
       ],
     );

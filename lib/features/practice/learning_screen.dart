@@ -84,6 +84,16 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
   /// Tracks which character `_strokes`/`_guideStrokes` belong to.
   String? _strokesForItemId;
 
+  /// Tracks which step `_strokes` was last drawn for, alongside
+  /// [_strokesForItemId]. Reset used to fire only on a character change,
+  /// which is what let traced ink survive into the free-writing canvas:
+  /// the generic "Next" button advances `_controller.nextStep()` directly
+  /// and never goes through `_submitWriting`, so nothing cleared `_strokes`
+  /// on that path. Tracking the step too, and checking it unconditionally
+  /// on every build, resets the canvas on *any* step transition regardless
+  /// of which button caused it (Milestone 22, Issue 3 — P0).
+  LearningStep? _strokesForStep;
+
   /// True while a finger is actively drawing a stroke on the canvas.
   /// Applied to the page's [SingleChildScrollView] as
   /// `NeverScrollableScrollPhysics` for the duration — see
@@ -351,13 +361,25 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
     final currentCharacter = _controller.currentCharacter;
     final session = _controller.session;
 
-    // Moving to a different character clears the canvas and pulls that
-    // character's reference strokes.
+    // Moving to a different character clears the canvas, drops the stale
+    // reference strokes, and forgets which step the canvas belongs to.
     if (currentCharacter != null &&
         _strokesForItemId != currentCharacter.id) {
       _strokesForItemId = currentCharacter.id;
       _strokes = <Stroke>[];
       _guideStrokes = null;
+      _writingResult = null;
+      _strokesForStep = currentStep;
+    } else if (_strokesForStep != currentStep) {
+      // Same character, different step: this is the tracing -> free
+      // writing transition (and every other step change). Clearing here —
+      // unconditionally, on every path that changes `currentStep` — is
+      // what makes the reset independent of which button triggered it
+      // (Milestone 22, Issue 3). Guide strokes are untouched: they belong
+      // to the character, not the step, so re-fetching them on every step
+      // change would just be a wasted flicker.
+      _strokesForStep = currentStep;
+      _strokes = <Stroke>[];
       _writingResult = null;
     }
 
@@ -404,22 +426,27 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Four stacked status lines (title, character, step,
+                  // position) at near-identical spacing used to read as an
+                  // undifferentiated debug dump rather than a page header.
+                  // The step and position facts are merged onto one line —
+                  // same "·"-joined pattern already used for compact facts
+                  // elsewhere (e.g. the dashboard's script summary cards) —
+                  // and the gap under the title is tightened so the title
+                  // reads as a heading with a subtitle under it, not four
+                  // equally-weighted rows (Milestone 21, Issue 4).
                   Text(
                     'Lesson $lessonNumber',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: AppSpacing.xs),
                   Text(
                     'Current Character: ${currentCharacter.symbol}',
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    'Current Step: ${_describeStep(currentStep)}',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
+                    '${_describeStep(currentStep)} · '
                     'Character ${session.currentCharacterIndex + 1} of ${session.totalCharacters}',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
@@ -548,7 +575,13 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    // Larger than the md gap between the two buttons in a
+                    // row: this separates two different actions (advance
+                    // within the character vs. move to the next character
+                    // or restart), not two buttons doing one job, so it
+                    // reads as a break between stages rather than a single
+                    // four-button block (Milestone 21, Issue 4).
+                    const SizedBox(height: AppSpacing.lg),
                   ],
                   Row(
                     children: [
@@ -642,6 +675,13 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
           instructions: isTracing
               ? 'Trace over the guide with your finger.'
               : 'Now write ${item.symbol} from memory.',
+          // Tracing isn't graded — _submitWriting just clears the canvas
+          // and moves on to free writing — so "Check my writing" there
+          // claimed an evaluation that never happens (Milestone 21,
+          // Issue 5). Free writing keeps the default label; that's the
+          // step _evaluateDrawnStrokes actually scores.
+          submitLabel:
+              isTracing ? 'Continue to Free Writing' : 'Check my writing',
           onStrokesChanged: (List<Stroke> strokes) {
             setState(() {
               _strokes = strokes;
@@ -659,17 +699,37 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
     );
   }
 
-  /// Handles "Check my writing".
+  /// Minimum tracing accuracy — scored with the exact same evaluator used
+  /// for the graded free-writing attempt — before "Continue to Free
+  /// Writing" is allowed to advance. Deliberately lenient: tracing has a
+  /// visible guide underneath the ink, so this only catches strokes with
+  /// essentially no relationship to the character (drawn somewhere else
+  /// entirely, or a scribble), not an imperfect-but-genuine trace. Tracing
+  /// previously had no validation at all — the button only checked
+  /// `hasInk`, so it advanced on any non-empty canvas regardless of what
+  /// was actually drawn (Milestone 22, Issue 2).
+  static const double _minTracingAccuracyToAdvance = 0.3;
+
+  /// Handles "Continue to Free Writing" / "Check my writing".
   ///
-  /// Tracing hands off to free writing with a fresh canvas; free writing
-  /// is the graded attempt, so it evaluates the real strokes and advances
-  /// to the result step ([LearningSession.nextStep] maps
-  /// freeWriting -> completed).
+  /// Tracing is now scored against the guide (Issue 2) but is not the
+  /// graded attempt — only free writing's result is kept and shown via
+  /// [WritingResultCard] ([LearningSession.nextStep] maps
+  /// freeWriting -> completed). Canvas reset on the way out of tracing is
+  /// handled once, unconditionally, in [build] rather than here — see
+  /// `_strokesForStep` — so it applies no matter which button ends the
+  /// step (Issue 3).
   void _submitWriting(LearningItem item) {
     if (_controller.currentStep == LearningStep.tracing) {
-      setState(() {
-        _strokes = <Stroke>[];
-      });
+      final WritingResult traceResult = _evaluateDrawnStrokes(item);
+      if (traceResult.accuracy < _minTracingAccuracyToAdvance) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Trace closer to the guide before continuing.'),
+          ),
+        );
+        return;
+      }
       _controller.nextStep();
       return;
     }

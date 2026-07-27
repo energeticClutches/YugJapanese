@@ -36,6 +36,21 @@ class WritingEvaluator {
   /// "written the wrong way round" rather than an occasional slip.
   static const double _reversedShareForCap = 0.5;
 
+  /// Ratio of (normalized) drawn ink to (normalized) reference ink below
+  /// which an attempt is "incomplete" rather than merely imperfect. 0.9
+  /// rather than 1.0 so a faithful trace that runs very slightly short —
+  /// normal hand tremor, not a missing stroke — still reaches full credit
+  /// once raised to [_completionExponent].
+  static const double _completionRatioForFullCredit = 0.9;
+
+  /// Steeper than the count/proportion floors below (which bottom out at
+  /// 0.55/0.85): a half-finished character is not "close, minus some
+  /// technique points," it is incomplete, and Milestone 22 (Issue 1) asks
+  /// for that to mean little or no credit rather than a graded partial
+  /// score. 1.5 keeps a near-complete attempt (ratio 0.8+) close to full
+  /// weight while a token attempt (ratio 0.2 or less) is pushed under 5%.
+  static const double _completionExponent = 1.5;
+
   WritingResult evaluate({
     required List<Stroke> strokes,
     required int expectedStrokeCount,
@@ -46,6 +61,16 @@ class WritingEvaluator {
   }) {
     final List<List<Offset>> drawn = _denoise(_toPolylines(strokes), canvasSize);
 
+    // Nothing usable survived: either literally nothing was drawn, or
+    // every "stroke" was a tap/fleck too short to be part of a real
+    // character. Both are the same failure from the learner's side, and
+    // both must score zero rather than reach the shape matcher — which
+    // could otherwise find a lucky partial match for a stray dot sitting
+    // near the reference glyph's centre (Milestone 22, Issue 1).
+    // `_denoise` used to fall back to the *un*filtered strokes when every
+    // stroke was noise, specifically so this branch wouldn't be hit; that
+    // was the root cause — it let noise reach `_matchShapes` instead of
+    // being rejected here.
     if (!isDrawingCompleted || drawn.isEmpty) {
       return WritingResult(
         accuracy: 0,
@@ -58,6 +83,7 @@ class WritingEvaluator {
           orderPenalised: false,
           reversedStrokes: 0,
           hasReference: referenceStrokes != null && referenceStrokes.isNotEmpty,
+          tooSmallToScore: strokes.isNotEmpty,
         ),
       );
     }
@@ -106,6 +132,21 @@ class WritingEvaluator {
     );
     final double proportionScore = _proportionScore(userNorm, refNorm);
 
+    // How much ink was actually put down, relative to how much the real
+    // character needs — both measured post-normalization so absolute size
+    // and canvas placement don't matter, only the shape's own proportions
+    // do. A single stroke where three are expected can still have a
+    // flawless `match.score` for that one stroke; this is what stops a
+    // partial attempt from being scored as if it were the whole character
+    // (Milestone 22, Issue 1).
+    final double completionRatio = _totalLength(refNorm) > 0
+        ? _totalLength(userNorm) / _totalLength(refNorm)
+        : 1;
+    final double completionFactor = math.pow(
+      _clamp01(completionRatio / _completionRatioForFullCredit),
+      _completionExponent,
+    ).toDouble();
+
     // Direction is technique, not shape: one slip on a long character is a
     // small deduction, but writing most strokes backwards is a different
     // (wrong) way of forming the character and is penalised steeply.
@@ -119,6 +160,7 @@ class WritingEvaluator {
     accuracy *= _lerp(0.55, 1, countScore);
     accuracy *= directionFactor;
     accuracy *= _lerp(0.85, 1, proportionScore);
+    accuracy *= completionFactor;
 
     // Repeated direction mistakes should keep an attempt out of the top band
     // however clean the shapes are — otherwise the app teaches learners that
@@ -156,7 +198,11 @@ class WritingEvaluator {
     ];
   }
 
-  /// Drops accidental taps and stray flecks so they are not scored as strokes.
+  /// Drops accidental taps and stray flecks so they are not scored as
+  /// strokes. If every stroke is noise, the result is empty — that IS the
+  /// "incomplete drawing" case (Milestone 22, Issue 1), and `evaluate()`
+  /// scores an empty result as zero rather than handing noise to the shape
+  /// matcher, which could otherwise get lucky on a stray dot's position.
   List<List<Offset>> _denoise(List<List<Offset>> strokes, Size canvasSize) {
     if (strokes.isEmpty) {
       return strokes;
@@ -166,13 +212,21 @@ class WritingEvaluator {
         ? canvasSize.shortestSide
         : math.sqrt(bounds.width * bounds.width + bounds.height * bounds.height);
     final double minLength = math.max(6, reference * 0.03);
-    final List<List<Offset>> kept = <List<Offset>>[
+    return <List<Offset>>[
       for (final List<Offset> s in strokes)
         if (_arcLength(s) >= minLength) s,
     ];
-    // If every stroke looks like noise the drawing really is just taps; keep
-    // them so the attempt scores badly rather than being treated as empty.
-    return kept.isEmpty ? strokes : kept;
+  }
+
+  /// Combined arc length of every stroke in a normalized set — used to
+  /// measure how much ink was drawn relative to how much the reference
+  /// glyph needs (see [_completionRatioForFullCredit]).
+  double _totalLength(List<List<Offset>> strokes) {
+    double total = 0;
+    for (final List<Offset> s in strokes) {
+      total += _arcLength(s);
+    }
+    return total;
   }
 
   double _arcLength(List<Offset> points) {
@@ -435,10 +489,16 @@ class WritingEvaluator {
     required bool orderPenalised,
     required int reversedStrokes,
     required bool hasReference,
+    bool tooSmallToScore = false,
   }) {
     final List<String> lines = <String>[];
 
-    if (accuracy >= 0.9) {
+    if (tooSmallToScore) {
+      lines.add(
+        "That's too small to count as a stroke — draw the full character "
+        'before submitting.',
+      );
+    } else if (accuracy >= 0.9) {
       lines.add('Excellent match!');
     } else if (accuracy >= 0.75) {
       lines.add('Great job!');

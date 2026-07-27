@@ -39,6 +39,14 @@ class PracticeResultsScreen extends ConsumerWidget {
     final bool hasMistakes = result.incorrectItemIds.isNotEmpty;
 
     return AppScaffold(
+      // This screen had no AppBar at all — every other pushed screen in
+      // the app does (Search, Settings, Learning Flow, the quiz session
+      // screen itself as of Milestone 23 Issue 2), each getting Flutter's
+      // automatic back arrow from having one. Removing "Return Home"
+      // below without adding this would have left the system back
+      // gesture as the only way off the screen; this restores the same
+      // affordance every other screen already has (Milestone 23, Issue 3).
+      appBar: AppBar(title: const Text('Quiz Results')),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,23 +103,37 @@ class PracticeResultsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.xl),
             ],
+            // "Return Home" was removed here (Milestone 23, Issue 3) — it
+            // duplicated the back arrow the AppBar above now provides, and
+            // wasn't a distinct destination anyway (`_returnToPracticeHome`
+            // just popped back to whatever pushed this screen, which the
+            // AppBar's back button — or the system back gesture — already
+            // does). Left the empty-state "Return to Practice" button
+            // above (shown when there is no completed session at all)
+            // untouched: that is a different screen state, not the
+            // completion screen this issue was about.
             Wrap(
               spacing: AppSpacing.md,
               runSpacing: AppSpacing.md,
               children: [
-                OutlinedButton(
-                  onPressed: () => _returnToPracticeHome(context),
-                  child: const Text('Return Home'),
-                ),
                 if (hasMistakes)
                   OutlinedButton(
-                    onPressed: () => context.push(
+                    // Replace, not push: the session screen replaces itself
+                    // with `/quiz/results` when it finishes
+                    // (practice_session_screen.dart), so pushing here would
+                    // leave this results screen on the stack underneath the
+                    // new one, and every stacked copy renders identically
+                    // (both read the same `PracticeService.lastResult`) —
+                    // repeated retries would silently deepen the stack
+                    // (BUG-010). Replacing keeps the stack at a constant
+                    // depth no matter how many times the user retries.
+                    onPressed: () => context.pushReplacement(
                       '/quiz/play?mode=${result.modeId}&items=${result.incorrectItemIds.join(',')}',
                     ),
                     child: const Text('Review Mistakes'),
                   ),
                 FilledButton(
-                  onPressed: () => context.push(
+                  onPressed: () => context.pushReplacement(
                     '/quiz/play?mode=${result.modeId}&scripts=${result.contentIds.join(',')}&length=${result.totalQuestions}',
                   ),
                   child: const Text('Retry'),
