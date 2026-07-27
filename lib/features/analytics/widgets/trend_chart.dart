@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 /// One line series for [TrendChart]. `null` entries are gaps (no data for
 /// that point) — the line breaks rather than interpolating across them.
@@ -47,11 +45,17 @@ class TrendChart extends StatelessWidget {
           height: height,
           width: double.infinity,
           child: hasAnyData
-              ? CustomPaint(painter: _TrendChartPainter(series: series, maxY: maxY))
+              ? CustomPaint(
+                  painter: _TrendChartPainter(
+                    series: series,
+                    maxY: maxY,
+                    gridColor: Theme.of(context).colorScheme.outline,
+                  ),
+                )
               : Center(
                   child: Text(
                     'Not enough history yet.',
-                    style: AppTypography.caption,
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
         ),
@@ -66,7 +70,7 @@ class TrendChart extends StatelessWidget {
                 children: [
                   Container(width: 10, height: 10, color: s.color),
                   const SizedBox(width: 4),
-                  Text(s.label, style: AppTypography.caption),
+                  Text(s.label, style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
           ],
@@ -77,15 +81,23 @@ class TrendChart extends StatelessWidget {
 }
 
 class _TrendChartPainter extends CustomPainter {
-  _TrendChartPainter({required this.series, required this.maxY});
+  _TrendChartPainter({
+    required this.series,
+    required this.maxY,
+    required this.gridColor,
+  });
 
   final List<TrendSeries> series;
   final double maxY;
 
+  /// Resolved from the active theme by the parent — a [CustomPainter] has no
+  /// [BuildContext] of its own, so the grid colour has to be passed in.
+  final Color gridColor;
+
   @override
   void paint(Canvas canvas, Size size) {
     final Paint gridPaint = Paint()
-      ..color = AppColors.divider
+      ..color = gridColor
       ..strokeWidth = 1;
     for (int i = 0; i <= 4; i++) {
       final double y = size.height * i / 4;
@@ -131,6 +143,8 @@ class _TrendChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _TrendChartPainter oldDelegate) {
-    return oldDelegate.series != series || oldDelegate.maxY != maxY;
+    return oldDelegate.series != series ||
+        oldDelegate.maxY != maxY ||
+        oldDelegate.gridColor != gridColor;
   }
 }

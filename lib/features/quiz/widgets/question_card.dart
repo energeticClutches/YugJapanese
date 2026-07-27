@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../audio/models/audio_item.dart';
 import '../../audio/widgets/audio_button.dart';
 import '../models/practice_question.dart';
@@ -30,7 +28,7 @@ class QuestionCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.extraLarge),
-        side: const BorderSide(color: AppColors.divider),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -38,7 +36,7 @@ class QuestionCard extends StatelessWidget {
           children: [
             Text(
               'Question $questionNumber of $totalQuestions',
-              style: AppTypography.caption,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: AppSpacing.md),
             if (isListening)
@@ -62,7 +60,7 @@ class QuestionCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               Text(
                 question.prompt,
-                style: AppTypography.body,
+                style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
             ],

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 
@@ -28,8 +27,8 @@ class RadicalCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppRadius.medium),
-        border: const Border.fromBorderSide(
-          BorderSide(color: AppColors.divider),
+        border: Border.fromBorderSide(
+          BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
       ),
       child: Row(

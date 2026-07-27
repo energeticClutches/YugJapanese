@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 class InsightCard extends StatelessWidget {
   const InsightCard({super.key, required this.text});
@@ -19,7 +17,7 @@ class InsightCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.medium),
-        side: const BorderSide(color: AppColors.divider),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -27,7 +25,7 @@ class InsightCard extends StatelessWidget {
           children: [
             Icon(Icons.lightbulb_outline, color: colorScheme.primary),
             const SizedBox(width: AppSpacing.md),
-            Expanded(child: Text(text, style: AppTypography.body)),
+            Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
           ],
         ),
       ),

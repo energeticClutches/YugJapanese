@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
 
 /// A bare circular progress indicator with a centered value label. Used
 /// standalone (unlike `ProgressSummaryCard`, which wraps a ring in a full
@@ -39,16 +37,16 @@ class ProgressRing extends StatelessWidget {
                 child: CircularProgressIndicator(
                   value: clamped / 100,
                   strokeWidth: 8,
-                  backgroundColor: AppColors.divider,
+                  backgroundColor: Theme.of(context).colorScheme.outline,
                   valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                 ),
               ),
-              Text('${clamped.round()}%', style: AppTypography.title),
+              Text('${clamped.round()}%', style: Theme.of(context).textTheme.titleLarge),
             ],
           ),
         ),
         const SizedBox(height: 6),
-        Text(label, style: AppTypography.caption),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

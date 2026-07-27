@@ -20,6 +20,10 @@ class SearchResultTile extends StatelessWidget {
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+        // CircleAvatar defaults its foreground to onPrimaryContainer, a role
+        // this app's ColorScheme never defines — leaving the character almost
+        // invisible in dark mode. Pin it to onSurface like the lesson chips.
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         child: Text(result.symbol),
       ),
       title: Text(result.title),

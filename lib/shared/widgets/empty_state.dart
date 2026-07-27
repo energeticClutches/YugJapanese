@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_spacing.dart';
-import '../../core/theme/app_typography.dart';
 
 /// Generic empty-state display (icon + title + optional message), matching
 /// the visual shape already established by feature-specific empty states
@@ -32,12 +31,12 @@ class EmptyState extends StatelessWidget {
           children: [
             Icon(icon, size: 64, color: colorScheme.primary),
             const SizedBox(height: AppSpacing.md),
-            Text(title, style: AppTypography.title, textAlign: TextAlign.center),
+            Text(title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
             if (message != null) ...[
               const SizedBox(height: AppSpacing.xs),
               Text(
                 message!,
-                style: AppTypography.caption,
+                style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),
             ],

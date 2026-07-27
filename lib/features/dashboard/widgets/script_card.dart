@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 class ScriptCard extends StatelessWidget {
   const ScriptCard({
@@ -25,14 +23,16 @@ class ScriptCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final Color foreground =
-        enabled ? colorScheme.primary : AppColors.textSecondary;
+        enabled
+            ? colorScheme.primary
+            : colorScheme.onSurface.withValues(alpha: 0.6);
 
     return Material(
       color: colorScheme.surface,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.large),
-        side: const BorderSide(color: AppColors.divider),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(AppRadius.large),
@@ -46,9 +46,9 @@ class ScriptCard extends StatelessWidget {
               children: [
                 Icon(icon, color: foreground, size: 32),
                 const SizedBox(height: AppSpacing.sm),
-                Text(title, style: AppTypography.title),
+                Text(title, style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: AppSpacing.xs),
-                Text(subtitle, style: AppTypography.caption),
+                Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ),

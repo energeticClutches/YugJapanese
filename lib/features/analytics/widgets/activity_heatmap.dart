@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../models/daily_learning_stat.dart';
 
@@ -36,7 +35,7 @@ class ActivityHeatmap extends StatelessWidget {
               height: 18,
               decoration: BoxDecoration(
                 color: day.activityCount == 0
-                    ? AppColors.divider
+                    ? Theme.of(context).colorScheme.outline
                     : colorScheme.primary.withValues(
                         alpha: 0.25 +
                             0.75 *

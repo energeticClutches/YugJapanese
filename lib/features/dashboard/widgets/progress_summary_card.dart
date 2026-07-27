@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 class ProgressSummaryCard extends StatelessWidget {
   const ProgressSummaryCard({
@@ -25,7 +23,7 @@ class ProgressSummaryCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.extraLarge),
-        side: const BorderSide(color: AppColors.divider),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -43,17 +41,17 @@ class ProgressSummaryCard extends StatelessWidget {
                     child: CircularProgressIndicator(
                       value: clamped / 100,
                       strokeWidth: 10,
-                      backgroundColor: AppColors.divider,
+                      backgroundColor: Theme.of(context).colorScheme.outline,
                       valueColor:
                           AlwaysStoppedAnimation<Color>(colorScheme.primary),
                     ),
                   ),
-                  Text('${clamped.round()}%', style: AppTypography.headline),
+                  Text('${clamped.round()}%', style: Theme.of(context).textTheme.headlineMedium),
                 ],
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            Text(label, style: AppTypography.label),
+            Text(label, style: Theme.of(context).textTheme.labelLarge),
           ],
         ),
       ),

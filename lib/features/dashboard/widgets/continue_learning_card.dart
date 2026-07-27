@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 class ContinueLearningCard extends StatelessWidget {
   const ContinueLearningCard({
@@ -28,7 +26,7 @@ class ContinueLearningCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.extraLarge),
-        side: const BorderSide(color: AppColors.divider),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -39,9 +37,9 @@ class ContinueLearningCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(label, style: AppTypography.caption),
+                  Text(label, style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(title, style: AppTypography.headline),
+                  Text(title, style: Theme.of(context).textTheme.headlineMedium),
                 ],
               ),
             ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 class EmptyReviewState extends StatelessWidget {
   const EmptyReviewState({super.key});
@@ -20,11 +19,11 @@ class EmptyReviewState extends StatelessWidget {
             color: colorScheme.primary,
           ),
           const SizedBox(height: AppSpacing.md),
-          Text("You're all caught up!", style: AppTypography.title),
+          Text("You're all caught up!", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'No lessons are due for review right now.',
-            style: AppTypography.caption,
+            style: Theme.of(context).textTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
         ],

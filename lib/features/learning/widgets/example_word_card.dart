@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../models/kanji_example.dart';
@@ -23,8 +22,8 @@ class ExampleWordCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.medium),
-        border: const Border.fromBorderSide(
-          BorderSide(color: AppColors.divider),
+        border: Border.fromBorderSide(
+          BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
       ),
       child: Column(

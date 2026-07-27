@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 enum AnswerOptionState { neutral, selectedCorrect, selectedIncorrect, revealedCorrect }
 
@@ -22,15 +21,21 @@ class AnswerOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    Color borderColor = AppColors.divider;
+    // The incorrect state uses colorScheme.error, which already adapts to the
+    // active theme; success has no ColorScheme role, so pick the variant that
+    // matches the current brightness rather than always using the light one.
+    final Color success = colorScheme.brightness == Brightness.dark
+        ? AppColors.darkSuccess
+        : AppColors.success;
+    Color borderColor = Theme.of(context).colorScheme.outline;
     Color? fillColor;
     switch (state) {
       case AnswerOptionState.neutral:
         break;
       case AnswerOptionState.selectedCorrect:
       case AnswerOptionState.revealedCorrect:
-        borderColor = AppColors.success;
-        fillColor = AppColors.success.withValues(alpha: 0.12);
+        borderColor = success;
+        fillColor = success.withValues(alpha: 0.12);
         break;
       case AnswerOptionState.selectedIncorrect:
         borderColor = colorScheme.error;
@@ -58,7 +63,7 @@ class AnswerOption extends StatelessWidget {
             ),
             child: Text(
               label,
-              style: AppTypography.body,
+              style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ),

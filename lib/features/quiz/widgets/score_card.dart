@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 class ScoreCard extends StatelessWidget {
   const ScoreCard({
@@ -27,7 +25,7 @@ class ScoreCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.large),
-        border: Border.all(color: AppColors.divider),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,8 +33,8 @@ class ScoreCard extends StatelessWidget {
         children: [
           Icon(icon, color: colorScheme.primary),
           const SizedBox(height: AppSpacing.sm),
-          Text(value, style: AppTypography.headline),
-          Text(label, style: AppTypography.caption),
+          Text(value, style: Theme.of(context).textTheme.headlineMedium),
+          Text(label, style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
     );

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 class AchievementCard extends StatelessWidget {
   const AchievementCard({
@@ -23,14 +21,16 @@ class AchievementCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final Color foreground =
-        isUnlocked ? colorScheme.primary : AppColors.textSecondary;
+        isUnlocked
+            ? colorScheme.primary
+            : colorScheme.onSurface.withValues(alpha: 0.6);
 
     final Widget card = Material(
       color: colorScheme.surface,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.large),
-        side: const BorderSide(color: AppColors.divider),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: Opacity(
         opacity: isUnlocked ? 1 : 0.5,
@@ -42,9 +42,9 @@ class AchievementCard extends StatelessWidget {
             children: [
               Icon(icon, color: foreground, size: 32),
               const SizedBox(height: AppSpacing.sm),
-              Text(title, style: AppTypography.title),
+              Text(title, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: AppSpacing.xs),
-              Text(description, style: AppTypography.caption),
+              Text(description, style: Theme.of(context).textTheme.bodySmall),
             ],
           ),
         ),

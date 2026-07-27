@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../models/weak_area.dart';
 
 IconData _iconForType(WeakAreaType type) {
@@ -31,7 +29,7 @@ class WeakAreaCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.medium),
-        side: const BorderSide(color: AppColors.divider),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -44,8 +42,8 @@ class WeakAreaCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(weakArea.label, style: AppTypography.label),
-                  Text(weakArea.description, style: AppTypography.caption),
+                  Text(weakArea.label, style: Theme.of(context).textTheme.labelLarge),
+                  Text(weakArea.description, style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
             ),

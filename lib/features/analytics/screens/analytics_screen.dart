@@ -172,7 +172,7 @@ class _AnalyticsContent extends StatelessWidget {
             series: [
               TrendSeries(
                 label: 'Writing accuracy',
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 values: [
                   for (final DailyLearningStat day in analytics.dailyActivity)
                     day.averageWritingAccuracy,
@@ -180,7 +180,7 @@ class _AnalyticsContent extends StatelessWidget {
               ),
               TrendSeries(
                 label: 'Quiz accuracy',
-                color: AppColors.secondary,
+                color: Theme.of(context).colorScheme.secondary,
                 values: [
                   for (final DailyLearningStat day in analytics.dailyActivity)
                     day.averageQuizAccuracy,

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 class ReviewCard extends StatelessWidget {
   const ReviewCard({
@@ -24,7 +22,7 @@ class ReviewCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.large),
-        side: const BorderSide(color: AppColors.divider),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(AppRadius.large),
@@ -47,9 +45,13 @@ class ReviewCard extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
-                child: Text(title, style: AppTypography.title),
+                child: Text(title, style: Theme.of(context).textTheme.titleLarge),
               ),
-              Icon(Icons.chevron_right, color: AppColors.textSecondary),
+              Icon(
+                Icons.chevron_right,
+                color: Theme.of(context).colorScheme.onSurface
+                    .withValues(alpha: 0.6),
+              ),
             ],
           ),
         ),

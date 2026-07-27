@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 class StreakCard extends StatelessWidget {
   const StreakCard({
@@ -26,7 +24,7 @@ class StreakCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.extraLarge),
-        side: const BorderSide(color: AppColors.divider),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(AppRadius.extraLarge),
@@ -46,10 +44,10 @@ class StreakCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Current Streak', style: AppTypography.caption),
+                    Text('Current Streak', style: Theme.of(context).textTheme.bodySmall),
                     Text(
                       '$currentStreak ${currentStreak == 1 ? 'Day' : 'Days'}',
-                      style: AppTypography.title,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
                 ),
@@ -59,10 +57,10 @@ class StreakCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Longest Streak', style: AppTypography.caption),
+                    Text('Longest Streak', style: Theme.of(context).textTheme.bodySmall),
                     Text(
                       '$longestStreak ${longestStreak == 1 ? 'Day' : 'Days'}',
-                      style: AppTypography.title,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
                 ),

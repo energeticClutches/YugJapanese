@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_spacing.dart';
-import '../../core/theme/app_typography.dart';
 
 /// Generic error-state display (icon + message + optional retry action).
 /// No screen in this app had a dedicated error UI before M19 — `AsyncValue
@@ -30,7 +29,7 @@ class ErrorState extends StatelessWidget {
           children: [
             Icon(Icons.error_outline, size: 64, color: colorScheme.error),
             const SizedBox(height: AppSpacing.md),
-            Text(message, style: AppTypography.body, textAlign: TextAlign.center),
+            Text(message, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
             if (onRetry != null) ...[
               const SizedBox(height: AppSpacing.md),
               FilledButton(onPressed: onRetry, child: const Text('Retry')),

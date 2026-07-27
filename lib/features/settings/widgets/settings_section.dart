@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 
@@ -30,7 +29,7 @@ class SettingsSection extends StatelessWidget {
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.large),
-            side: const BorderSide(color: AppColors.divider),
+            side: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../models/script_analytics.dart';
 
 class ScriptSummaryCard extends StatelessWidget {
@@ -25,7 +23,7 @@ class ScriptSummaryCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.large),
-        side: const BorderSide(color: AppColors.divider),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -33,7 +31,7 @@ class ScriptSummaryCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(title, style: AppTypography.title),
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: AppSpacing.sm),
             _row(context, 'Completion', '${analytics.completionPercentage.round()}%'),
             _row(
@@ -60,8 +58,8 @@ class ScriptSummaryCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: AppTypography.caption),
-          Text(value, style: AppTypography.label),
+          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          Text(value, style: Theme.of(context).textTheme.labelLarge),
         ],
       ),
     );

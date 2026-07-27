@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../models/practice_mode.dart';
 import 'practice_icons.dart';
 
@@ -36,7 +34,7 @@ class PracticeCard extends StatelessWidget {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.large),
-          side: const BorderSide(color: AppColors.divider),
+          side: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(AppRadius.large),
@@ -67,10 +65,10 @@ class PracticeCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(mode.title, style: AppTypography.title),
+                          Text(mode.title, style: Theme.of(context).textTheme.titleLarge),
                           Text(
                             practiceDifficultyLabel(mode.difficulty),
-                            style: AppTypography.caption,
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                       ),
@@ -78,12 +76,12 @@ class PracticeCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                Text(mode.description, style: AppTypography.body),
+                Text(mode.description, style: Theme.of(context).textTheme.bodyMedium),
                 const SizedBox(height: AppSpacing.sm),
                 if (!enabled && disabledReason != null)
                   Text(
                     disabledReason!,
-                    style: AppTypography.caption.copyWith(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: colorScheme.error,
                     ),
                   )
@@ -91,7 +89,7 @@ class PracticeCard extends StatelessWidget {
                   Text(
                     '${bestScore == null ? 'Best: --' : 'Best: ${bestScore!.round()}%'} · '
                     '${lastPlayed == null ? 'Not played yet' : 'Last played ${_formatDate(lastPlayed!)}'}',
-                    style: AppTypography.caption,
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
               ],
             ),

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 class ReviewSummaryCard extends StatelessWidget {
   const ReviewSummaryCard({
@@ -25,7 +23,7 @@ class ReviewSummaryCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.extraLarge),
-        side: const BorderSide(color: AppColors.divider),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(AppRadius.extraLarge),
@@ -39,13 +37,13 @@ class ReviewSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("Today's Reviews", style: AppTypography.caption),
+                    Text("Today's Reviews", style: Theme.of(context).textTheme.bodySmall),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       hasDueReviews
                           ? '$dueCount ${dueCount == 1 ? 'Lesson' : 'Lessons'} Due'
                           : "You're all caught up!",
-                      style: AppTypography.headline,
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ],
                 ),
