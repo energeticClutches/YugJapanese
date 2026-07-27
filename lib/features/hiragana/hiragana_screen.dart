@@ -10,6 +10,7 @@ import '../../shared/widgets/lesson_card.dart';
 import '../../shared/widgets/loading_indicator.dart';
 import '../progress/models/lesson_progress.dart';
 import '../progress/providers/progress_providers.dart';
+import '../progress/services/progress_controller.dart';
 
 class HiraganaScreen extends ConsumerStatefulWidget {
   const HiraganaScreen({super.key});
@@ -20,12 +21,12 @@ class HiraganaScreen extends ConsumerStatefulWidget {
 
 class _HiraganaScreenState extends ConsumerState<HiraganaScreen> {
   static const String _contentId = 'hiragana';
-  late final Future<LessonModel?> _lessonFuture;
+  late final Future<List<LessonModel>> _lessonsFuture;
 
   @override
   void initState() {
     super.initState();
-    _lessonFuture = HiraganaRepository().getLesson(1);
+    _lessonsFuture = HiraganaRepository().getAllLessons();
     Future<void>.microtask(
       () => ref.read(progressControllerProvider).loadProgress(_contentId),
     );
@@ -33,27 +34,24 @@ class _HiraganaScreenState extends ConsumerState<HiraganaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final progressController = ref.watch(progressControllerProvider);
+    final ProgressController progressController =
+        ref.watch(progressControllerProvider);
 
     return AppScaffold(
       appBar: AppBar(title: const Text('Hiragana')),
-      child: FutureBuilder<LessonModel?>(
-        future: _lessonFuture,
+      child: FutureBuilder<List<LessonModel>>(
+        future: _lessonsFuture,
         builder:
-            (BuildContext context, AsyncSnapshot<LessonModel?> snapshot) {
+            (BuildContext context, AsyncSnapshot<List<LessonModel>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const LoadingIndicator();
           }
 
-          if (snapshot.hasError || snapshot.data == null) {
+          final List<LessonModel> lessons =
+              snapshot.data ?? const <LessonModel>[];
+          if (snapshot.hasError || lessons.isEmpty) {
             return const Center(child: Text('Coming Soon'));
           }
-
-          final LessonModel lesson = snapshot.data!;
-          final LessonProgress? progress = progressController.lessonProgress(
-            _contentId,
-            lesson.lessonNumber,
-          );
 
           return SingleChildScrollView(
             child: Column(
@@ -64,20 +62,31 @@ class _HiraganaScreenState extends ConsumerState<HiraganaScreen> {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: AppSpacing.xl),
-                LessonCard(
-                  lessonTitle: lesson.title,
-                  lessonSubtitle: lesson.description,
-                  characters: lesson.characters
-                      .map((character) => character.character)
-                      .toList(growable: false),
-                  progressLabel: _progressLabel(progress),
-                  completionPercentage: progressController.completionPercentage(
-                    _contentId,
-                    1,
+                for (final LessonModel lesson in lessons) ...[
+                  LessonCard(
+                    lessonTitle: lesson.title,
+                    lessonSubtitle: lesson.description,
+                    characters: lesson.characters
+                        .map((character) => character.character)
+                        .toList(growable: false),
+                    progressLabel: _progressLabel(
+                      progressController.lessonProgress(
+                        _contentId,
+                        lesson.lessonNumber,
+                      ),
+                    ),
+                    completionPercentage: progressController
+                            .lessonProgress(_contentId, lesson.lessonNumber)
+                            ?.isCompleted ==
+                        true
+                        ? 100
+                        : 0,
+                    onStartPressed: () => context.push(
+                      '/practice/${lesson.lessonNumber}?content=$_contentId',
+                    ),
                   ),
-                  onStartPressed: () =>
-                      context.push('/practice/${lesson.lessonNumber}'),
-                ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
               ],
             ),
           );
