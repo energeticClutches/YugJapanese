@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,11 +20,15 @@ import '../learning/widgets/reading_section.dart';
 import '../progress/providers/progress_providers.dart';
 import '../review/providers/review_providers.dart';
 import '../review/services/review_scheduler.dart';
+import '../settings/models/app_settings.dart';
 import '../settings/providers/settings_providers.dart';
 import '../writing/models/stroke.dart';
-import '../writing/models/stroke_point.dart';
+import '../writing/models/stroke_template.dart';
 import '../writing/models/writing_result.dart';
+import '../writing/providers/stroke_data_providers.dart';
 import '../writing/services/writing_evaluator.dart';
+import '../writing/widgets/stroke_order_player.dart';
+import '../writing/widgets/writing_practice_panel.dart';
 import '../writing/widgets/writing_result_card.dart';
 import '../writing/writing_evaluator_provider.dart';
 import 'learning_controller.dart';
@@ -57,6 +63,31 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
   bool _isSavingCompletion = false;
   String? _autoPlayedItemId;
 
+  /// Strokes the user has drawn for the current character. Reset whenever
+  /// the character or the lesson changes.
+  List<Stroke> _strokes = <Stroke>[];
+
+  /// Reference strokes for the current character, resolved from the
+  /// bundled KanjiVG-derived data. Null when none are bundled — the
+  /// canvas then falls back to free drawing with no guide.
+  List<StrokeTemplate>? _guideStrokes;
+
+  /// Size of the canvas the user last drew on, so evaluation happens in
+  /// the same coordinate space as the input.
+  Size? _lastCanvasSize;
+
+  /// Tracks which character `_strokes`/`_guideStrokes` belong to.
+  String? _strokesForItemId;
+
+  /// True while a finger is actively drawing a stroke on the canvas.
+  /// Applied to the page's [SingleChildScrollView] as
+  /// `NeverScrollableScrollPhysics` for the duration — see
+  /// [WritingCanvas.onDrawingActive] for why this is necessary (a
+  /// near-vertical stroke and "scroll the page" are the same gesture from
+  /// the ScrollView's perspective; freezing scroll during a stroke is what
+  /// stops the two from fighting over one touch).
+  bool _isDrawingActive = false;
+
   @override
   void initState() {
     super.initState();
@@ -85,34 +116,53 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
         .startLesson(contentId: _contentId, lessonNumber: widget.lessonNumber);
   }
 
-  WritingResult _evaluateCurrentItem(LearningItem item) {
+  /// Scores what the user actually drew on the canvas.
+  ///
+  /// Before the writing canvas existed this method fabricated synthetic
+  /// diagonal strokes and scored those, so every recorded "writing
+  /// accuracy" was machine-generated rather than earned. It now evaluates
+  /// [_strokes] — the real captured input — against the character's
+  /// expected stroke count, using the canvas's own size and the reference
+  /// glyph's bounding box so coverage/placement are measured in the same
+  /// coordinate space the user drew in.
+  WritingResult _evaluateDrawnStrokes(LearningItem item) {
     final WritingEvaluator evaluator = ref.read(writingEvaluatorProvider);
-    final int expectedStrokeCount = item.strokeCount;
-    final List<Stroke> strokes = List<Stroke>.generate(expectedStrokeCount, (
-      int index,
-    ) {
-      final double inset = 24 + (index * 6).toDouble();
-      final double size = 160 - (index * 4).toDouble();
-      return Stroke(
-        points: <StrokePoint>[
-          StrokePoint(
-            position: Offset(inset, inset),
-            timestamp: DateTime.now(),
-          ),
-          StrokePoint(
-            position: Offset(inset + size, inset + size),
-            timestamp: DateTime.now(),
-          ),
-        ],
-      );
-    });
+    final Size canvasSize = _lastCanvasSize ?? const Size(300, 300);
+
+    // The reference strokes (when bundled) give the character's real
+    // extent; without them fall back to the conventional centred square
+    // most handwriting practice sheets use.
+    Rect expectedBox = Rect.fromLTWH(
+      canvasSize.width * 0.1,
+      canvasSize.height * 0.1,
+      canvasSize.width * 0.8,
+      canvasSize.height * 0.8,
+    );
+    final List<StrokeTemplate>? guide = _guideStrokes;
+    if (guide != null && guide.isNotEmpty) {
+      double minX = double.infinity;
+      double minY = double.infinity;
+      double maxX = -double.infinity;
+      double maxY = -double.infinity;
+      for (final StrokeTemplate stroke in guide) {
+        for (final Offset p in stroke.scaledTo(canvasSize)) {
+          minX = math.min(minX, p.dx);
+          minY = math.min(minY, p.dy);
+          maxX = math.max(maxX, p.dx);
+          maxY = math.max(maxY, p.dy);
+        }
+      }
+      if (minX.isFinite && maxX > minX && maxY > minY) {
+        expectedBox = Rect.fromLTRB(minX, minY, maxX, maxY);
+      }
+    }
 
     return evaluator.evaluate(
-      strokes: strokes,
-      expectedStrokeCount: expectedStrokeCount,
-      expectedBoundingBox: const Rect.fromLTWH(24, 24, 160, 160),
-      canvasSize: const Size(256, 256),
-      isDrawingCompleted: true,
+      strokes: _strokes,
+      expectedStrokeCount: item.strokeCount,
+      expectedBoundingBox: expectedBox,
+      canvasSize: canvasSize,
+      isDrawingCompleted: _strokes.isNotEmpty,
     );
   }
 
@@ -204,18 +254,26 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
     final currentCharacter = _controller.currentCharacter;
     final session = _controller.session;
 
-    if (currentStep == LearningStep.completed &&
-        currentCharacter != null &&
-        _writingResult == null) {
-      final LearningItem item = currentCharacter;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || _writingResult != null) {
-          return;
-        }
-        setState(() {
-          _writingResult = _evaluateCurrentItem(item);
-        });
-      });
+    // Moving to a different character clears the canvas and pulls that
+    // character's reference strokes.
+    if (currentCharacter != null &&
+        _strokesForItemId != currentCharacter.id) {
+      _strokesForItemId = currentCharacter.id;
+      _strokes = <Stroke>[];
+      _guideStrokes = null;
+      _writingResult = null;
+    }
+
+    if (currentCharacter != null) {
+      // `characterStrokesProvider` is a cached FutureProvider keyed by
+      // symbol, so watching it here is cheap after the first resolve.
+      final CharacterStrokes? resolved = ref
+          .watch(characterStrokesProvider(currentCharacter.symbol))
+          .asData
+          ?.value;
+      if (resolved != null) {
+        _guideStrokes = resolved.strokes;
+      }
     }
 
     if (currentStep == LearningStep.introduction && currentCharacter != null) {
@@ -227,6 +285,9 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       child: lessonNumber == null || session == null || currentCharacter == null
           ? const LoadingIndicator()
           : SingleChildScrollView(
+              physics: _isDrawingActive
+                  ? const NeverScrollableScrollPhysics()
+                  : null,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -258,6 +319,10 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                         result: _writingResult!,
                         onContinue: _continueAfterResult,
                       )
+                  else if (currentStep == LearningStep.strokeOrder ||
+                      currentStep == LearningStep.tracing ||
+                      currentStep == LearningStep.freeWriting)
+                    _buildWritingStep(context, currentStep, currentCharacter)
                   else
                     Card(
                       child: Padding(
@@ -375,6 +440,115 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
     );
   }
 
+  /// Builds the stroke-order, tracing, or free-writing step.
+  ///
+  /// All three honour the user's Learning settings: [AppSettings.showGrid]
+  /// toggles the practice grid, [AppSettings.showStrokeGuide] toggles the
+  /// reference stroke overlay behind the canvas, and
+  /// [AppSettings.animationSpeed] scales the stroke-order playback.
+  Widget _buildWritingStep(
+    BuildContext context,
+    LearningStep step,
+    LearningItem item,
+  ) {
+    final AppSettings settings = ref.watch(currentSettingsProvider).settings;
+    final List<StrokeTemplate>? guide = _guideStrokes;
+
+    if (step == LearningStep.strokeOrder) {
+      if (guide == null || guide.isEmpty) {
+        return _NoStrokeDataCard(symbol: item.symbol);
+      }
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Watch the stroke order, then trace it yourself.',
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              StrokeOrderPlayer(
+                // Rebuild the player from scratch per character so the
+                // animation restarts rather than resuming mid-way.
+                key: ValueKey<String>('stroke-order-${item.id}'),
+                strokes: guide,
+                strokeDuration: _strokeDuration(settings.animationSpeed),
+                showGrid: settings.showGrid,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final bool isTracing = step == LearningStep.tracing;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: WritingPracticePanel(
+          strokes: _strokes,
+          expectedStrokeCount: item.strokeCount,
+          // Tracing shows the reference behind the ink; free writing is
+          // from memory. Either way the user's Stroke Guides preference
+          // wins — turning it off removes the overlay everywhere.
+          guideStrokes:
+              isTracing && settings.showStrokeGuide ? guide : null,
+          showGrid: settings.showGrid,
+          instructions: isTracing
+              ? 'Trace over the guide with your finger.'
+              : 'Now write ${item.symbol} from memory.',
+          onStrokesChanged: (List<Stroke> strokes) {
+            setState(() {
+              _strokes = strokes;
+            });
+          },
+          onCanvasSize: (Size size) => _lastCanvasSize = size,
+          onDrawingActive: (bool active) {
+            setState(() {
+              _isDrawingActive = active;
+            });
+          },
+          onSubmit: () => _submitWriting(item),
+        ),
+      ),
+    );
+  }
+
+  /// Handles "Check my writing".
+  ///
+  /// Tracing hands off to free writing with a fresh canvas; free writing
+  /// is the graded attempt, so it evaluates the real strokes and advances
+  /// to the result step ([LearningSession.nextStep] maps
+  /// freeWriting -> completed).
+  void _submitWriting(LearningItem item) {
+    if (_controller.currentStep == LearningStep.tracing) {
+      setState(() {
+        _strokes = <Stroke>[];
+      });
+      _controller.nextStep();
+      return;
+    }
+
+    setState(() {
+      _writingResult = _evaluateDrawnStrokes(item);
+    });
+    _controller.nextStep();
+  }
+
+  Duration _strokeDuration(AnimationSpeed speed) {
+    switch (speed) {
+      case AnimationSpeed.slow:
+        return const Duration(milliseconds: 1400);
+      case AnimationSpeed.normal:
+        return const Duration(milliseconds: 900);
+      case AnimationSpeed.fast:
+        return const Duration(milliseconds: 500);
+    }
+  }
+
   String _describeStep(LearningStep step) {
     switch (step) {
       case LearningStep.introduction:
@@ -388,5 +562,40 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       case LearningStep.completed:
         return 'Completed';
     }
+  }
+}
+
+/// Shown when a character has no bundled reference strokes. Every
+/// character currently taught does have them, so this is a graceful
+/// fallback for future content added before its stroke data, not an
+/// expected state.
+class _NoStrokeDataCard extends StatelessWidget {
+  const _NoStrokeDataCard({required this.symbol});
+
+  final String symbol;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          children: [
+            Text(
+              symbol,
+              style: Theme.of(context).textTheme.displayLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'Stroke order data is not available for this character yet. '
+              'You can still practise writing it in the next step.',
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

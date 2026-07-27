@@ -61,6 +61,520 @@
           "audioAsset": "assets/audio/hiragana/o.wav"
         }
       ]
+    },
+    {
+      "lessonNumber": 2,
+      "title": "Lesson 2",
+      "description": "Ka Row",
+      "characters": [
+        {
+          "id": "hiragana-ka",
+          "character": "か",
+          "romaji": "ka",
+          "englishName": "ka",
+          "strokeCount": 3,
+          "lessonNumber": 2,
+          "unicode": "U+304B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ka.wav"
+        },
+        {
+          "id": "hiragana-ki",
+          "character": "き",
+          "romaji": "ki",
+          "englishName": "ki",
+          "strokeCount": 4,
+          "lessonNumber": 2,
+          "unicode": "U+304D",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ki.wav"
+        },
+        {
+          "id": "hiragana-ku",
+          "character": "く",
+          "romaji": "ku",
+          "englishName": "ku",
+          "strokeCount": 1,
+          "lessonNumber": 2,
+          "unicode": "U+304F",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ku.wav"
+        },
+        {
+          "id": "hiragana-ke",
+          "character": "け",
+          "romaji": "ke",
+          "englishName": "ke",
+          "strokeCount": 3,
+          "lessonNumber": 2,
+          "unicode": "U+3051",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ke.wav"
+        },
+        {
+          "id": "hiragana-ko",
+          "character": "こ",
+          "romaji": "ko",
+          "englishName": "ko",
+          "strokeCount": 2,
+          "lessonNumber": 2,
+          "unicode": "U+3053",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ko.wav"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 3,
+      "title": "Lesson 3",
+      "description": "Sa Row",
+      "characters": [
+        {
+          "id": "hiragana-sa",
+          "character": "さ",
+          "romaji": "sa",
+          "englishName": "sa",
+          "strokeCount": 3,
+          "lessonNumber": 3,
+          "unicode": "U+3055",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/sa.wav"
+        },
+        {
+          "id": "hiragana-shi",
+          "character": "し",
+          "romaji": "shi",
+          "englishName": "shi",
+          "strokeCount": 1,
+          "lessonNumber": 3,
+          "unicode": "U+3057",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/shi.wav"
+        },
+        {
+          "id": "hiragana-su",
+          "character": "す",
+          "romaji": "su",
+          "englishName": "su",
+          "strokeCount": 2,
+          "lessonNumber": 3,
+          "unicode": "U+3059",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/su.wav"
+        },
+        {
+          "id": "hiragana-se",
+          "character": "せ",
+          "romaji": "se",
+          "englishName": "se",
+          "strokeCount": 3,
+          "lessonNumber": 3,
+          "unicode": "U+305B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/se.wav"
+        },
+        {
+          "id": "hiragana-so",
+          "character": "そ",
+          "romaji": "so",
+          "englishName": "so",
+          "strokeCount": 1,
+          "lessonNumber": 3,
+          "unicode": "U+305D",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/so.wav"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 4,
+      "title": "Lesson 4",
+      "description": "Ta Row",
+      "characters": [
+        {
+          "id": "hiragana-ta",
+          "character": "た",
+          "romaji": "ta",
+          "englishName": "ta",
+          "strokeCount": 4,
+          "lessonNumber": 4,
+          "unicode": "U+305F",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ta.wav"
+        },
+        {
+          "id": "hiragana-chi",
+          "character": "ち",
+          "romaji": "chi",
+          "englishName": "chi",
+          "strokeCount": 2,
+          "lessonNumber": 4,
+          "unicode": "U+3061",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/chi.wav"
+        },
+        {
+          "id": "hiragana-tsu",
+          "character": "つ",
+          "romaji": "tsu",
+          "englishName": "tsu",
+          "strokeCount": 1,
+          "lessonNumber": 4,
+          "unicode": "U+3064",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/tsu.wav"
+        },
+        {
+          "id": "hiragana-te",
+          "character": "て",
+          "romaji": "te",
+          "englishName": "te",
+          "strokeCount": 1,
+          "lessonNumber": 4,
+          "unicode": "U+3066",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/te.wav"
+        },
+        {
+          "id": "hiragana-to",
+          "character": "と",
+          "romaji": "to",
+          "englishName": "to",
+          "strokeCount": 2,
+          "lessonNumber": 4,
+          "unicode": "U+3068",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/to.wav"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 5,
+      "title": "Lesson 5",
+      "description": "Na Row",
+      "characters": [
+        {
+          "id": "hiragana-na",
+          "character": "な",
+          "romaji": "na",
+          "englishName": "na",
+          "strokeCount": 4,
+          "lessonNumber": 5,
+          "unicode": "U+306A",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/na.wav"
+        },
+        {
+          "id": "hiragana-ni",
+          "character": "に",
+          "romaji": "ni",
+          "englishName": "ni",
+          "strokeCount": 3,
+          "lessonNumber": 5,
+          "unicode": "U+306B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ni.wav"
+        },
+        {
+          "id": "hiragana-nu",
+          "character": "ぬ",
+          "romaji": "nu",
+          "englishName": "nu",
+          "strokeCount": 2,
+          "lessonNumber": 5,
+          "unicode": "U+306C",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/nu.wav"
+        },
+        {
+          "id": "hiragana-ne",
+          "character": "ね",
+          "romaji": "ne",
+          "englishName": "ne",
+          "strokeCount": 2,
+          "lessonNumber": 5,
+          "unicode": "U+306D",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ne.wav"
+        },
+        {
+          "id": "hiragana-no",
+          "character": "の",
+          "romaji": "no",
+          "englishName": "no",
+          "strokeCount": 1,
+          "lessonNumber": 5,
+          "unicode": "U+306E",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/no.wav"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 6,
+      "title": "Lesson 6",
+      "description": "Ha Row",
+      "characters": [
+        {
+          "id": "hiragana-ha",
+          "character": "は",
+          "romaji": "ha",
+          "englishName": "ha",
+          "strokeCount": 3,
+          "lessonNumber": 6,
+          "unicode": "U+306F",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ha.wav"
+        },
+        {
+          "id": "hiragana-hi",
+          "character": "ひ",
+          "romaji": "hi",
+          "englishName": "hi",
+          "strokeCount": 1,
+          "lessonNumber": 6,
+          "unicode": "U+3072",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/hi.wav"
+        },
+        {
+          "id": "hiragana-fu",
+          "character": "ふ",
+          "romaji": "fu",
+          "englishName": "fu",
+          "strokeCount": 4,
+          "lessonNumber": 6,
+          "unicode": "U+3075",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/fu.wav"
+        },
+        {
+          "id": "hiragana-he",
+          "character": "へ",
+          "romaji": "he",
+          "englishName": "he",
+          "strokeCount": 1,
+          "lessonNumber": 6,
+          "unicode": "U+3078",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/he.wav"
+        },
+        {
+          "id": "hiragana-ho",
+          "character": "ほ",
+          "romaji": "ho",
+          "englishName": "ho",
+          "strokeCount": 4,
+          "lessonNumber": 6,
+          "unicode": "U+307B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ho.wav"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 7,
+      "title": "Lesson 7",
+      "description": "Ma Row",
+      "characters": [
+        {
+          "id": "hiragana-ma",
+          "character": "ま",
+          "romaji": "ma",
+          "englishName": "ma",
+          "strokeCount": 3,
+          "lessonNumber": 7,
+          "unicode": "U+307E",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ma.wav"
+        },
+        {
+          "id": "hiragana-mi",
+          "character": "み",
+          "romaji": "mi",
+          "englishName": "mi",
+          "strokeCount": 2,
+          "lessonNumber": 7,
+          "unicode": "U+307F",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/mi.wav"
+        },
+        {
+          "id": "hiragana-mu",
+          "character": "む",
+          "romaji": "mu",
+          "englishName": "mu",
+          "strokeCount": 3,
+          "lessonNumber": 7,
+          "unicode": "U+3080",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/mu.wav"
+        },
+        {
+          "id": "hiragana-me",
+          "character": "め",
+          "romaji": "me",
+          "englishName": "me",
+          "strokeCount": 2,
+          "lessonNumber": 7,
+          "unicode": "U+3081",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/me.wav"
+        },
+        {
+          "id": "hiragana-mo",
+          "character": "も",
+          "romaji": "mo",
+          "englishName": "mo",
+          "strokeCount": 3,
+          "lessonNumber": 7,
+          "unicode": "U+3082",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/mo.wav"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 8,
+      "title": "Lesson 8",
+      "description": "Ya Row",
+      "characters": [
+        {
+          "id": "hiragana-ya",
+          "character": "や",
+          "romaji": "ya",
+          "englishName": "ya",
+          "strokeCount": 3,
+          "lessonNumber": 8,
+          "unicode": "U+3084",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ya.wav"
+        },
+        {
+          "id": "hiragana-yu",
+          "character": "ゆ",
+          "romaji": "yu",
+          "englishName": "yu",
+          "strokeCount": 2,
+          "lessonNumber": 8,
+          "unicode": "U+3086",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/yu.wav"
+        },
+        {
+          "id": "hiragana-yo",
+          "character": "よ",
+          "romaji": "yo",
+          "englishName": "yo",
+          "strokeCount": 2,
+          "lessonNumber": 8,
+          "unicode": "U+3088",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/yo.wav"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 9,
+      "title": "Lesson 9",
+      "description": "Ra Row",
+      "characters": [
+        {
+          "id": "hiragana-ra",
+          "character": "ら",
+          "romaji": "ra",
+          "englishName": "ra",
+          "strokeCount": 2,
+          "lessonNumber": 9,
+          "unicode": "U+3089",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ra.wav"
+        },
+        {
+          "id": "hiragana-ri",
+          "character": "り",
+          "romaji": "ri",
+          "englishName": "ri",
+          "strokeCount": 2,
+          "lessonNumber": 9,
+          "unicode": "U+308A",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ri.wav"
+        },
+        {
+          "id": "hiragana-ru",
+          "character": "る",
+          "romaji": "ru",
+          "englishName": "ru",
+          "strokeCount": 1,
+          "lessonNumber": 9,
+          "unicode": "U+308B",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ru.wav"
+        },
+        {
+          "id": "hiragana-re",
+          "character": "れ",
+          "romaji": "re",
+          "englishName": "re",
+          "strokeCount": 2,
+          "lessonNumber": 9,
+          "unicode": "U+308C",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/re.wav"
+        },
+        {
+          "id": "hiragana-ro",
+          "character": "ろ",
+          "romaji": "ro",
+          "englishName": "ro",
+          "strokeCount": 1,
+          "lessonNumber": 9,
+          "unicode": "U+308D",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/ro.wav"
+        }
+      ]
+    },
+    {
+      "lessonNumber": 10,
+      "title": "Lesson 10",
+      "description": "Wa Row & N",
+      "characters": [
+        {
+          "id": "hiragana-wa",
+          "character": "わ",
+          "romaji": "wa",
+          "englishName": "wa",
+          "strokeCount": 2,
+          "lessonNumber": 10,
+          "unicode": "U+308F",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/wa.wav"
+        },
+        {
+          "id": "hiragana-wo",
+          "character": "を",
+          "romaji": "wo",
+          "englishName": "wo",
+          "strokeCount": 3,
+          "lessonNumber": 10,
+          "unicode": "U+3092",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/wo.wav"
+        },
+        {
+          "id": "hiragana-n",
+          "character": "ん",
+          "romaji": "n",
+          "englishName": "n",
+          "strokeCount": 1,
+          "lessonNumber": 10,
+          "unicode": "U+3093",
+          "isLearned": false,
+          "audioAsset": "assets/audio/hiragana/n.wav"
+        }
+      ]
     }
   ]
 }

@@ -31,6 +31,8 @@ flutter:
     - assets/data/hiragana_lessons.json
     - assets/data/katakana_lessons.json
     - assets/data/kanji_lessons.json
+    # Per-stroke polylines derived from KanjiVG (CC BY-SA 3.0) — see CREDITS.md.
+    - assets/data/stroke_data.json
     - assets/audio/hiragana/
     - assets/audio/katakana/
     - assets/audio/kanji/

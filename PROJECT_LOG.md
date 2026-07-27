@@ -7,16 +7,25 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
 
 ## Current State (read this first in a new session)
 
-- **Last completed milestone: 20 (Production Release v1.0).** The app is
-  at version `1.0.0+1`, `flutter analyze` clean, `flutter test` passing
-  (36/36), and both `flutter build apk --release` and `flutter build
-  appbundle` succeed. Verified end-to-end from a clean install against a
-  **release build** on an Android emulator (API 37, `emulator-5554`). No
-  known bugs. Remaining open items are **release blockers, not defects**,
-  and live in `RELEASE_CHECKLIST.md` — chiefly: release builds are
-  intentionally debug-signed (no production keystore exists yet), the
-  launcher icon and splash are placeholder artwork, and startup
-  performance and tablet layouts are unverified on physical hardware.
+- **Last completed milestone: 20 (Production Release v1.0), plus two
+  post-release bugfixes: BUG-001 (Android back button) and BUG-002 (the
+  writing canvas never existed — see that entry below, it's a substantial
+  feature build, not a small patch).** `flutter analyze` clean, `flutter
+  test` passing (36/36). **The release APK/AAB have not been rebuilt since
+  BUG-002** — rebuild before treating release artifacts as current.
+  Remaining open items are **release blockers, not defects**, and live in
+  `RELEASE_CHECKLIST.md` — chiefly: release builds are intentionally
+  debug-signed (no production keystore exists yet), the launcher icon and
+  splash are placeholder artwork, and startup performance and tablet
+  layouts are unverified on physical hardware.
+- **The writing canvas is real as of the BUG-002 fix** — `lib/features/writing/`
+  now has an actual finger-drawn canvas, stroke-order animation, and
+  tracing guide, backed by `assets/data/stroke_data.json` (KanjiVG-derived,
+  CC BY-SA 3.0, see `CREDITS.md`). Before this it was entirely absent and
+  `learning_screen.dart` scored fabricated synthetic strokes instead of
+  real input — if you see references to "writing evaluation" in earlier
+  log entries (M7, M17, M18), know that every accuracy number from before
+  this fix was machine-generated, not earned.
 - **Android application ID is `com.energeticclutches.yugjapanese`** (M20,
   renamed from the `com.example.japanese_learning` placeholder). Display
   name is "YugJapanese". Note this means a device with a pre-M20 build
@@ -32,10 +41,12 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
   files are bundled as assets and rendered in-app by
   `LegalDocumentScreen` (Settings → Legal), so edit the root file and the
   in-app copy follows automatically.
-- **Content:** Hiragana (5 vowels, 1 lesson), Katakana (46 characters, 10
-  lessons), and Kanji (79 JLPT N5 / Grade-1 kyōiku characters, 8 lessons) all
-  have real content and are fully enabled end-to-end (learning flow,
-  progress, reviews, achievements, dashboard, search).
+- **Content:** Hiragana (46 characters, 10 lessons — expanded from the
+  original 5-vowel Lesson 1 in BUG-002, mirroring Katakana's row grouping),
+  Katakana (46 characters, 10 lessons), and Kanji (79 JLPT N5 / Grade-1
+  kyōiku characters, 8 lessons) all have real content and are fully
+  enabled end-to-end (learning flow, progress, reviews, achievements,
+  dashboard, search, writing practice).
 - **Remote:** pushed to `https://github.com/energeticClutches/YugJapanese`
   (`main` branch). Commit and push only when the user explicitly asks.
   Latest pushed commit: `1871059` — "chore: prepare v1.0 production
@@ -1766,12 +1777,117 @@ there's something to pop), which was also silently missing before.
 
 ## Next Required Action
 
-None. All 20 milestones are complete plus the BUG-001 navigation fix
-above. The app is at v1.0.0, `flutter analyze` is clean, `flutter test`
-passes (36/36), and both the release APK and the App Bundle build and
-have been verified end-to-end on device from a clean install. Do not
-start post-release work, v1.1 planning, or Play Store submission until
-the user explicitly requests it and defines scope.
+## Bugfix (post-M20): BUG-002 — writing canvas never existed
+
+**Critical.** Reported: the lesson screen showed navigation controls and
+character info but no writing canvas, stroke-order animation, or tracing
+surface for any of Hiragana/Katakana/Kanji, so the app's core "practice
+writing" feature was unusable. The Show Stroke Guides / Show Writing Grid
+/ Animation Speed settings had no visible effect.
+
+**Investigation (per the user's explicit "investigate first" instruction)**
+found this was not a rendering bug — `lib/features/writing/` had never
+contained a canvas. `introduction`, `strokeOrder`, `tracing`, and
+`freeWriting` all rendered the same character-info card in
+`learning_screen.dart`; only a text label differed. The only `CustomPaint`
+in the whole app was the analytics trend chart; there was no
+`GestureDetector`/pointer handling anywhere capable of capturing a
+stroke. `PROJECT_LOG.md`'s own M7 entry said as much: "No handwriting
+canvas... was added to the evaluator." A second, more serious finding
+surfaced during investigation: `learning_screen.dart`'s
+`_evaluateCurrentItem` fabricated synthetic diagonal strokes and scored
+those — every "writing accuracy" ever recorded or shown in Analytics was
+machine-generated, not the user's actual handwriting.
+
+Given the scope (no canvas existed, and true stroke-order animation needs
+per-character stroke-path data this project never had), the user chose
+the full option: build a real canvas *and* source real stroke-order data,
+rather than a stopgap.
+
+**Stroke data**: KanjiVG (r20250816, CC BY-SA 3.0) was downloaded and its
+per-stroke SVG paths converted offline (`scratchpad/convert_strokes.py`,
+not committed) into `assets/data/stroke_data.json` — cubic Béziers
+flattened to polylines, normalized to 0–1 space, no runtime SVG parsing.
+Covers all 171 characters this app teaches (130 existing + 41 new
+Hiragana, see below). The conversion cross-checked KanjiVG's own stroke
+count against each character's declared `strokeCount` and caught one
+pre-existing data error: Katakana サ was declared as 2 strokes but is
+genuinely 3 (fixed in `katakana_lessons.json`). Attribution added to
+`CREDITS.md`.
+
+**New writing feature** (`lib/features/writing/`): `StrokeTemplate`/
+`CharacterStrokes` models, `StrokeDataRepository` (loads/caches the
+bundled JSON, same missing-data-degrades-gracefully pattern as
+`LocalAudioRepository`), `characterStrokesProvider`. `WritingCanvas`
+(real finger-drawn `Stroke`/`StrokePoint` capture), `WritingCanvasPainter`
+(grid, stroke guide, ink — one painter, several render modes),
+`StrokeOrderPlayer` (animated stroke-by-stroke playback, speed driven by
+`AnimationSpeed`), `WritingPracticePanel` (canvas + undo/clear/submit).
+`learning_screen.dart`'s `strokeOrder`/`tracing`/`freeWriting` steps now
+render distinctly instead of sharing one card; `_evaluateCurrentItem` was
+replaced with `_evaluateDrawnStrokes`, which scores the real captured
+strokes against the canvas's actual size and the reference glyph's real
+bounding box. All three Learning settings are now genuinely wired:
+`showGrid` and `showStrokeGuide` toggle the canvas overlays,
+`animationSpeed` scales `StrokeOrderPlayer`'s per-stroke duration —
+verified on device by toggling both switches off and confirming the
+tracing canvas rendered completely blank.
+
+**A gesture-arena bug found and fixed during on-device testing** (not
+present in the initial implementation's design, caught before it shipped):
+the canvas sits inside `learning_screen.dart`'s page-level
+`SingleChildScrollView`, and a `GestureDetector`-based pan recognizer
+reliably lost near-vertical strokes to the ancestor scrollable — verified
+directly: a horizontal test swipe drew ink, an identical vertical swipe
+drew nothing. Since most Japanese strokes are vertical or diagonal, this
+would have silently eaten real input. Fixed by switching `WritingCanvas`
+to a `Listener` (raw pointer events, which bypass gesture-arena
+disambiguation entirely) and adding `onDrawingActive`, which the parent
+uses to set `NeverScrollableScrollPhysics` on the page scroll view for
+the duration of a stroke, so the two gestures stop competing for the same
+touch. Re-verified after the fix: vertical, horizontal, and diagonal
+strokes all capture correctly.
+
+**Hiragana content gap closed**: only 5 of 46 gojuon characters had
+lesson data (Lesson 1, vowels only) — everything past that was simply
+absent, not stroke-related. Added Lessons 2–10 (41 characters), mirroring
+Katakana's exact row grouping (Ka/Sa/Ta/Na/Ha/Ma/Ya/Ra/Wa-N). Stroke
+counts were read from KanjiVG rather than typed by hand, so they cannot
+disagree with the number of strokes actually animated. `hiragana_lessons.json`
+diff is a pure addition — Lesson 1's real `.wav` audio paths are
+untouched; the 41 new characters correctly have no audio yet (same
+graceful-degradation path as before).
+
+**Verified**: `flutter analyze` clean, `flutter test` 36/36 passing. On
+the emulator: a full Hiragana あ walkthrough (stroke-order animation
+→ tracing with guide+grid → free writing from memory → submit) produced
+a genuine 96% accuracy result from real drawn strokes, not a fabricated
+one; a Katakana-row and an 8-stroke Kanji (雨) spot check both rendered
+correct stroke-order animations; the Settings toggles were confirmed live
+on the tracing canvas. No crashes in logcat across the session.
+
+### Files touched (BUG-002)
+
+- `assets/data/stroke_data.json` (new, 171 characters, ~375 KB)
+- `assets/data/katakana_lessons.json` (サ strokeCount 2→3)
+- `assets/data/hiragana_lessons.json` (Lessons 2–10 added, 41 characters)
+- `CREDITS.md` (KanjiVG attribution), `pubspec.yaml` (asset registration)
+- `lib/features/writing/models/stroke_template.dart`,
+  `repositories/stroke_data_repository.dart`,
+  `providers/stroke_data_providers.dart` (new)
+- `lib/features/writing/widgets/writing_canvas_painter.dart`,
+  `writing_canvas.dart`, `stroke_order_player.dart`,
+  `writing_practice_panel.dart` (new)
+- `lib/features/practice/learning_screen.dart` (per-step rendering,
+  real evaluation, drawing-active scroll freeze)
+
+## Next Required Action
+
+None. All 20 milestones are complete plus the BUG-001 navigation fix and
+BUG-002 writing-canvas build above. The app is at v1.0.0, `flutter
+analyze` is clean, `flutter test` passes (36/36). Do not start
+post-release work, v1.1 planning, or Play Store submission until the user
+explicitly requests it and defines scope.
 
 **Open items are release blockers, not bugs**, and are tracked in
 `RELEASE_CHECKLIST.md`: a production upload keystore must be created
@@ -1779,4 +1895,6 @@ the user explicitly requests it and defines scope.
 launcher icon and splash artwork should be replaced with real branding,
 startup performance and tablet/landscape layouts need verification on
 physical hardware, store assets are not started, and iOS platform support
-is deferred to a future milestone.
+is deferred to a future milestone. The release APK/AAB have not been
+rebuilt since BUG-002 — do that before considering the release artifacts
+current again.

@@ -27,6 +27,17 @@ YugJapanese is built with the following open-source software:
 - [flutter_svg](https://pub.dev/packages/flutter_svg) — vector graphics
   rendering (MIT)
 
+## Stroke order data
+
+- **[KanjiVG](https://kanjivg.tagaini.net/)** by Ulrich Apel, licensed
+  under [Creative Commons Attribution-Share Alike 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+  `assets/data/stroke_data.json` is a derivative work: the per-stroke SVG
+  paths for the 130 characters this app teaches were extracted, flattened
+  from cubic Béziers into polylines, and normalized to a 0–1 coordinate
+  space. As a derivative of a CC BY-SA work, that file is itself made
+  available under CC BY-SA 3.0. No other part of this project is affected
+  by that license.
+
 ## Audio
 
 - [audioplayers](https://pub.dev/packages/audioplayers) — audio playback

@@ -93,8 +93,10 @@ lib/
     audio/                        pronunciation playback
     search/                       universal offline search + favorites
 assets/
-  data/    per-script lesson JSON (hiragana_lessons.json, katakana_lessons.json, kanji_lessons.json)
+  data/    per-script lesson JSON (hiragana_lessons.json, katakana_lessons.json, kanji_lessons.json),
+           plus stroke_data.json (per-character stroke polylines, derived from KanjiVG — see CREDITS.md)
   audio/   per-script pronunciation clips (hiragana/katakana/kanji subfolders)
+  branding/ placeholder launcher icon / splash source images
 test/
   fakes/   in-memory repository fakes shared by unit/widget/flow tests
   unit/    pure-logic tests (schedulers, evaluators, generators, services)

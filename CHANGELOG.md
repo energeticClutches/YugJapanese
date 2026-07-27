@@ -3,6 +3,37 @@
 All notable changes to this project are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] — post-1.0.0 fixes
+
+### Fixed
+
+- **BUG-002 (critical):** the writing canvas did not exist — the
+  stroke-order, tracing, and free-writing lesson steps all rendered the
+  same character-info card with no drawable surface, and the accuracy
+  score shown after "writing" was computed from fabricated synthetic
+  strokes rather than anything the user actually drew. Built a real
+  finger-drawn canvas, a stroke-order animation, and a tracing guide,
+  backed by new stroke-path data derived from KanjiVG (CC BY-SA 3.0 —
+  see `CREDITS.md`) covering all 171 characters this app teaches. The
+  Show Stroke Guides / Show Writing Grid / Animation Speed settings are
+  now genuinely wired to the canvas instead of doing nothing. Also fixed
+  a gesture-arena conflict found during testing: the canvas sits inside a
+  scrolling page, and near-vertical strokes (most Japanese strokes) were
+  being silently swallowed by the page's scroll gesture instead of being
+  drawn.
+- **Hiragana content gap:** only the 5 vowels had lesson data; the other
+  41 gojuon characters were simply missing. Added as Lessons 2–10,
+  mirroring Katakana's row grouping, with stroke counts sourced from
+  KanjiVG rather than typed by hand.
+- **BUG-001 (critical):** the Android back button exited the app instead
+  of navigating up the in-app screen stack, because nearly every
+  navigation call used `go()` (replaces the whole stack) instead of
+  `push()`. Reclassified every navigation call by intent — drill-down
+  navigation now pushes, "return from a finished flow" now pops.
+- Katakana サ was declared as 2 strokes in the lesson data; it is
+  genuinely 3 (caught by cross-checking against KanjiVG during the
+  BUG-002 stroke-data conversion).
+
 ## [1.0.0] — 2026-07-26
 
 First production release. The app is feature-complete and fully offline.
@@ -25,8 +56,10 @@ First production release. The app is feature-complete and fully offline.
 
 - **Learning content** — Hiragana, Katakana, and Kanji lessons with
   per-character detail, readings, meanings, and extended Kanji metadata.
-- **Writing engine** — stroke-by-stroke practice canvas with stroke-order
-  guides, an optional reference grid, and automated accuracy scoring.
+- **Writing engine** — finger-drawn practice canvas with an animated
+  stroke-order guide, an optional reference grid, and accuracy scoring
+  against the actual drawn strokes (see the BUG-002 fix above — this
+  didn't work correctly until then).
 - **Spaced review** — a scheduler that promotes or demotes items based on
   recall performance, with a dedicated review session flow.
 - **Practice / quiz engine** — six modes (Recognition, Meaning, Reading,
