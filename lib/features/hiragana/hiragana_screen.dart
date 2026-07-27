@@ -75,12 +75,12 @@ class _HiraganaScreenState extends ConsumerState<HiraganaScreen> {
                         lesson.lessonNumber,
                       ),
                     ),
-                    completionPercentage: progressController
-                            .lessonProgress(_contentId, lesson.lessonNumber)
-                            ?.isCompleted ==
-                        true
-                        ? 100
-                        : 0,
+                    writingAccuracy: _writingAccuracy(
+                      progressController.lessonProgress(
+                        _contentId,
+                        lesson.lessonNumber,
+                      ),
+                    ),
                     onStartPressed: () => context.push(
                       '/practice/${lesson.lessonNumber}?content=$_contentId',
                     ),
@@ -94,6 +94,14 @@ class _HiraganaScreenState extends ConsumerState<HiraganaScreen> {
       ),
     );
   }
+
+  /// Accuracy is only meaningful once the lesson has actually been
+  /// finished; before that there is no attempt to report, so the card
+  /// shows status alone.
+  double? _writingAccuracy(LessonProgress? progress) =>
+      progress != null && progress.isCompleted
+          ? progress.bestWritingAccuracy
+          : null;
 
   String _progressLabel(LessonProgress? progress) {
     if (progress == null) {

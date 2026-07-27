@@ -2182,11 +2182,38 @@ No exceptions in the run log across the whole session. Katakana was not
 driven separately — it shares `LearningScreen` with the two scripts that
 were.
 
+## BUG-009: Lesson Card Conflated Completion With Writing Accuracy
+
+`LessonCard` rendered `'$progressLabel - $completionPercentage%'`. The
+value behind that percent sign was `isCompleted ? 100 : 0` — a boolean
+wearing a percent sign, computed identically in all three script
+screens. It never expressed a proportion of anything, so it added no
+information the label did not already carry.
+
+The harm came from what it sat next to. `_progressLabel` derives
+"Completed - Practice Again" from `bestWritingAccuracy`, so the line read
+"Completed - Practice Again - 100%": a completion state and an
+accuracy-derived label joined to a number belonging to neither reading a
+learner would reach for. A lesson finished at 0% advertised a perfect
+score. The same flaw ran the other way at the start — "In Progress - 0%"
+implied a scored attempt where there had merely not been one yet.
+
+So the value was never *wrong*; it was meaningless as a percentage and
+ambiguous beside an accuracy label. Fixed by removing it rather than
+relabelling it, and showing the metric learners actually thought they
+were reading: `writingAccuracy` (nullable, 0..1) renders as its own
+"Writing accuracy: N%" line, and only once the lesson is complete. An
+unfinished lesson shows status alone. Same widget, same visual language,
+one clear line instead of one ambiguous line.
+
+Covered by 5 widget tests, including the exact reported case — a
+completed lesson scored 0% must not render "100%" anywhere.
+
 ## Next Required Action
 
-None. All 20 milestones are complete, plus the BUG-001 through BUG-008
+None. All 20 milestones are complete, plus the BUG-001 through BUG-009
 fixes and the learning-systems enhancement pass above. The app is at
-v1.0.0, `flutter analyze` is clean, `flutter test` passes (73/73). Do not
+v1.0.0, `flutter analyze` is clean, `flutter test` passes (78/78). Do not
 start post-release work, v1.1 planning, or Play Store submission until the
 user explicitly requests it and defines scope.
 

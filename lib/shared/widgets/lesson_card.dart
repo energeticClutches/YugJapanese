@@ -11,7 +11,7 @@ class LessonCard extends StatelessWidget {
     required this.characters,
     required this.onStartPressed,
     required this.progressLabel,
-    required this.completionPercentage,
+    this.writingAccuracy,
   });
 
   final String lessonTitle;
@@ -19,7 +19,18 @@ class LessonCard extends StatelessWidget {
   final List<String> characters;
   final VoidCallback onStartPressed;
   final String progressLabel;
-  final int completionPercentage;
+
+  /// Best writing accuracy (0..1) for a finished lesson, or null when the
+  /// lesson has not been completed and so has no attempt to report.
+  ///
+  /// Deliberately separate from [progressLabel]. This used to be an
+  /// `int completionPercentage` that was only ever 100 or 0 — `isCompleted`
+  /// wearing a percent sign — and it was concatenated onto the label, which
+  /// is itself derived from accuracy. "Completed - Practice Again - 100%"
+  /// therefore read as a perfect writing score on an attempt that had in
+  /// fact scored 0 (BUG-009). The two are rendered as separate, labelled
+  /// lines so neither can be mistaken for the other.
+  final double? writingAccuracy;
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +56,14 @@ class LessonCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs),
             Text(lessonSubtitle, style: textTheme.bodyMedium),
             const SizedBox(height: AppSpacing.sm),
-            Text(
-              '$progressLabel - $completionPercentage%',
-              style: textTheme.labelLarge,
-            ),
+            Text(progressLabel, style: textTheme.labelLarge),
+            if (writingAccuracy != null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'Writing accuracy: ${(writingAccuracy! * 100).round()}%',
+                style: textTheme.bodySmall,
+              ),
+            ],
             const SizedBox(height: AppSpacing.lg),
             Wrap(
               spacing: AppSpacing.sm,
