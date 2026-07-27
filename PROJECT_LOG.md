@@ -7,12 +7,21 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
 
 ## Current State (read this first in a new session)
 
-- **Last completed milestone: 20 (Production Release v1.0), plus two
-  post-release bugfixes: BUG-001 (Android back button) and BUG-002 (the
+- **Last completed milestone: 20 (Production Release v1.0), plus five
+  post-release bugfixes — BUG-001 (Android back button), BUG-002 (the
   writing canvas never existed — see that entry below, it's a substantial
-  feature build, not a small patch).** `flutter analyze` clean, `flutter
-  test` passing (36/36). **The release APK/AAB have not been rebuilt since
-  BUG-002** — rebuild before treating release artifacts as current.
+  feature build, not a small patch), BUG-003 (Hiragana lesson list),
+  BUG-004 (dark mode readability), BUG-006 (writing evaluator scored
+  scribbles as correct) — and one enhancement pass over the learning
+  systems (spaced repetition, stroke direction, mnemonics, pacing).**
+  `flutter analyze` clean, `flutter test` passing (68/68). **The release
+  APK/AAB have not been rebuilt since the enhancement pass** — rebuild
+  before treating release artifacts as current.
+- **Writing accuracy is measured against real stroke geometry as of
+  BUG-006.** Before that fix the evaluator only ever saw a stroke count
+  and a bounding box, so any scribble with the right number of strokes
+  scored ~100%. Accuracy figures recorded before BUG-006 are meaningless
+  and should not be compared against current ones.
   Remaining open items are **release blockers, not defects**, and live in
   `RELEASE_CHECKLIST.md` — chiefly: release builds are intentionally
   debug-signed (no production keystore exists yet), the launcher icon and
@@ -1881,13 +1890,187 @@ on the tracing canvas. No crashes in logcat across the session.
 - `lib/features/practice/learning_screen.dart` (per-step rendering,
   real evaluation, drawing-active scroll freeze)
 
+## BUG-003: Hiragana Lesson List Showed Only the First Lesson
+
+`HiraganaScreen` fetched a single lesson with `getLesson(1)` and rendered
+one card, while `KatakanaScreen` and `KanjiScreen` already looped over
+`getAllLessons()`. Nine of the ten Hiragana lessons were unreachable from
+the list. Switched to the same multi-lesson pattern, fixed
+`completionPercentage`'s misused `totalLessons` argument (it was being
+passed the literal `1`), and added the missing `?content=hiragana` query
+parameter on the practice route.
+
+Files changed: `lib/features/hiragana/hiragana_screen.dart`.
+
+## BUG-004: Dark Mode Text, Dividers, and Search Glyphs Unreadable
+
+`AppTypography`'s static getters (`title`, `headline`, `body`, `caption`,
+`label`, `display`) all resolved from a light-only `TextTheme`, so every
+widget using them painted near-black text on dark surfaces.
+`AppColors.divider` and `.textSecondary` had the same problem. The dark
+palette and `darkTextTheme` already existed and were correctly wired into
+`AppTheme.dark` — the static shortcuts simply never consulted them.
+Replaced both with `Theme.of(context)` lookups across 33 files, leaving
+light mode byte-identical.
+
+Three cases needed more than a lookup swap:
+
+- `TrendChart`'s `CustomPainter` has no `BuildContext`, so its grid colour
+  is now passed into the constructor and included in `shouldRepaint`.
+- Quiz answer feedback had an adaptive error colour but a light-only
+  success colour; added `AppColors.darkSuccess`.
+- `SearchResultTile`'s `CircleAvatar` set no `foregroundColor`, so
+  Material 3 fell back to `onPrimaryContainer` — a `ColorScheme` role this
+  app never defines — leaving every search result glyph invisible in dark
+  mode. Pinned to `onSurface`. This one was only findable by running the
+  app; static analysis reports nothing.
+
+## BUG-006: Writing Evaluator Scored Scribbles as ~100% Accurate
+
+The evaluator never received the character's reference stroke geometry.
+Its score was stroke count (35%), a free 15% for any completed drawing,
+and two bounding-box heuristics (50%) — nothing that measured whether the
+drawing resembled the character. Measured before the fix: a single
+diagonal line scored **100%** for a one-stroke character, two dots in
+opposite corners **100%**, a random three-stroke scribble **98.7%**.
+
+`learning_screen.dart` was already loading the KanjiVG reference strokes
+in order to derive that bounding box, then discarding the geometry. They
+are now passed through (`referenceStrokes`, one line at the call site).
+
+The evaluator normalizes attempt and reference into a common space
+(centred, **uniformly** scaled — per-axis scaling would stretch a flat
+scribble into a square glyph), resamples each stroke to 32 arc-length
+equidistant points, and compares point-wise. Shape is the backbone of the
+score; stroke count, order, direction and proportion only modulate it
+multiplicatively, so no combination of secondary signals can rescue a
+wrong shape. Strokes average over `max(user, reference)` so missing and
+extra strokes both cost marks; wrong order earns partial credit via a
+greedy order-free match rather than zero; sub-threshold flecks are
+filtered as accidental taps. Characters with no reference data fall back
+to the old bounding-box heuristic, capped at 0.6 and labelled as such in
+the feedback rather than claiming an accuracy that was never measured.
+
+All 171 lesson characters have reference strokes, so shape scoring is
+live for all three scripts; the fallback is a safety net, not a normal
+path.
+
+## Enhancement Pass: Spaced Repetition, Stroke Direction, Mnemonics, Pacing
+
+Four targeted improvements to existing systems. No new features, no UI
+redesign, no new models beyond one field.
+
+### Spaced repetition
+
+Weaknesses found:
+
+- `learning_screen.dart` called `recordSuccessfulReview` **unconditionally**
+  in review mode, ignoring the score the learner had just earned. A 5%
+  attempt advanced the interval exactly as a 95% one did.
+- There was no failure path at all — `recordFailedReview` did not exist.
+- `ReviewItem.easeFactor` was persisted and carried forward but never
+  read or updated; it was documented as "reserved for a future adaptive
+  scheduler". Nothing consumed it.
+- `getDueReviews` sorted purely by due date, so a session spent its time
+  on whatever fell due first rather than on what was weakest.
+
+Changes, all within the existing scheduler and repository:
+
+- `recordReview(lessonId, accuracy:)` routes by score against
+  `passThreshold` (0.6). Weak reviews step **one rung back** down the
+  ladder — not to the start — and increment a lapse counter.
+- `easeFactor` is now live: strong recall (≥0.85) earns ease, a bare pass
+  is neutral, a miss loses ease in proportion to how far short it fell.
+  Clamped to [1.3, 2.8] and applied as a multiplier on the ladder
+  interval, so a difficult lesson returns sooner than an easy one sitting
+  on the same rung.
+- `getDueReviews` sorts by a priority combining overdue-ness, inverted
+  ease, and lapse count, so the most fragile material comes first.
+- `scheduleInitialReview` accepts the lesson's accuracy, so a shaky first
+  pass enters the rotation already marked as needing work.
+
+`ReviewItem` gained one field, `lapses`, defaulting to 0 in `fromMap` so
+schedules saved before this change still load.
+
+Also fixed at the call site: `completeLesson` was recording only the
+**final character's** accuracy as the whole lesson's score. It now
+averages across every character in the attempt, which makes both the
+stored `bestWritingAccuracy` and everything derived from it meaningful.
+
+### Stroke direction
+
+Direction was detected as `backward < forward` with no margin, so a
+near-symmetric stroke could be flagged as backwards on floating-point
+noise alone. And the penalty was a flat 15% ceiling: a character written
+with **every** stroke backwards still scored 85%, which teaches learners
+that stroke direction is cosmetic.
+
+- Detection now requires the reversed reading to be better by a margin
+  before calling a stroke backwards.
+- The penalty scales with the share of strokes reversed
+  (`1 − 0.20s − 0.30s²`), and repeated mistakes cap the total score so a
+  technically-wrong attempt cannot reach the top band.
+
+Measured on real glyphs — correct 100%, one stroke backwards on a
+multi-stroke character 89%, everything backwards 50% (was 85%). One slip
+stays beginner-friendly; systematically wrong technique does not.
+
+While testing this, found and fixed a separate latent bug: `Rect.isEmpty`
+is true when *either* dimension is zero, so `_proportionScore` returned 0
+for any perfectly flat glyph. 一 was losing 15% for being correctly
+written as a horizontal line; it now scores 100%.
+
+### Mnemonics
+
+`CharacterModel` and `LearningItem` already carried a `notes` field, and
+`LearningController` already threaded it into the learning flow — the
+lesson data simply never populated it. Wrote a concise shape- or
+sound-based hint for all 171 characters (46 hiragana, 46 katakana, 79
+kanji) into the existing `notes` key, and rendered it in the existing
+introduction step as a single lightbulb row beneath the meaning. It
+appears only during introduction, so it does not crowd tracing or
+writing. No new widget, no layout change.
+
+`HiraganaRepository` and `KatakanaRepository` were dropping `notes` in
+`_toLearningItem` (the search path); `KanjiRepository` already kept it.
+Now all three agree.
+
+### Pacing
+
+`ProgressController` gained two derived predicates — `isMastered` and
+`needsMorePractice` — both computed from the `bestWritingAccuracy` that
+was already being stored, against a `masteryThreshold` of 0.75. No new
+model fields, no new persistence.
+
+The three script screens' `_progressLabel` now distinguishes a lesson
+finished cleanly ("Completed") from one finished shakily ("Completed -
+Practice Again"), and weak lessons enter spaced repetition with lower
+ease so they resurface sooner. Mastery tracks the learner's best attempt,
+so a later bad day does not revoke it.
+
+### Verification
+
+`flutter analyze` clean. `flutter test` 68/68 (was 48; 20 new tests
+covering direction penalties and false-positive detection, accuracy-aware
+scheduling and lapse handling, priority ordering, mastery predicates, and
+mnemonic data coverage/length/uniqueness across all three scripts).
+
+Files changed: `lib/features/review/models/review_item.dart`,
+`lib/features/review/services/review_scheduler.dart`,
+`lib/features/writing/services/writing_evaluator.dart`,
+`lib/features/progress/services/progress_controller.dart`,
+`lib/features/practice/learning_screen.dart`,
+`lib/repositories/{hiragana,katakana}_repository.dart`,
+`lib/features/{hiragana,katakana,kanji}/*_screen.dart`,
+`assets/data/{hiragana,katakana,kanji}_lessons.json`.
+
 ## Next Required Action
 
-None. All 20 milestones are complete plus the BUG-001 navigation fix and
-BUG-002 writing-canvas build above. The app is at v1.0.0, `flutter
-analyze` is clean, `flutter test` passes (36/36). Do not start
-post-release work, v1.1 planning, or Play Store submission until the user
-explicitly requests it and defines scope.
+None. All 20 milestones are complete, plus the BUG-001 through BUG-006
+fixes and the learning-systems enhancement pass above. The app is at
+v1.0.0, `flutter analyze` is clean, `flutter test` passes (68/68). Do not
+start post-release work, v1.1 planning, or Play Store submission until the
+user explicitly requests it and defines scope.
 
 **Open items are release blockers, not bugs**, and are tracked in
 `RELEASE_CHECKLIST.md`: a production upload keystore must be created

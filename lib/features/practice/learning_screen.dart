@@ -63,6 +63,11 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
   bool _isSavingCompletion = false;
   String? _autoPlayedItemId;
 
+  /// Accuracy for each character finished in this session, so the lesson is
+  /// scored on the whole attempt rather than on whichever character happened
+  /// to be last.
+  final List<double> _characterAccuracies = <double>[];
+
   /// Strokes the user has drawn for the current character. Reset whenever
   /// the character or the lesson changes.
   List<Stroke> _strokes = <Stroke>[];
@@ -199,6 +204,8 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       return;
     }
 
+    _characterAccuracies.add(result.accuracy);
+
     final bool isFinalCharacter =
         session.currentCharacterIndex == session.totalCharacters - 1;
     if (isFinalCharacter) {
@@ -208,20 +215,33 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       setState(() {
         _isSavingCompletion = true;
       });
+      final double lessonAccuracy = _characterAccuracies.isEmpty
+          ? result.accuracy
+          : _characterAccuracies.reduce((double a, double b) => a + b) /
+              _characterAccuracies.length;
+
       await ref
           .read(progressControllerProvider)
           .completeLesson(
             contentId: _contentId,
             lessonNumber: session.lessonNumber,
-            writingAccuracy: result.accuracy,
+            writingAccuracy: lessonAccuracy,
           );
 
       final String lessonId = '$_contentId:${session.lessonNumber}';
       final ReviewScheduler reviewScheduler = ref.read(reviewSchedulerProvider);
       if (widget.isReviewMode) {
-        await reviewScheduler.recordSuccessfulReview(lessonId);
+        // Scored, not assumed: a weak attempt sends the lesson back down the
+        // interval ladder instead of pushing it further away.
+        await reviewScheduler.recordReview(
+          lessonId,
+          accuracy: lessonAccuracy,
+        );
       } else {
-        await reviewScheduler.scheduleInitialReview(lessonId);
+        await reviewScheduler.scheduleInitialReview(
+          lessonId,
+          accuracy: lessonAccuracy,
+        );
       }
       ref.invalidate(dueReviewsProvider);
 
@@ -355,6 +375,35 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                               style: Theme.of(context).textTheme.bodyMedium,
                               textAlign: TextAlign.center,
                             ),
+                            // Optional shape/sound hint, shown only while the
+                            // character is being introduced so it does not
+                            // crowd the tracing and writing steps.
+                            if (currentStep == LearningStep.introduction &&
+                                (currentCharacter.notes?.isNotEmpty ??
+                                    false)) ...[
+                              const SizedBox(height: AppSpacing.md),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.lightbulb_outline,
+                                    size: 18,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: AppSpacing.sm),
+                                  Flexible(
+                                    child: Text(
+                                      currentCharacter.notes!,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                             if (currentStep == LearningStep.introduction &&
                                 currentCharacter.radical != null) ...[
                               const SizedBox(height: AppSpacing.lg),
@@ -427,6 +476,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                             setState(() {
                               _writingResult = null;
                               _autoPlayedItemId = null;
+                              _characterAccuracies.clear();
                             });
                             _controller.restartLesson();
                           },

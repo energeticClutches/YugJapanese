@@ -25,6 +25,27 @@ class ProgressController extends ChangeNotifier {
     return progressItems.isEmpty ? null : progressItems.first.lessonNumber;
   }
 
+  /// Accuracy a completed lesson must reach before it counts as mastered.
+  /// Below this the learner finished the lesson but the writing was shaky, so
+  /// the UI nudges them back for another pass instead of calling it done.
+  static const double masteryThreshold = 0.75;
+
+  /// Whether [lessonNumber] is finished to a standard worth moving on from.
+  bool isMastered(String contentId, int lessonNumber) {
+    final LessonProgress? progress = lessonProgress(contentId, lessonNumber);
+    return progress != null &&
+        progress.isCompleted &&
+        progress.bestWritingAccuracy >= masteryThreshold;
+  }
+
+  /// Whether [lessonNumber] was completed but not yet to mastery standard.
+  bool needsMorePractice(String contentId, int lessonNumber) {
+    final LessonProgress? progress = lessonProgress(contentId, lessonNumber);
+    return progress != null &&
+        progress.isCompleted &&
+        progress.bestWritingAccuracy < masteryThreshold;
+  }
+
   int completionPercentage(String contentId, int totalLessons) {
     if (totalLessons == 0) {
       return 0;

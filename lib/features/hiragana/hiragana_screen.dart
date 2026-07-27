@@ -99,6 +99,12 @@ class _HiraganaScreenState extends ConsumerState<HiraganaScreen> {
     if (progress == null) {
       return 'Not Started';
     }
-    return progress.isCompleted ? 'Completed' : 'In Progress';
+    if (!progress.isCompleted) {
+      return 'In Progress';
+    }
+    // Finished, but the writing was shaky enough to be worth another pass.
+    return progress.bestWritingAccuracy < ProgressController.masteryThreshold
+        ? 'Completed - Practice Again'
+        : 'Completed';
   }
 }
