@@ -2100,11 +2100,93 @@ on the 20 new unit tests. Treat them as tested, not witnessed — if a
 future session can leave lessons completed and come back to them, that is
 worth doing.
 
+## BUG-007: Loading Indicator Never Dismissed After Lesson Completion
+
+Not a loading bug. `LearningScreen` rendered `LoadingIndicator()` for
+`LearningStep.completed` whenever `_writingResult` was null — a spinner
+standing in for a state the code assumed was transient. Nothing async was
+ever in flight behind it: no Future, no provider, no Hive write. The
+completion Future resolved fine, providers left their loading state,
+writes committed, and no exception was swallowed. The spinner simply had
+nothing that could ever clear it.
+
+`_writingResult` was only ever assigned in `_submitWriting`, which runs
+only on "Check my writing". Two ordinary paths reach `completed` without
+it:
+
+- **"Next Character" on the final character.** That button renders in
+  every step, and `LearningSession.nextCharacter` short-circuits to
+  `currentStep: completed` on the last index.
+- **"Next" from the free-writing step**, since `nextStep()` maps
+  freeWriting → completed.
+
+Both dead-ended: `_continueAfterResult` returns early on its own
+`result == null` guard, so the visible button did nothing and Back was
+the only escape. Identical on all three scripts — they share this one
+screen via `/practice/:lessonNumber?content=`.
+
+Fixed by grading the attempt on arrival at the result step rather than
+only on submit, which covers every path in, present and future. An
+untouched canvas scores 0 with "Finish the character before submitting" —
+the honest outcome for skipping the step, and consistent with BUG-006's
+rule that the app never reports an accuracy it did not measure. The
+unreachable spinner branch was removed so the bug cannot return.
+
+## BUG-008: No Progression to the Next Lesson
+
+`_continueAfterResult` saved progress, scheduled the review, then popped
+back to the lesson list. There was no next-lesson logic anywhere in the
+codebase.
+
+Everything the report attributed to unlocking was already working:
+`completeLesson` marks `isCompleted` and notifies, so the lesson list,
+achievements, and analytics refresh through the existing
+`progressControllerProvider` convention, and `dueReviewsProvider` is
+invalidated. There is also **no lesson gating in this app** — every
+lesson card is always tappable — so "the next lesson becomes available"
+was structurally already true. The only real gap was the missing action.
+
+`LearningController.nextLessonNumber()` resolves the following lesson
+from the repository the session was built from (lowest lesson number
+above the current one, so it does not depend on JSON ordering). The
+screen shows a non-dismissible completion dialog with the lesson's
+accuracy and either **Next Lesson** / **Back to Lessons**, or a
+module-complete message when the script is finished. Continuing uses
+`pushReplacement`, so chaining lessons does not stack a screen per
+lesson and Back still returns to the lesson list.
+
+Review mode deliberately keeps its old behaviour — it belongs to the
+review queue, not the lesson ladder, so it still returns to `/review`.
+
+**Verified on device** (Android emulator, API 37), both scripts driven
+end to end:
+
+- *Hiragana Lesson 1* — "Next Character" on the final character (あ…お)
+  now lands on a result card, not a spinner. Continue → "Lesson 1
+  complete / Lesson 2 is ready" → Lesson 2 loads. Back from Lesson 2
+  returns to the lesson list, not Lesson 1, confirming
+  `pushReplacement`. The list showed Lesson 1 as Completed and the
+  dashboard moved to "Hiragana 20% complete".
+- *Hiragana Lesson 10* (last) — reached `completed` the other way, via
+  the **Next** button from free writing without submitting. One drawn
+  stroke on ん scored **15%** with "Your stroke count is correct", which
+  confirms the arrival-time grading runs the real evaluator on real
+  captured input rather than defaulting to zero. The dialog correctly
+  dropped the Next Lesson action and said "That was the last lesson
+  here."
+- *Kanji Lesson 1* — same completion path, same result card, and Next
+  Lesson went to **Kanji** Lesson 2 (学), confirming `contentId` survives
+  the replacement route rather than falling back to Hiragana.
+
+No exceptions in the run log across the whole session. Katakana was not
+driven separately — it shares `LearningScreen` with the two scripts that
+were.
+
 ## Next Required Action
 
-None. All 20 milestones are complete, plus the BUG-001 through BUG-006
+None. All 20 milestones are complete, plus the BUG-001 through BUG-008
 fixes and the learning-systems enhancement pass above. The app is at
-v1.0.0, `flutter analyze` is clean, `flutter test` passes (68/68). Do not
+v1.0.0, `flutter analyze` is clean, `flutter test` passes (73/73). Do not
 start post-release work, v1.1 planning, or Play Store submission until the
 user explicitly requests it and defines scope.
 

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../models/learning_item.dart';
 import '../../models/learning_session.dart';
 import '../../models/learning_step.dart';
+import '../../models/lesson_model.dart';
 import '../../repositories/lesson_repository.dart';
 
 class LearningController extends ChangeNotifier {
@@ -109,6 +110,30 @@ class LearningController extends ChangeNotifier {
     }
     _session = session.nextCharacter();
     notifyListeners();
+  }
+
+  /// The lesson that follows the one currently loaded, or null when this is
+  /// the last lesson in the script.
+  ///
+  /// Reads from the same repository the session was built from, so it stays
+  /// correct for whichever script is being studied without the screen having
+  /// to know how lessons are numbered or stored.
+  Future<int?> nextLessonNumber() async {
+    final int? current = _currentLessonNumber;
+    if (current == null) {
+      return null;
+    }
+    final List<LessonModel> lessons = await _repository.getAllLessons();
+    int? next;
+    for (final LessonModel lesson in lessons) {
+      // Lowest lesson number above the current one — the JSON is ordered
+      // today, but picking the minimum does not depend on that.
+      if (lesson.lessonNumber > current &&
+          (next == null || lesson.lessonNumber < next)) {
+        next = lesson.lessonNumber;
+      }
+    }
+    return next;
   }
 
   void restartLesson() {

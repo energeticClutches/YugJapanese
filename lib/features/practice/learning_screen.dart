@@ -245,9 +245,35 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       }
       ref.invalidate(dueReviewsProvider);
 
+      // Review mode belongs to the review queue, not the lesson ladder, so it
+      // keeps returning to /review rather than offering the next lesson.
+      final int? nextLesson =
+          widget.isReviewMode ? null : await _controller.nextLessonNumber();
+
       if (!mounted) {
         return;
       }
+      setState(() {
+        _isSavingCompletion = false;
+      });
+
+      if (!widget.isReviewMode) {
+        final bool goToNext =
+            await _showLessonCompleteDialog(lessonAccuracy, nextLesson);
+        if (!mounted) {
+          return;
+        }
+        if (goToNext && nextLesson != null) {
+          // Replace rather than push: chaining lessons would otherwise stack
+          // a screen per lesson, so Back would walk the learner through every
+          // lesson they just finished instead of returning to the list.
+          context.pushReplacement(
+            '/practice/$nextLesson?content=$_contentId',
+          );
+          return;
+        }
+      }
+
       // Pop back to whatever screen pushed this lesson (the script's lesson
       // list, or the review list in review mode) rather than `go()`, which
       // would collapse the whole navigation stack down to a single entry
@@ -266,6 +292,56 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       _writingResult = null;
     });
     _controller.nextCharacter();
+  }
+
+  /// Confirms the lesson was saved and offers the next step.
+  ///
+  /// Returns true when the learner chose to continue to [nextLesson]. The
+  /// flow previously dropped straight back to the lesson list with no such
+  /// action, so continuing meant finding the next lesson by hand (BUG-008).
+  /// Not dismissible: both outcomes navigate, so there is no state to fall
+  /// back to.
+  Future<bool> _showLessonCompleteDialog(
+    double accuracy,
+    int? nextLesson,
+  ) async {
+    final int lessonNumber = _controller.lessonNumber ?? widget.lessonNumber;
+    final bool isModuleComplete = nextLesson == null;
+    final bool? result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Lesson $lessonNumber complete'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text('Writing accuracy: ${(accuracy * 100).round()}%'),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                isModuleComplete
+                    ? 'That was the last lesson here. Your progress is saved.'
+                    : 'Your progress is saved. Lesson $nextLesson is ready '
+                        'when you are.',
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Back to Lessons'),
+            ),
+            if (!isModuleComplete)
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Next Lesson'),
+              ),
+          ],
+        );
+      },
+    );
+    return result ?? false;
   }
 
   @override
@@ -295,6 +371,22 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       if (resolved != null) {
         _guideStrokes = resolved.strokes;
       }
+    }
+
+    // Arriving at the result step always produces a score. "Check my
+    // writing" is not the only way in: the Next button steps freeWriting ->
+    // completed, and "Next Character" on the final character short-circuits
+    // to completed via [LearningSession.nextCharacter]. Those paths left
+    // `_writingResult` null, and the result step rendered a spinner for that
+    // case — a spinner with no async work behind it, so it never resolved and
+    // `_continueAfterResult` bailed on its own null-result guard, stranding
+    // the learner (BUG-007). Grading here covers every path in. An untouched
+    // canvas scores 0 with "Finish the character before submitting", which is
+    // the honest outcome for skipping the step.
+    if (currentStep == LearningStep.completed &&
+        currentCharacter != null &&
+        _writingResult == null) {
+      _writingResult = _evaluateDrawnStrokes(currentCharacter);
     }
 
     if (currentStep == LearningStep.introduction && currentCharacter != null) {
@@ -333,13 +425,12 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   if (currentStep == LearningStep.completed)
-                    if (_writingResult == null)
-                      const LoadingIndicator()
-                    else
-                      WritingResultCard(
-                        result: _writingResult!,
-                        onContinue: _continueAfterResult,
-                      )
+                    // Non-null by construction: the block above grades the
+                    // attempt on arrival at this step.
+                    WritingResultCard(
+                      result: _writingResult!,
+                      onContinue: _continueAfterResult,
+                    )
                   else if (currentStep == LearningStep.strokeOrder ||
                       currentStep == LearningStep.tracing ||
                       currentStep == LearningStep.freeWriting)
