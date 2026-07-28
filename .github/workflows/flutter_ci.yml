@@ -57,7 +57,7 @@ jobs:
           echo "Found coverage/lcov.info ($(wc -l < coverage/lcov.info) lines)."
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage/lcov.info
@@ -70,14 +70,14 @@ jobs:
         run: flutter build appbundle --release
 
       - name: Upload release APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: flutter-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
 
       - name: Upload release AAB
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: flutter-release-aab
           path: build/app/outputs/bundle/release/app-release.aab
