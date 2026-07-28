@@ -29,7 +29,7 @@ jobs:
       build_number: ${{ steps.version.outputs.build_number }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Validate pubspec.yaml version against the tag
         id: version
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Flutter build environment
         uses: ./.github/actions/setup-flutter-build
