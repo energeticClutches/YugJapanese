@@ -3048,3 +3048,61 @@ the weekly cadence, and why auto-merge stays off (passing CI proves the
 app still builds and tests still pass, not that a dependency's behavior
 is unchanged in every way the suite doesn't cover — still a human
 decision).
+
+## Phase 5: Code Coverage & Quality Reporting
+
+Extended the existing `validate` job in `flutter_ci.yml` — no second
+workflow, per the constraint. Three changes to one job:
+
+1. **`flutter test` → `flutter test --coverage`.** Same tests, same
+   pass/fail behavior (a failing test still fails the step and the
+   workflow immediately, unchanged) — the only difference is Flutter
+   also writes `coverage/lcov.info` alongside the run.
+2. **New "Verify coverage report was generated" step**, directly after
+   tests: fails with an explicit `::error::` if `coverage/lcov.info`
+   isn't present, rather than letting a silently-missing file surface
+   later as a confusing artifact-upload failure. No placeholder file is
+   ever written — if coverage generation didn't happen, this step is
+   the thing that says so.
+3. **New `coverage-report` artifact upload** (`coverage/lcov.info`,
+   `if-no-files-found: error`) — placed right after that verification
+   step, before the APK/AAB build steps, so it's grouped with the
+   testing stage it belongs to rather than mixed in with the build
+   artifacts from Phase 2. Distinct artifact name, so nothing here
+   duplicates or collides with `flutter-release-apk`/`flutter-release-aab`.
+
+**Verified locally before touching CI**, same discipline as Phase 2: ran
+`flutter test --coverage` for real, confirmed `coverage/lcov.info` is
+written (2,784 lines) at the exact path the milestone specified, and
+computed the actual baseline from it — summing `LF`/`LH` records gives
+**1,290 of 2,452 lines, ~53% line coverage**, as of this phase. That
+number is recorded in `README.md` as a snapshot, explicitly labeled as
+moving, not a target. `coverage/` was already git-ignored (Phase 1 never
+needed to touch it), so no generated files risk being committed.
+
+**No threshold, by design.** Nothing in the new steps inspects the
+coverage percentage or can fail based on it — the verification step only
+checks the file exists, not what's in it. Consistent with this phase's
+explicit "informational, not enforced" objective: a threshold set against
+a 53%, largely-untested baseline would either be meaninglessly low or
+create an incentive to pad numbers with low-value tests rather than
+actually improve testing where it matters.
+
+**Codecov: investigated, deliberately not wired in.** Asked before
+assuming — sending this project's coverage data to a third-party service
+is the kind of call that should be made with an actual Codecov account
+in hand, not defaulted into as a side effect of a CI update, and the
+milestone itself explicitly sanctioned documenting it instead of adding
+"incomplete configuration." Full integration steps (account setup, the
+`CODECOV_TOKEN` secret if wanted, the exact `codecov/codecov-action@v4`
+step with `fail_ci_if_error: false`) are written out in `README.md`'s
+"Code coverage" section as a ready-to-paste follow-up, not implemented.
+
+Documented in `README.md`: how coverage generates, the current baseline
+number, how to inspect `lcov.info` locally (`genhtml` for a static HTML
+report, or an editor extension like VS Code's Coverage Gutters that reads
+the file directly), why it's informational for now, and the future path
+to Codecov. Constraints respected: no threshold, no build failing on
+coverage percentage, no second workflow, `flutter_ci.yml`'s existing
+format/analyze/test/build steps and the Phase 2 build artifacts are
+otherwise untouched.

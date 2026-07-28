@@ -155,17 +155,94 @@ environment instead of two copies to keep in sync.
 
 **Downloading a CI build:** open the workflow run for the commit you want
 (GitHub → **Actions** tab → *Flutter CI* → the run) and scroll to its
-**Artifacts** section at the bottom of the summary page. Two artifacts are
-attached to every successful run:
+**Artifacts** section at the bottom of the summary page. Three artifacts
+are attached to every successful run:
 
 - `flutter-release-apk` — the release APK (`app-release.apk`), installable
   directly on a device with `adb install`.
 - `flutter-release-aab` — the release App Bundle (`app-release.aab`), the
   format Play Store submissions use.
+- `coverage-report` — `lcov.info` from that run's test suite; see "Code
+  coverage" below.
 
 Artifacts follow GitHub's default retention window and are only produced
 when the build stage succeeds — a failed run has no artifacts to
 download.
+
+## Code coverage
+
+Every CI run executes `flutter test --coverage`, which runs the full
+suite exactly as before and additionally writes `coverage/lcov.info` (lcov
+format) alongside it. The workflow verifies that file actually exists
+before uploading it as the `coverage-report` artifact (see above) —
+`if-no-files-found: error` on the upload step means a run that somehow
+produced no coverage data fails loudly instead of silently skipping the
+artifact.
+
+**Current baseline: ~53% line coverage** (1,290 of 2,452 lines, measured
+locally when this phase was added — re-run the command below for the
+current number, since it moves as tests and code are added). Coverage is
+**informational only right now, not a gate**: nothing in CI fails, and no
+PR is blocked, based on the percentage. Deliberately so — with a young
+test suite, a hard threshold this early would either be trivially low
+(useless) or would create pressure to write low-value tests just to hit
+a number. The plan is to let real coverage data accumulate across several
+weeks of normal development first, then set a threshold based on where
+coverage actually stabilizes rather than guessing at one now.
+
+**Inspecting coverage locally:**
+
+```bash
+flutter test --coverage
+# writes coverage/lcov.info
+```
+
+To view it as an interactive HTML report (needs `lcov`'s `genhtml`,
+installed via `apt install lcov`, `brew install lcov`, or
+`choco install lcov` on Windows):
+
+```bash
+genhtml coverage/lcov.info -o coverage/html
+# then open coverage/html/index.html in a browser
+```
+
+Alternatively, most editors can render `lcov.info` inline over the
+source — e.g. VS Code's "Coverage Gutters" extension watches for
+`coverage/lcov.info` and annotates covered/uncovered lines directly in
+the gutter, no `genhtml` step needed. `coverage/` is already
+git-ignored, so none of this output gets committed.
+
+**Codecov integration was investigated and intentionally not wired up
+yet** — adding it means sending this project's code-coverage data to a
+third-party service, which is a deliberate choice to make with an actual
+Codecov account in hand, not something to enable silently as a side
+effect of a CI update. Rather than add an incomplete/untested step, here
+is what turning it on later involves:
+
+1. Sign in to [codecov.io](https://codecov.io) with the GitHub account
+   that owns this repo and enable the `YugJapanese` repository.
+2. If the repo is private (or to avoid tokenless upload's rate limits
+   even on a public repo), copy the repository upload token Codecov
+   generates and add it as a GitHub Actions secret named
+   `CODECOV_TOKEN` (**Settings → Secrets and variables → Actions** — a
+   repository-settings change, so it has to be done by hand, the same as
+   the branch-protection settings above).
+3. Add one step to `flutter_ci.yml`, directly after "Verify coverage
+   report was generated":
+
+   ```yaml
+   - name: Upload coverage to Codecov
+     uses: codecov/codecov-action@v4
+     with:
+       files: coverage/lcov.info
+       fail_ci_if_error: false
+       token: ${{ secrets.CODECOV_TOKEN }}
+   ```
+
+   `fail_ci_if_error: false` keeps this non-blocking by design — a
+   Codecov outage or upload hiccup should never fail an otherwise-green
+   build, and no `codecov.yml` threshold config should be added until
+   Phase 5's informational baseline has matured into an actual gate.
 
 ## Release process
 
