@@ -79,10 +79,7 @@ class LessonCard extends StatelessWidget {
                         color: colorScheme.primary.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(AppRadius.medium),
                       ),
-                      child: Text(
-                        character,
-                        style: textTheme.titleLarge,
-                      ),
+                      child: Text(character, style: textTheme.titleLarge),
                     ),
                   )
                   .toList(growable: false),

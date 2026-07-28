@@ -42,11 +42,14 @@ class QuestionCard extends StatelessWidget {
             if (isListening)
               AudioButton(
                 key: ValueKey(question.id),
-                id: question.metadata?['audioId'] as String? ??
+                id:
+                    question.metadata?['audioId'] as String? ??
                     question.learningItem.id,
-                assetPath: question.metadata?['audioAssetPath'] as String? ??
+                assetPath:
+                    question.metadata?['audioAssetPath'] as String? ??
                     question.learningItem.audioAsset,
-                script: question.metadata?['audioScript'] as String? ??
+                script:
+                    question.metadata?['audioScript'] as String? ??
                     question.contentId,
                 type: AudioType.character,
               )

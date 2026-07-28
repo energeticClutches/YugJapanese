@@ -60,7 +60,8 @@ class PracticeResult {
       accuracy: (map['accuracy'] as num).toDouble(),
       startTime: DateTime.parse(map['startTime'] as String),
       endTime: DateTime.parse(map['endTime'] as String),
-      incorrectItemIds: (map['incorrectItemIds'] as List<dynamic>?)
+      incorrectItemIds:
+          (map['incorrectItemIds'] as List<dynamic>?)
               ?.map((dynamic e) => e as String)
               .toList() ??
           const <String>[],

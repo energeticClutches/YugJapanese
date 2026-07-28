@@ -25,10 +25,12 @@ class _PracticeHomeScreenState extends ConsumerState<PracticeHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<PracticeStatistics> statisticsAsync =
-        ref.watch(practiceStatisticsProvider);
-    final AsyncValue<bool> listeningAvailableAsync =
-        ref.watch(listeningModeAvailableProvider);
+    final AsyncValue<PracticeStatistics> statisticsAsync = ref.watch(
+      practiceStatisticsProvider,
+    );
+    final AsyncValue<bool> listeningAvailableAsync = ref.watch(
+      listeningModeAvailableProvider,
+    );
 
     return AppScaffold(
       child: SingleChildScrollView(
@@ -43,23 +45,29 @@ class _PracticeHomeScreenState extends ConsumerState<PracticeHomeScreen> {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: AppSpacing.lg),
-            Text('Session length', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Session length',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.sm),
             PracticeModeSelector(
               selectedLength: _selectedLength,
-              onChanged: (int length) => setState(() => _selectedLength = length),
+              onChanged: (int length) =>
+                  setState(() => _selectedLength = length),
             ),
             const SizedBox(height: AppSpacing.xl),
             statisticsAsync.when(
               data: (PracticeStatistics statistics) => _ModeGrid(
                 statistics: statistics,
-                listeningAvailable: listeningAvailableAsync.asData?.value ?? true,
+                listeningAvailable:
+                    listeningAvailableAsync.asData?.value ?? true,
                 onSelect: (PracticeMode mode) => _startMode(context, mode),
               ),
               loading: () => const LoadingIndicator(),
               error: (Object error, StackTrace stackTrace) => _ModeGrid(
                 statistics: PracticeStatistics.empty,
-                listeningAvailable: listeningAvailableAsync.asData?.value ?? true,
+                listeningAvailable:
+                    listeningAvailableAsync.asData?.value ?? true,
                 onSelect: (PracticeMode mode) => _startMode(context, mode),
               ),
             ),
@@ -71,8 +79,12 @@ class _PracticeHomeScreenState extends ConsumerState<PracticeHomeScreen> {
   }
 
   void _startMode(BuildContext context, PracticeMode mode) {
-    final String scripts = ContentRepositoryFactory.availableContentIds.join(',');
-    context.push('/quiz/play?mode=${mode.id}&scripts=$scripts&length=$_selectedLength');
+    final String scripts = ContentRepositoryFactory.availableContentIds.join(
+      ',',
+    );
+    context.push(
+      '/quiz/play?mode=${mode.id}&scripts=$scripts&length=$_selectedLength',
+    );
   }
 }
 

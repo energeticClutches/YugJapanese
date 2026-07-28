@@ -30,8 +30,9 @@ class HiveSearchHistoryRepository implements SearchHistoryRepository {
       (String existing) => existing.toLowerCase() == trimmed.toLowerCase(),
     );
     current.insert(0, trimmed);
-    final List<String> capped =
-        current.take(SearchHistoryRepository.maxEntries).toList();
+    final List<String> capped = current
+        .take(SearchHistoryRepository.maxEntries)
+        .toList();
     await _box.put(_key, capped);
   }
 

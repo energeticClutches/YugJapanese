@@ -41,6 +41,5 @@ class HiveProgressRepository implements ProgressRepository {
     );
   }
 
-  String _key(String contentId, int lessonNumber) =>
-      '$contentId:$lessonNumber';
+  String _key(String contentId, int lessonNumber) => '$contentId:$lessonNumber';
 }

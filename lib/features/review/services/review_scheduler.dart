@@ -38,20 +38,23 @@ class ReviewScheduler {
 
   Future<List<ReviewItem>> getDueReviews({DateTime? now}) async {
     final DateTime currentTime = now ?? DateTime.now();
-    final List<ReviewItem> due = (await _repository.getAllReviews())
-        .where((ReviewItem item) => item.isDue(currentTime))
-        .toList()
-      ..sort((ReviewItem a, ReviewItem b) {
-        // Weakest material first, so a short session spends its time where
-        // recall is most fragile rather than on whatever happened to fall due
-        // earliest.
-        final int byPriority = _priority(b, currentTime)
-            .compareTo(_priority(a, currentTime));
-        if (byPriority != 0) {
-          return byPriority;
-        }
-        return a.nextReview.compareTo(b.nextReview);
-      });
+    final List<ReviewItem> due =
+        (await _repository.getAllReviews())
+            .where((ReviewItem item) => item.isDue(currentTime))
+            .toList()
+          ..sort((ReviewItem a, ReviewItem b) {
+            // Weakest material first, so a short session spends its time where
+            // recall is most fragile rather than on whatever happened to fall due
+            // earliest.
+            final int byPriority = _priority(
+              b,
+              currentTime,
+            ).compareTo(_priority(a, currentTime));
+            if (byPriority != 0) {
+              return byPriority;
+            }
+            return a.nextReview.compareTo(b.nextReview);
+          });
     return due;
   }
 
@@ -61,8 +64,11 @@ class ReviewScheduler {
   /// caused before, so a lesson failed three times outranks one that merely
   /// came due a little earlier.
   double _priority(ReviewItem item, DateTime now) {
-    final int overdueDays =
-        now.difference(item.nextReview).inDays.clamp(0, 60).toInt();
+    final int overdueDays = now
+        .difference(item.nextReview)
+        .inDays
+        .clamp(0, 60)
+        .toInt();
     // Ease runs [1.3, 2.8]; invert so difficult lessons score higher.
     final double difficulty =
         (_maxEaseFactor - item.easeFactor) / (_maxEaseFactor - _minEaseFactor);
@@ -128,8 +134,10 @@ class ReviewScheduler {
     final int currentIndex = existing == null
         ? -1
         : intervalProgressionDays.indexOf(existing.intervalDays);
-    final int nextIndex =
-        (currentIndex + 1).clamp(0, intervalProgressionDays.length - 1);
+    final int nextIndex = (currentIndex + 1).clamp(
+      0,
+      intervalProgressionDays.length - 1,
+    );
     final int nextIntervalDays = intervalProgressionDays[nextIndex];
 
     final double ease = _clampEase(
@@ -166,8 +174,10 @@ class ReviewScheduler {
         : intervalProgressionDays.indexOf(existing.intervalDays);
     // Drop back one rung rather than all the way to the start: the learner
     // still saw this material, they just need it again sooner.
-    final int nextIndex =
-        (currentIndex - 1).clamp(0, intervalProgressionDays.length - 1);
+    final int nextIndex = (currentIndex - 1).clamp(
+      0,
+      intervalProgressionDays.length - 1,
+    );
     final int nextIntervalDays = intervalProgressionDays[nextIndex];
 
     final double ease = _clampEase(

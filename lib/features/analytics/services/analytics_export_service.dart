@@ -24,13 +24,19 @@ class AnalyticsExportService {
 
     buffer.writeln('Overall Summary');
     buffer.writeln('Metric,Value');
-    buffer.writeln('Total Lessons Completed,${analytics.totalLessonsCompleted}');
+    buffer.writeln(
+      'Total Lessons Completed,${analytics.totalLessonsCompleted}',
+    );
     buffer.writeln(
       'Completion Percentage,${analytics.completionPercentage.toStringAsFixed(1)}',
     );
-    buffer.writeln('Total Practice Sessions,${analytics.totalPracticeSessions}');
+    buffer.writeln(
+      'Total Practice Sessions,${analytics.totalPracticeSessions}',
+    );
     buffer.writeln('Total Reviews,${analytics.totalReviews}');
-    buffer.writeln('Estimated Study Minutes,${analytics.estimatedStudyMinutes}');
+    buffer.writeln(
+      'Estimated Study Minutes,${analytics.estimatedStudyMinutes}',
+    );
     buffer.writeln('Current Streak Days,${analytics.currentStreakDays}');
     buffer.writeln('Longest Streak Days,${analytics.longestStreakDays}');
     buffer.writeln('Achievements Unlocked,${analytics.achievementsUnlocked}');

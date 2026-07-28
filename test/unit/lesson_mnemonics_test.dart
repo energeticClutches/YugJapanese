@@ -7,9 +7,9 @@ import 'package:japanese_learning/models/character_model.dart';
 const List<String> _scripts = <String>['hiragana', 'katakana', 'kanji'];
 
 List<Map<String, dynamic>> _charactersOf(String script) {
-  final Map<String, dynamic> raw = jsonDecode(
-    File('assets/data/${script}_lessons.json').readAsStringSync(),
-  ) as Map<String, dynamic>;
+  final Map<String, dynamic> raw =
+      jsonDecode(File('assets/data/${script}_lessons.json').readAsStringSync())
+          as Map<String, dynamic>;
   return <Map<String, dynamic>>[
     for (final dynamic lesson in raw['lessons'] as List<dynamic>)
       for (final dynamic c

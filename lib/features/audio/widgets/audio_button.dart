@@ -37,7 +37,9 @@ class _AudioButtonState extends ConsumerState<AudioButton> {
     if (widget.assetPath.isEmpty) {
       return Future<AudioItem?>.value(null);
     }
-    return ref.read(audioRepositoryProvider).resolveAudio(
+    return ref
+        .read(audioRepositoryProvider)
+        .resolveAudio(
           id: widget.id,
           assetPath: widget.assetPath,
           script: widget.script,
@@ -55,15 +57,20 @@ class _AudioButtonState extends ConsumerState<AudioButton> {
 
   @override
   Widget build(BuildContext context) {
-    final bool soundEnabled =
-        ref.watch(currentSettingsProvider).settings.soundEnabled;
+    final bool soundEnabled = ref
+        .watch(currentSettingsProvider)
+        .settings
+        .soundEnabled;
     final AudioPlaybackState playback = ref.watch(currentPlaybackStateProvider);
     final bool isThisPlaying =
-        playback.isFor(widget.id) && playback.status == AudioPlaybackStatus.playing;
+        playback.isFor(widget.id) &&
+        playback.status == AudioPlaybackStatus.playing;
     final bool isThisLoading =
-        playback.isFor(widget.id) && playback.status == AudioPlaybackStatus.loading;
+        playback.isFor(widget.id) &&
+        playback.status == AudioPlaybackStatus.loading;
     final bool isThisError =
-        playback.isFor(widget.id) && playback.status == AudioPlaybackStatus.error;
+        playback.isFor(widget.id) &&
+        playback.status == AudioPlaybackStatus.error;
 
     return FutureBuilder<AudioItem?>(
       future: _resolveFuture,
@@ -82,12 +89,14 @@ class _AudioButtonState extends ConsumerState<AudioButton> {
           children: [
             IconButton.filledTonal(
               onPressed: enabled
-                  ? () => ref.read(audioServiceProvider).play(
-                        id: widget.id,
-                        assetPath: widget.assetPath,
-                        script: widget.script,
-                        type: widget.type,
-                      )
+                  ? () => ref
+                        .read(audioServiceProvider)
+                        .play(
+                          id: widget.id,
+                          assetPath: widget.assetPath,
+                          script: widget.script,
+                          type: widget.type,
+                        )
                   : null,
               tooltip: label,
               icon: PlaybackIndicator(
@@ -97,10 +106,7 @@ class _AudioButtonState extends ConsumerState<AudioButton> {
               ),
             ),
             const SizedBox(height: AppSpacing.xs),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
+            Text(label, style: Theme.of(context).textTheme.labelSmall),
           ],
         );
       },

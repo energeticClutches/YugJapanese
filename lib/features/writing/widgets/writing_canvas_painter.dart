@@ -148,8 +148,7 @@ class WritingCanvasPainter extends CustomPainter {
         continue;
       }
       if (seg >= target) {
-        final Offset cut =
-            Offset.lerp(points[i - 1], points[i], target / seg)!;
+        final Offset cut = Offset.lerp(points[i - 1], points[i], target / seg)!;
         path.lineTo(cut.dx, cut.dy);
         return path;
       }
@@ -183,11 +182,9 @@ class WritingCanvasPainter extends CustomPainter {
     }
     if (points.length == 1) {
       // A tap with no movement still leaves a mark.
-      canvas.drawPoints(
-        PointMode.points,
-        <Offset>[points.first.position],
-        paint,
-      );
+      canvas.drawPoints(PointMode.points, <Offset>[
+        points.first.position,
+      ], paint);
       return;
     }
     final Path path = Path()

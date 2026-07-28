@@ -19,7 +19,10 @@ class EmptyReviewState extends StatelessWidget {
             color: colorScheme.primary,
           ),
           const SizedBox(height: AppSpacing.md),
-          Text("You're all caught up!", style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            "You're all caught up!",
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'No lessons are due for review right now.',

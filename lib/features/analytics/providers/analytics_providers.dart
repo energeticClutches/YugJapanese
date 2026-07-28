@@ -33,21 +33,19 @@ final analyticsServiceProvider = Provider<AnalyticsService>(
   ),
 );
 
-final learningAnalyticsProvider = FutureProvider<LearningAnalytics>(
-  (Ref ref) async {
-    ref.watch(progressControllerProvider);
-    ref.watch(dueReviewsProvider);
-    ref.watch(practiceServiceProvider);
-    ref.watch(achievementProgressListProvider);
-    final AnalyticsService service = ref.watch(analyticsServiceProvider);
-    final List<ContentSource> sources = ref.watch(contentSourcesProvider);
-    return service.getAnalytics(sources);
-  },
-);
+final learningAnalyticsProvider = FutureProvider<LearningAnalytics>((
+  Ref ref,
+) async {
+  ref.watch(progressControllerProvider);
+  ref.watch(dueReviewsProvider);
+  ref.watch(practiceServiceProvider);
+  ref.watch(achievementProgressListProvider);
+  final AnalyticsService service = ref.watch(analyticsServiceProvider);
+  final List<ContentSource> sources = ref.watch(contentSourcesProvider);
+  return service.getAnalytics(sources);
+});
 
-final scriptAnalyticsProvider = Provider<List<ScriptAnalytics>>(
-  (Ref ref) {
-    final analytics = ref.watch(learningAnalyticsProvider);
-    return analytics.asData?.value.scriptBreakdown ?? const <ScriptAnalytics>[];
-  },
-);
+final scriptAnalyticsProvider = Provider<List<ScriptAnalytics>>((Ref ref) {
+  final analytics = ref.watch(learningAnalyticsProvider);
+  return analytics.asData?.value.scriptBreakdown ?? const <ScriptAnalytics>[];
+});

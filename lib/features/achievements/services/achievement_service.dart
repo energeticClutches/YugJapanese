@@ -22,11 +22,11 @@ class AchievementService {
     required StatisticsService statisticsService,
     required ReviewRepository reviewRepository,
     required PracticeStatisticsService practiceStatisticsService,
-  })  : _achievementRepository = achievementRepository,
-        _progressRepository = progressRepository,
-        _statisticsService = statisticsService,
-        _reviewRepository = reviewRepository,
-        _practiceStatisticsService = practiceStatisticsService;
+  }) : _achievementRepository = achievementRepository,
+       _progressRepository = progressRepository,
+       _statisticsService = statisticsService,
+       _reviewRepository = reviewRepository,
+       _practiceStatisticsService = practiceStatisticsService;
 
   final AchievementRepository _achievementRepository;
   final ProgressRepository _progressRepository;
@@ -142,8 +142,8 @@ class AchievementService {
     final Set<DateTime> activeDates = <DateTime>{};
 
     for (final ContentSource source in sources) {
-      final List<LessonProgress> progressItems =
-          await _progressRepository.getProgressForContent(source.contentId);
+      final List<LessonProgress> progressItems = await _progressRepository
+          .getProgressForContent(source.contentId);
       for (final LessonProgress progress in progressItems) {
         activeDates.add(_dateOnly(progress.lastAccessedAt));
       }
@@ -170,8 +170,8 @@ class AchievementService {
     List<ContentSource> sources, {
     DateTime? now,
   }) async {
-    final LearningStatistics statistics =
-        await _statisticsService.getStatistics(sources);
+    final LearningStatistics statistics = await _statisticsService
+        .getStatistics(sources);
     final StreakInfo streak = await calculateStreak(sources, now: now);
     final List<ReviewItem> reviews = await _reviewRepository.getAllReviews();
     final int totalReviewCount = reviews.fold(
@@ -183,8 +183,8 @@ class AchievementService {
 
     final List<AchievementProgress> results = <AchievementProgress>[];
     for (final Achievement achievement in catalog) {
-      final AchievementProgress? existing =
-          await _achievementRepository.getProgress(achievement.id);
+      final AchievementProgress? existing = await _achievementRepository
+          .getProgress(achievement.id);
       if (existing != null && existing.isUnlocked) {
         results.add(existing);
         continue;
@@ -238,7 +238,8 @@ class AchievementService {
       case AchievementCriteria.practiceSessionsCompleted:
         return practiceStatistics.totalSessions >= achievement.threshold;
       case AchievementCriteria.practiceQuestionsAnswered:
-        return practiceStatistics.totalQuestionsAnswered >= achievement.threshold;
+        return practiceStatistics.totalQuestionsAnswered >=
+            achievement.threshold;
       case AchievementCriteria.perfectPracticeSessions:
         return practiceStatistics.perfectSessionCount >= achievement.threshold;
       case AchievementCriteria.practiceStreakDays:

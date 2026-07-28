@@ -56,8 +56,9 @@ class OfflineSearchRepository implements SearchRepository {
           if (!seenIds.add(resultId)) {
             continue;
           }
-          final LearningItem? item =
-              await source.repository.getItem(character.id);
+          final LearningItem? item = await source.repository.getItem(
+            character.id,
+          );
           if (item == null) {
             continue;
           }

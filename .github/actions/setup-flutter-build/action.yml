@@ -1,0 +1,54 @@
+name: Set up Flutter build environment
+description: >-
+  Installs the pinned JDK and Flutter SDK, restores the pub and Gradle
+  caches, and runs `flutter pub get`. Shared by the CI workflow
+  (flutter_ci.yml) and the Release workflow (release.yml) so the build
+  environment is defined in exactly one place instead of two.
+
+inputs:
+  flutter-version:
+    description: Flutter SDK version to install.
+    required: false
+    default: "3.44.8"
+  java-version:
+    description: JDK version to install. Must match sourceCompatibility/jvmTarget in android/app/build.gradle.
+    required: false
+    default: "17"
+
+runs:
+  using: composite
+  steps:
+    - name: Set up JDK ${{ inputs.java-version }}
+      uses: actions/setup-java@v4
+      with:
+        distribution: "temurin"
+        java-version: ${{ inputs.java-version }}
+
+    - name: Install Flutter ${{ inputs.flutter-version }}
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ inputs.flutter-version }}
+        channel: "stable"
+        cache: true
+
+    - name: Cache pub dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.pub-cache
+        key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pub-
+
+    - name: Cache Gradle
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/**/*.gradle*') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Install project dependencies
+      shell: bash
+      run: flutter pub get

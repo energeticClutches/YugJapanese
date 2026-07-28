@@ -39,15 +39,15 @@ class ContinueLearningCard extends StatelessWidget {
                 children: [
                   Text(label, style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(title, style: Theme.of(context).textTheme.headlineMedium),
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                 ],
               ),
             ),
             const SizedBox(width: AppSpacing.lg),
-            FilledButton(
-              onPressed: onPressed,
-              child: Text(buttonLabel),
-            ),
+            FilledButton(onPressed: onPressed, child: Text(buttonLabel)),
           ],
         ),
       ),

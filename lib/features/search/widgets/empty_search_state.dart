@@ -5,7 +5,8 @@ import '../../../core/theme/app_spacing.dart';
 class EmptySearchState extends StatelessWidget {
   const EmptySearchState({
     super.key,
-    this.message = 'No results found. Try a different character, romaji, or meaning.',
+    this.message =
+        'No results found. Try a different character, romaji, or meaning.',
   });
 
   final String message;
@@ -21,8 +22,9 @@ class EmptySearchState extends StatelessWidget {
             Icon(
               Icons.search_off,
               size: 48,
-              color: Theme.of(context).colorScheme.onSurface
-                  .withValues(alpha: 0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             const SizedBox(height: AppSpacing.md),
             Text(

@@ -9,5 +9,8 @@ class StreakInfo {
   final int longestStreak;
   final DateTime? lastActiveDate;
 
-  static const StreakInfo empty = StreakInfo(currentStreak: 0, longestStreak: 0);
+  static const StreakInfo empty = StreakInfo(
+    currentStreak: 0,
+    longestStreak: 0,
+  );
 }

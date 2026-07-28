@@ -33,7 +33,11 @@ class ScriptSummaryCard extends StatelessWidget {
           children: [
             Text(title, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: AppSpacing.sm),
-            _row(context, 'Completion', '${analytics.completionPercentage.round()}%'),
+            _row(
+              context,
+              'Completion',
+              '${analytics.completionPercentage.round()}%',
+            ),
             _row(
               context,
               'Avg. writing accuracy',

@@ -45,7 +45,9 @@ class AudioService extends ChangeNotifier {
     required String script,
     AudioType type = AudioType.character,
   }) async {
-    _setState(AudioPlaybackState(status: AudioPlaybackStatus.loading, currentId: id));
+    _setState(
+      AudioPlaybackState(status: AudioPlaybackStatus.loading, currentId: id),
+    );
 
     final AudioItem? item = await _repository.resolveAudio(
       id: id,
@@ -54,16 +56,22 @@ class AudioService extends ChangeNotifier {
       type: type,
     );
     if (item == null) {
-      _setState(AudioPlaybackState(status: AudioPlaybackStatus.error, currentId: id));
+      _setState(
+        AudioPlaybackState(status: AudioPlaybackStatus.error, currentId: id),
+      );
       return;
     }
 
     try {
       await _player.stop();
       await _player.play(AssetSource(_stripAssetsPrefix(item.assetPath)));
-      _setState(AudioPlaybackState(status: AudioPlaybackStatus.playing, currentId: id));
+      _setState(
+        AudioPlaybackState(status: AudioPlaybackStatus.playing, currentId: id),
+      );
     } catch (_) {
-      _setState(AudioPlaybackState(status: AudioPlaybackStatus.error, currentId: id));
+      _setState(
+        AudioPlaybackState(status: AudioPlaybackStatus.error, currentId: id),
+      );
     }
   }
 

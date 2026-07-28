@@ -25,23 +25,20 @@ final achievementServiceProvider = Provider<AchievementService>(
   ),
 );
 
-final streakInfoProvider = FutureProvider<StreakInfo>(
-  (Ref ref) async {
-    ref.watch(progressControllerProvider);
-    ref.watch(dueReviewsProvider);
-    final AchievementService service = ref.watch(achievementServiceProvider);
-    final List<ContentSource> sources = ref.watch(contentSourcesProvider);
-    return service.calculateStreak(sources);
-  },
-);
+final streakInfoProvider = FutureProvider<StreakInfo>((Ref ref) async {
+  ref.watch(progressControllerProvider);
+  ref.watch(dueReviewsProvider);
+  final AchievementService service = ref.watch(achievementServiceProvider);
+  final List<ContentSource> sources = ref.watch(contentSourcesProvider);
+  return service.calculateStreak(sources);
+});
 
-final achievementProgressListProvider = FutureProvider<List<AchievementProgress>>(
-  (Ref ref) async {
-    ref.watch(progressControllerProvider);
-    ref.watch(dueReviewsProvider);
-    ref.watch(practiceServiceProvider);
-    final AchievementService service = ref.watch(achievementServiceProvider);
-    final List<ContentSource> sources = ref.watch(contentSourcesProvider);
-    return service.evaluateAchievements(sources);
-  },
-);
+final achievementProgressListProvider =
+    FutureProvider<List<AchievementProgress>>((Ref ref) async {
+      ref.watch(progressControllerProvider);
+      ref.watch(dueReviewsProvider);
+      ref.watch(practiceServiceProvider);
+      final AchievementService service = ref.watch(achievementServiceProvider);
+      final List<ContentSource> sources = ref.watch(contentSourcesProvider);
+      return service.evaluateAchievements(sources);
+    });

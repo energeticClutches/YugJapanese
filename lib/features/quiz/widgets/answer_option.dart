@@ -4,7 +4,12 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 
-enum AnswerOptionState { neutral, selectedCorrect, selectedIncorrect, revealedCorrect }
+enum AnswerOptionState {
+  neutral,
+  selectedCorrect,
+  selectedIncorrect,
+  revealedCorrect,
+}
 
 class AnswerOption extends StatelessWidget {
   const AnswerOption({

@@ -25,7 +25,8 @@ class PracticeStatisticsService {
     final Map<String, double> bestScoreByMode = <String, double>{};
     final Map<String, DateTime> lastPlayedByMode = <String, DateTime>{};
     final Map<String, int> sessionsByScript = <String, int>{};
-    final Map<String, List<double>> accuraciesByScript = <String, List<double>>{};
+    final Map<String, List<double>> accuraciesByScript =
+        <String, List<double>>{};
     final Set<DateTime> activeDates = <DateTime>{};
 
     for (final PracticeResult result in results) {

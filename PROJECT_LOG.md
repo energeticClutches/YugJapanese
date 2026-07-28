@@ -2749,3 +2749,302 @@ is deferred to a future milestone. The release APK was rebuilt after
 BUG-007/008/009 (debug-signed, as above); nothing since then — the RC1
 audit's BUG-010 fix, or Milestones 21, 22 and 23 — is in that APK yet.
 Rebuild once all four outstanding on-device checks above have been done.
+
+## Milestone 24: Analytics & Activity Calendar Polish
+
+### Issue 1: Activity calendar orientation
+
+**Root cause was in rendering, not data ordering.** `AnalyticsService`
+already built `dailyActivity` correctly — 30 entries, oldest first,
+strictly chronological (`_buildDailyActivity` in
+`analytics_service.dart`). The bug was entirely in
+`ActivityHeatmap`: it rendered the days with a plain `Wrap` of squares,
+which just fills each row left-to-right until it runs out of width and
+starts a new row. That's a flow layout, not a calendar — how many days
+land in each row (and therefore which day starts each new row) depended
+on the current screen width, so the grouping into visual "weeks" shifted
+on every resize, orientation change, or device size, and never aligned
+to real weekdays. There was nothing wrong to "fix" in the date math; the
+squares were always in the right order, just laid out with no notion of
+a week grid.
+
+**Fix.** Rewrote `ActivityHeatmap` (`lib/features/analytics/widgets/activity_heatmap.dart`)
+as an actual week grid instead of a wrap: columns are weeks, rows are
+weekdays (Sunday at the top), oldest week on the left and the current
+week on the right, so the visual direction reads left-to-right and
+top-to-bottom as chronological progression — the intended GitHub-style
+reading flow. The first week is padded with blank cells up to the
+correct weekday so day-of-week alignment is exact even when the 30-day
+window doesn't start on a Sunday. Added weekday initials as a left-hand
+label column, and a highlight ring on today's cell, both for
+readability, not as a new feature. The grid is wrapped in a horizontal
+`SingleChildScrollView`, so it stays legible and responsive at any width
+(narrow phone portrait through tablet landscape) by scrolling instead of
+reflowing, and cell sizing/spacing/colors/rounding, tooltip text, and
+the empty/intensity color scale are all unchanged from before — same
+Material 3 theme colors, same widget call site in `analytics_screen.dart`.
+No other analytics widgets, providers, or the `AnalyticsService` data
+layer were touched.
+
+`flutter analyze` clean. No existing tests referenced `ActivityHeatmap`
+directly (analytics is covered at the service/model level), so none
+needed updating.
+
+## Phase 1: Continuous Integration Foundation (GitHub Actions)
+
+Added `.github/workflows/flutter_ci.yml`: runs on every push and every
+pull request, on `ubuntu-latest`. Four steps in order, each gating the
+next, so a failure stops the workflow immediately and the failing step's
+name (visible in the Actions log) says which stage broke:
+
+1. `flutter pub get` (via `subosito/flutter-action@v2`, pinned to Flutter
+   `3.44.8` — the exact version this repo is developed against, per
+   `flutter --version` — rather than floating on `stable`, so CI can't
+   silently drift from what's actually been run locally).
+2. `dart format --output=none --set-exit-if-changed .`
+3. `flutter analyze`
+4. `flutter test`
+
+**`flutter format` doesn't exist in this Flutter version** — it was
+removed in favor of `dart format`, which is what the workflow (and the
+Testing section of `README.md`) actually invokes. Same behavior
+(`--set-exit-if-changed` fails the step without touching any file), just
+the current command name.
+
+**The formatting-check step required a one-time repo-wide reformat
+first.** `dart format --set-exit-if-changed .` failed on 108 of 189 files
+before this phase — the codebase had never been run through `dart format`
+end to end, so adding the check as specified would have made CI red from
+its very first run and stayed that way. Ran `dart format .` once
+(whitespace/line-wrapping/trailing-comma only — verified with `git diff
+-w` that no non-formatting hunks exist, then `flutter analyze` and
+`flutter test` both still pass clean/94-for-94 after), so the new check
+starts green instead of permanently broken. No application logic changed.
+
+Both the Flutter SDK (keyed on `3.44.8` via `flutter-action`'s own
+`cache: true`) and the pub package cache (`~/.pub-cache`, keyed on a hash
+of `pubspec.lock`) are cached between runs. `concurrency` cancels a
+stale in-progress run when a newer push/PR update lands on the same
+branch, so runs don't queue up.
+
+Documented in `README.md` under a new "Continuous Integration" section.
+Scope was intentionally CI-only, per this phase's constraints: no release
+builds, signing, artifacts, or deployment (Fastlane, Play Store, Firebase
+App Distribution) were added — those are later phases, and this workflow
+was kept to one job so they can be added as new jobs/steps without
+restructuring it.
+
+## Phase 2: Build Verification & Artifact Generation
+
+Extended `.github/workflows/flutter_ci.yml` in place — same single job,
+same file, no second workflow — with four more steps after `flutter
+test`: `flutter build apk --release`, `flutter build appbundle --release`,
+then an `actions/upload-artifact@v4` step for each output. Renamed the
+step names to the plain imperative form the milestone asked for (Check
+formatting / Static analysis / Run tests / Build APK / Build App Bundle),
+so each Actions log entry names its stage directly instead of a
+paragraph-style label.
+
+**Verified locally before touching CI**, since a broken path here only
+shows up as a red run: ran `flutter build apk --release` and `flutter
+build appbundle --release` for real. Both succeed and produce
+`build/app/outputs/flutter-apk/app-release.apk` (52.7MB) and
+`build/app/outputs/bundle/release/app-release.aab` (51.2MB) — the exact
+paths now wired into the `upload-artifact` steps. `build/` is already
+git-ignored, so nothing about this pass risked committing binaries.
+
+**No signing setup needed.** `android/app/build.gradle`'s release
+`buildTypes` block already points `signingConfig` at the debug config —
+a decision from the M20 release (see `RELEASE_CHECKLIST.md`, no
+production keystore exists yet) — so `flutter build apk/appbundle
+--release` succeeds on a stock GitHub runner with zero secrets. This
+phase intentionally doesn't add a production keystore; that's release
+signing work, out of scope here.
+
+**Added `actions/setup-java@v4` pinned to JDK 17**, matching
+`sourceCompatibility`/`jvmTarget` in `android/app/build.gradle` exactly.
+`ubuntu-latest` ships several JDKs and the one `JAVA_HOME` happens to
+point at isn't guaranteed to be 17 as the runner image updates over
+time, so this pins the version the Gradle build actually targets instead
+of relying on whatever the image defaults to today.
+
+**Caching**, reviewed per the phase's investigation requirements:
+- Pub packages: already cached from Phase 1, unchanged.
+- Flutter SDK: already cached from Phase 1 via `flutter-action`'s own
+  `cache: true`, unchanged.
+- Gradle: new — `~/.gradle/caches` and `~/.gradle/wrapper`, keyed on a
+  hash of `gradle-wrapper.properties` plus every `*.gradle*` file under
+  `android/`, so a cache hit requires the exact same Gradle/AGP/plugin
+  versions and invalidates automatically the moment any of those change.
+
+Artifacts (`flutter-release-apk`, `flutter-release-aab`) upload with
+`if-no-files-found: error`, so a build that silently produced nothing at
+the expected path fails the run instead of uploading an empty artifact.
+Retention is left at GitHub's default — no project-specific value was
+already set, and the milestone said not to introduce one. Documented in
+`README.md` under "Continuous Integration": how to find and download the
+two artifacts from a run's Actions summary page.
+
+Scope stayed build-verification-only per this phase's constraints: no
+Play Store, Firebase App Distribution, or Fastlane integration, and no
+production signing — those remain later-phase work.
+
+## Phase 3: Release Workflow, Version Validation & Branch Protection
+
+Added a second, dedicated workflow, `.github/workflows/release.yml`,
+instead of extending `flutter_ci.yml` — the milestone was explicit that CI
+(validation, every push/PR) and Release (delivery, only on a `v*` tag)
+stay separate workflows. `flutter_ci.yml`'s triggers, job, and step
+sequence are otherwise untouched from Phase 2.
+
+**Reuse, not duplication.** The milestone's investigation requirements
+asked to "reuse shared workflow steps where practical" and "avoid
+duplicating configuration unnecessarily" — but the two workflows are
+separate files with separate triggers, and GitHub Actions has no way to
+share literal steps across workflow files except a composite action or a
+reusable (`workflow_call`) workflow. Pulled the JDK-install /
+Flutter-install / pub-cache / Gradle-cache steps Phase 2 had written
+inline into `.github/actions/setup-flutter-build/action.yml`, a composite
+action with `flutter-version`/`java-version` inputs (defaulted to the
+same `3.44.8`/`17` Phase 2 pinned). Both `flutter_ci.yml` and
+`release.yml` now call `uses: ./.github/actions/setup-flutter-build`
+instead of each carrying its own copy — one definition of "how this repo
+builds" instead of two that could quietly drift apart. This is the one
+place Phase 3 touches `flutter_ci.yml`: its setup steps became one
+composite-action call; format/analyze/test/build/upload-artifact steps,
+names, and order are byte-for-byte what Phase 2 shipped.
+
+**Version validation (`validate-version` job).** Reads `version:` out of
+`pubspec.yaml` with `grep`/`sed` (no extra tooling needed) and fails the
+job with an `::error::` annotation if: the field is missing, or the value
+isn't `<major>.<minor>.<patch>+<build>` (regex-anchored, e.g. `1.0.0+1`).
+Beyond what the milestone listed explicitly, it also fails if the numeric
+part doesn't match the pushed tag (`v1.0.0` requires `pubspec.yaml` to
+say `1.0.0+<build>`) — the milestone's own Part 3 example (`Tag: v1.0.0`
+→ `Release: Version 1.0.0`) only makes sense if those two are guaranteed
+to agree, and "application versions remain consistent" (Part 1's stated
+objective) is exactly this check. Verified the script against the real
+`pubspec.yaml` (currently `1.0.0+1`) for both the matching-tag and
+mismatched-tag cases before wiring it into the workflow. Version numbers
+are never written by the workflow — bumping `pubspec.yaml` stays a
+developer action, per the milestone's explicit instruction.
+
+**Build & publish (`build-and-release` job).** `needs:
+validate-version`, so a bad version never reaches a build. Runs the exact
+`flutter build apk --release` / `flutter build appbundle --release`
+commands verified in Phase 2, via the shared setup action, then
+`softprops/action-gh-release@v2` (a widely-used, actively maintained
+release action — chosen over hand-rolling `gh release create` calls so
+release-creation edge cases, like re-running on an existing tag, are
+someone else's tested code, not new logic in this repo) creates a
+`draft: false, prerelease: false` GitHub Release titled `Version
+<version>` with auto-generated release notes, and attaches
+`app-release.apk`/`app-release.aab` from the exact output paths confirmed
+in Phase 2. `fail_on_unmatched_files: true` fails the workflow if either
+asset can't be found/uploaded, matching the milestone's requirement.
+`permissions: contents: write` is scoped to this workflow only (CI stays
+at the default read-only token) since only Release actually needs to
+create a Release. No new secrets: `action-gh-release` uses the
+automatic, repo-scoped `GITHUB_TOKEN`.
+
+**No app signing was added.** Same as Phase 2 — the release build type in
+`android/app/build.gradle` still points at the debug signing config, so
+these are functionally the same debug-signed builds as CI's, just
+attached to a tagged GitHub Release rather than a workflow-run artifact.
+A production keystore remains open work in `RELEASE_CHECKLIST.md`.
+
+**Branch protection is documentation only**, per the milestone's explicit
+instruction not to configure repository settings through code (GitHub
+branch protection isn't expressible in a workflow file regardless).
+Added a "Recommended repository settings (not yet applied)" section to
+`README.md` covering the `main`/`develop`/`feature`/`bugfix`/`hotfix`
+branch model, and the specific rule recommended for `main`: require PRs,
+require the `Flutter CI` status check, require branches up to date before
+merge, disallow bypassing the above, block force-pushes and deletion of
+`main`, and require linear history as an optional style choice. This
+repository currently has only `main`, with no protection rules and no
+`develop`/`feature`/`bugfix`/`hotfix` branches yet; the recommendation is
+written as a decision for whoever has admin access to make deliberately,
+not as a description of current repository state.
+
+Constraints respected: no Play Store, Firebase App Distribution, or
+Fastlane integration; no production signing; `flutter_ci.yml`'s
+push/PR-triggered validation behavior is unchanged.
+
+## Phase 4: Automated Dependency Management & Security Monitoring
+
+Added `.github/dependabot.yml`, schema v2, two `updates` entries.
+
+**Ecosystems: exactly the two the repo has, nothing speculative.**
+Checked before writing anything — no `ios/` directory, no `package.json`,
+`Gemfile`, `requirements.txt`, or `Dockerfile` anywhere in the repo, so
+`pub` (Dart/Flutter — `pubspec.yaml`/`pubspec.lock`) and `github-actions`
+(the two workflow files from Phases 1-3) are the only two ecosystems
+configured, matching the milestone's own explicit Part 1 scope and its
+"avoid monitoring unused package managers" investigation requirement.
+Deliberately **not** added: a `gradle` ecosystem entry for the AGP
+(`9.0.1`) / Kotlin (`2.3.20`) plugin versions pinned in
+`android/settings.gradle.kts` — Dependabot does support tracking those,
+and they're real pinned versions that could go stale, but the milestone's
+Part 1 named only `pub` and `github-actions` explicitly; adding a third
+ecosystem nobody asked for cuts against "keep the configuration simple
+and maintainable" (investigation requirement 5). Worth revisiting in a
+future phase if AGP/Kotlin version drift becomes a real maintenance
+concern.
+
+**Schedule.** Both ecosystems: `weekly`, Monday 06:00 UTC — one fixed
+day so all routine dependency PRs land together for a single weekly
+review pass, not scattered through the week. Security-vulnerability
+updates aren't gated by this schedule at all — GitHub opens those
+immediately when a relevant advisory publishes, independent of
+`dependabot.yml`'s `schedule:` block, provided "Dependabot security
+updates" is turned on under **Settings → Security**. That's a repository
+setting, not something expressible in a config file, so — same posture
+as Phase 3's branch-protection section — it's documented as a
+recommendation in `README.md` rather than assumed to already be on.
+
+**Grouping and majors.** Each ecosystem groups its own minor/patch bumps
+into one PR (`flutter-minor-and-patch`, `github-actions-minor-and-patch`,
+via `groups: <name>: patterns: ["*"], update-types: [minor, patch]`) to
+cut PR-per-package noise, per Part 3. Major-version bumps are
+deliberately excluded from that `update-types` filter, so they always
+surface as their own individual PR rather than riding along inside a
+grouped one — the milestone's Part 4 asked to avoid *unnecessary* major
+upgrades, and keeping majors ungrouped is what makes them easy to spot
+and defer/reject individually rather than accepting them as a byproduct
+of clearing a batched PR.
+
+**No constraint rewriting.** Verified this is actually true for this
+repo, not just asserted: most direct dependencies in `pubspec.yaml`
+(`flutter_riverpod: any`, `go_router: any`, etc. — see
+`CLAUDE.md`'s approved-dependencies list) are declared as `any`, so
+Dependabot's default `pub` versioning strategy only needs to bump
+`pubspec.lock`'s resolved versions to pick up a new release; it doesn't
+need to touch `pubspec.yaml`'s constraints at all unless a dependency
+genuinely can't be satisfied any other way. No `versioning-strategy`
+override was added — the default already does what Part 4 asked for
+here, so nothing to configure.
+
+**Labels: `dependencies` + `flutter`, or `dependencies` +
+`github-actions`.** The milestone's suggested label set also included
+`security`, but `dependabot.yml`'s `labels:` field applies uniformly to
+every PR from that `updates` entry — there's no config-level way to
+attach a label only to the subset that are vulnerability-driven, so
+adding `security` to both lists would just mislabel every routine
+version bump as a security fix. Documented this limitation in
+`README.md` rather than papering over it with a label that would lie
+about most of the PRs wearing it.
+
+**CI integration required no changes at all.** `flutter_ci.yml` already
+triggers on `pull_request:` with no author/branch restriction, so a
+Dependabot-authored PR runs the identical format/analyze/test/build
+pipeline as any human PR the moment it opens — Part 5's requirement was
+already satisfied by Phase 1's original trigger configuration. Per this
+phase's explicit constraint, no new workflow (auto-merge or otherwise)
+was added; a Dependabot PR goes through the same manual
+review-then-merge step as everything else, documented in `README.md`
+under "Dependency management (Dependabot)" alongside what Dependabot is,
+the weekly cadence, and why auto-merge stays off (passing CI proves the
+app still builds and tests still pass, not that a dependency's behavior
+is unchanged in every way the suite doesn't cover — still a human
+decision).

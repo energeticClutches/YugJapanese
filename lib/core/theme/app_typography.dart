@@ -7,14 +7,14 @@ class AppTypography {
   AppTypography._();
 
   static TextTheme get textTheme => _buildTextTheme(
-        primary: AppColors.textPrimary,
-        secondary: AppColors.textSecondary,
-      );
+    primary: AppColors.textPrimary,
+    secondary: AppColors.textSecondary,
+  );
 
   static TextTheme get darkTextTheme => _buildTextTheme(
-        primary: AppColors.darkTextPrimary,
-        secondary: AppColors.darkTextSecondary,
-      );
+    primary: AppColors.darkTextPrimary,
+    secondary: AppColors.darkTextSecondary,
+  );
 
   static TextTheme _buildTextTheme({
     required Color primary,
@@ -68,18 +68,9 @@ class AppTypography {
         fontWeight: FontWeight.w600,
         height: 1.25,
       ),
-      bodyLarge: base.bodyLarge?.copyWith(
-        color: primary,
-        height: 1.5,
-      ),
-      bodyMedium: base.bodyMedium?.copyWith(
-        color: primary,
-        height: 1.5,
-      ),
-      bodySmall: base.bodySmall?.copyWith(
-        color: secondary,
-        height: 1.45,
-      ),
+      bodyLarge: base.bodyLarge?.copyWith(color: primary, height: 1.5),
+      bodyMedium: base.bodyMedium?.copyWith(color: primary, height: 1.5),
+      bodySmall: base.bodySmall?.copyWith(color: secondary, height: 1.45),
       labelLarge: base.labelLarge?.copyWith(
         color: primary,
         fontWeight: FontWeight.w600,

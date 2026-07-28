@@ -6,8 +6,7 @@ import 'package:japanese_learning/features/progress/services/progress_controller
 class _FakeProgressRepository implements ProgressRepository {
   final Map<String, LessonProgress> _store = <String, LessonProgress>{};
 
-  String _key(String contentId, int lessonNumber) =>
-      '$contentId:$lessonNumber';
+  String _key(String contentId, int lessonNumber) => '$contentId:$lessonNumber';
 
   @override
   Future<List<LessonProgress>> getProgressForContent(String contentId) async {
@@ -20,8 +19,7 @@ class _FakeProgressRepository implements ProgressRepository {
   Future<LessonProgress?> getLessonProgress({
     required String contentId,
     required int lessonNumber,
-  }) async =>
-      _store[_key(contentId, lessonNumber)];
+  }) async => _store[_key(contentId, lessonNumber)];
 
   @override
   Future<void> saveProgress(LessonProgress progress) async {
@@ -59,12 +57,14 @@ void main() {
       expect(controller.needsMorePractice('hiragana', 2), isTrue);
     });
 
-    test('an unfinished lesson is neither mastered nor needing practice',
-        () async {
-      await controller.startLesson(contentId: 'hiragana', lessonNumber: 3);
-      expect(controller.isMastered('hiragana', 3), isFalse);
-      expect(controller.needsMorePractice('hiragana', 3), isFalse);
-    });
+    test(
+      'an unfinished lesson is neither mastered nor needing practice',
+      () async {
+        await controller.startLesson(contentId: 'hiragana', lessonNumber: 3);
+        expect(controller.isMastered('hiragana', 3), isFalse);
+        expect(controller.needsMorePractice('hiragana', 3), isFalse);
+      },
+    );
 
     test('a later strong attempt lifts a lesson to mastered', () async {
       await complete(4, 0.4);

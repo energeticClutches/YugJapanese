@@ -25,7 +25,9 @@ class InsightCard extends StatelessWidget {
           children: [
             Icon(Icons.lightbulb_outline, color: colorScheme.primary),
             const SizedBox(width: AppSpacing.md),
-            Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
+            Expanded(
+              child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+            ),
           ],
         ),
       ),

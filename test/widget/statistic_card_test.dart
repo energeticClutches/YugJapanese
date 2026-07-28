@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:japanese_learning/features/analytics/widgets/statistic_card.dart';
 
 void main() {
-  testWidgets('StatisticCard renders its icon, label, and value', (WidgetTester tester) async {
+  testWidgets('StatisticCard renders its icon, label, and value', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(

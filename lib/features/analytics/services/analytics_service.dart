@@ -44,13 +44,13 @@ class AnalyticsService {
     required AchievementService achievementService,
     required AchievementRepository achievementRepository,
     required AnalyticsRepository analyticsRepository,
-  })  : _progressRepository = progressRepository,
-        _reviewRepository = reviewRepository,
-        _practiceRepository = practiceRepository,
-        _practiceStatisticsService = practiceStatisticsService,
-        _achievementService = achievementService,
-        _achievementRepository = achievementRepository,
-        _analyticsRepository = analyticsRepository;
+  }) : _progressRepository = progressRepository,
+       _reviewRepository = reviewRepository,
+       _practiceRepository = practiceRepository,
+       _practiceStatisticsService = practiceStatisticsService,
+       _achievementService = achievementService,
+       _achievementRepository = achievementRepository,
+       _analyticsRepository = analyticsRepository;
 
   final ProgressRepository _progressRepository;
   final ReviewRepository _reviewRepository;
@@ -76,14 +76,18 @@ class AnalyticsService {
       0,
       (int sum, ReviewItem item) => sum + item.reviewCount,
     );
-    final List<ReviewItem> dueReviews =
-        allReviews.where((ReviewItem item) => item.isDue(now)).toList();
+    final List<ReviewItem> dueReviews = allReviews
+        .where((ReviewItem item) => item.isDue(now))
+        .toList();
 
-    final List<PracticeResult> allResults = await _practiceRepository.getAllResults();
-    final PracticeStatistics practiceStats =
-        await _practiceStatisticsService.getStatistics();
-    final StreakInfo streak =
-        await _achievementService.calculateStreak(sources, now: now);
+    final List<PracticeResult> allResults = await _practiceRepository
+        .getAllResults();
+    final PracticeStatistics practiceStats = await _practiceStatisticsService
+        .getStatistics();
+    final StreakInfo streak = await _achievementService.calculateStreak(
+      sources,
+      now: now,
+    );
 
     final List<ScriptAnalytics> scriptBreakdown = <ScriptAnalytics>[];
     final Map<String, List<LessonProgress>> progressByContent =
@@ -95,8 +99,8 @@ class AnalyticsService {
 
     for (final ContentSource source in sources) {
       final int lessonCount = (await source.repository.getAllLessons()).length;
-      final List<LessonProgress> items =
-          await _progressRepository.getProgressForContent(source.contentId);
+      final List<LessonProgress> items = await _progressRepository
+          .getProgressForContent(source.contentId);
       progressByContent[source.contentId] = items;
       totalLessons += lessonCount;
 
@@ -113,20 +117,23 @@ class AnalyticsService {
 
       final int reviewsDueForScript = dueReviews
           .where(
-            (ReviewItem item) => item.lessonId.startsWith('${source.contentId}:'),
+            (ReviewItem item) =>
+                item.lessonId.startsWith('${source.contentId}:'),
           )
           .length;
       final List<PracticeResult> sessionsForScript = allResults
           .where(
-            (PracticeResult result) => result.contentIds.contains(source.contentId),
+            (PracticeResult result) =>
+                result.contentIds.contains(source.contentId),
           )
           .toList();
 
       scriptBreakdown.add(
         ScriptAnalytics(
           contentId: source.contentId,
-          completionPercentage:
-              lessonCount == 0 ? 0 : (completedForScript / lessonCount) * 100,
+          completionPercentage: lessonCount == 0
+              ? 0
+              : (completedForScript / lessonCount) * 100,
           averageWritingAccuracy: _average(scriptAccuracies),
           averageQuizAccuracy: _average(
             sessionsForScript.map((PracticeResult r) => r.accuracy).toList(),
@@ -142,15 +149,17 @@ class AnalyticsService {
             review.lastReviewed == null) {
           continue;
         }
-        if (latestReview == null || review.lastReviewed!.isAfter(latestReview)) {
+        if (latestReview == null ||
+            review.lastReviewed!.isAfter(latestReview)) {
           latestReview = review.lastReviewed;
         }
       }
       lastReviewedByScript[source.contentId] = latestReview;
     }
 
-    final double completionPercentage =
-        totalLessons == 0 ? 0 : (totalLessonsCompleted / totalLessons) * 100;
+    final double completionPercentage = totalLessons == 0
+        ? 0
+        : (totalLessonsCompleted / totalLessons) * 100;
     final double overallWritingAccuracy = _average(allAccuracies);
 
     final List<DailyLearningStat> dailyActivity = _buildDailyActivity(
@@ -196,10 +205,11 @@ class AnalyticsService {
       0.0,
       (double sum, PracticeResult r) => sum + r.duration.inSeconds / 60,
     );
-    final int estimatedStudyMinutes = (practiceMinutes +
-            totalLessonsCompleted * _estimatedMinutesPerLesson +
-            totalReviews * _estimatedMinutesPerReview)
-        .round();
+    final int estimatedStudyMinutes =
+        (practiceMinutes +
+                totalLessonsCompleted * _estimatedMinutesPerLesson +
+                totalReviews * _estimatedMinutesPerReview)
+            .round();
 
     final LearningAnalytics analytics = LearningAnalytics(
       totalLessonsCompleted: totalLessonsCompleted,
@@ -248,7 +258,8 @@ class AnalyticsService {
     );
 
     final Map<DateTime, int> lessonsByDate = <DateTime, int>{};
-    final Map<DateTime, List<double>> writingAccByDate = <DateTime, List<double>>{};
+    final Map<DateTime, List<double>> writingAccByDate =
+        <DateTime, List<double>>{};
     for (final List<LessonProgress> items in progressByContent.values) {
       for (final LessonProgress item in items) {
         final DateTime? completedAt = item.completedAt;
@@ -286,7 +297,8 @@ class AnalyticsService {
           lessonsCompleted: lessonsByDate[day] ?? 0,
           reviewsCompleted: reviewsByDate[day] ?? 0,
           practiceSessions: resultsByDate[day]?.length ?? 0,
-          questionsAnswered: resultsByDate[day]?.fold<int>(
+          questionsAnswered:
+              resultsByDate[day]?.fold<int>(
                 0,
                 (int sum, PracticeResult r) => sum + r.totalQuestions,
               ) ??
@@ -295,7 +307,9 @@ class AnalyticsService {
           averageQuizAccuracy: resultsByDate[day] == null
               ? null
               : _average(
-                  resultsByDate[day]!.map((PracticeResult r) => r.accuracy).toList(),
+                  resultsByDate[day]!
+                      .map((PracticeResult r) => r.accuracy)
+                      .toList(),
                 ),
           reviewSuccessRate: (reviewsByDate[day] ?? 0) > 0 ? 1.0 : null,
         ),
@@ -315,22 +329,30 @@ class AnalyticsService {
       final String contentId = entry.key;
       final repository = ContentRepositoryFactory.tryRepositoryFor(contentId);
       for (final LessonProgress item in entry.value) {
-        if (item.isCompleted && item.bestWritingAccuracy < _lowAccuracyThreshold) {
-          final label = await _lessonLabel(repository, contentId, item.lessonNumber);
+        if (item.isCompleted &&
+            item.bestWritingAccuracy < _lowAccuracyThreshold) {
+          final label = await _lessonLabel(
+            repository,
+            contentId,
+            item.lessonNumber,
+          );
           lowAccuracy.add(
             WeakArea(
               type: WeakAreaType.lowWritingAccuracy,
               contentId: contentId,
               itemId: '$contentId:${item.lessonNumber}',
               label: label,
-              description: 'Writing accuracy: ${item.bestWritingAccuracy.round()}%',
+              description:
+                  'Writing accuracy: ${item.bestWritingAccuracy.round()}%',
               severity: 100 - item.bestWritingAccuracy,
             ),
           );
         }
       }
     }
-    lowAccuracy.sort((WeakArea a, WeakArea b) => b.severity.compareTo(a.severity));
+    lowAccuracy.sort(
+      (WeakArea a, WeakArea b) => b.severity.compareTo(a.severity),
+    );
 
     final Map<String, int> missCounts = <String, int>{};
     for (final PracticeResult result in allResults) {
@@ -356,7 +378,9 @@ class AnalyticsService {
         ),
       );
     }
-    missedItems.sort((WeakArea a, WeakArea b) => b.severity.compareTo(a.severity));
+    missedItems.sort(
+      (WeakArea a, WeakArea b) => b.severity.compareTo(a.severity),
+    );
 
     final List<WeakArea> overdue = <WeakArea>[];
     for (final ReviewItem review in dueReviews) {
@@ -371,7 +395,9 @@ class AnalyticsService {
       }
       final repository = ContentRepositoryFactory.tryRepositoryFor(contentId);
       final label = await _lessonLabel(repository, contentId, lessonNumber);
-      final int daysOverdue = _dateOnly(now).difference(_dateOnly(review.nextReview)).inDays;
+      final int daysOverdue = _dateOnly(
+        now,
+      ).difference(_dateOnly(review.nextReview)).inDays;
       overdue.add(
         WeakArea(
           type: WeakAreaType.overdueReview,
@@ -443,7 +469,10 @@ class AnalyticsService {
         overallWritingAccuracy: overallWritingAccuracy,
         practiceStats: practiceStats,
       );
-      final double progress = (currentValue / achievement.threshold).clamp(0, 1);
+      final double progress = (currentValue / achievement.threshold).clamp(
+        0,
+        1,
+      );
       next.add(
         NextAchievement(
           achievementId: achievement.id,
@@ -454,7 +483,10 @@ class AnalyticsService {
         ),
       );
     }
-    next.sort((NextAchievement a, NextAchievement b) => b.progress.compareTo(a.progress));
+    next.sort(
+      (NextAchievement a, NextAchievement b) =>
+          b.progress.compareTo(a.progress),
+    );
     return next.take(_maxNextAchievements).toList();
   }
 
@@ -505,8 +537,9 @@ class AnalyticsService {
     }
 
     if (dailyActivity.length >= 14) {
-      final List<DailyLearningStat> last7 =
-          dailyActivity.sublist(dailyActivity.length - 7);
+      final List<DailyLearningStat> last7 = dailyActivity.sublist(
+        dailyActivity.length - 7,
+      );
       final List<DailyLearningStat> prev7 = dailyActivity.sublist(
         dailyActivity.length - 14,
         dailyActivity.length - 7,
@@ -556,9 +589,13 @@ class AnalyticsService {
       if (lastReviewed == null) {
         return;
       }
-      final int days = _dateOnly(now).difference(_dateOnly(lastReviewed)).inDays;
+      final int days = _dateOnly(
+        now,
+      ).difference(_dateOnly(lastReviewed)).inDays;
       if (days >= 3) {
-        insights.add("You haven't reviewed ${_scriptLabel(contentId)} in $days days.");
+        insights.add(
+          "You haven't reviewed ${_scriptLabel(contentId)} in $days days.",
+        );
       }
     });
 
@@ -570,7 +607,8 @@ class AnalyticsService {
     return insights.take(_maxInsights).toList();
   }
 
-  String _modeTitle(String modeId) => PracticeGenerator.modeById(modeId)?.title ?? modeId;
+  String _modeTitle(String modeId) =>
+      PracticeGenerator.modeById(modeId)?.title ?? modeId;
 
   String _scriptLabel(String contentId) {
     if (contentId.isEmpty) {

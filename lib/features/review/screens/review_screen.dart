@@ -85,7 +85,8 @@ Future<_ReviewDisplayInfo?> _resolveReviewItem(ReviewItem item) async {
     contentId: contentId,
     lessonNumber: lessonNumber,
     title: '$script · ${lesson.title}',
-    subtitle: '${lesson.description} · '
+    subtitle:
+        '${lesson.description} · '
         '${_dueLabel(item.nextReview, DateTime.now())}',
   );
 }
@@ -95,8 +96,9 @@ class ReviewScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<ReviewItem>> dueReviewsAsync =
-        ref.watch(dueReviewsProvider);
+    final AsyncValue<List<ReviewItem>> dueReviewsAsync = ref.watch(
+      dueReviewsProvider,
+    );
 
     return AppScaffold(
       appBar: AppBar(title: const Text('Review')),

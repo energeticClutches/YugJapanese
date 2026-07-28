@@ -19,8 +19,10 @@ class LessonModel {
       title: json['title'] as String,
       description: json['description'] as String,
       characters: (json['characters'] as List<dynamic>)
-          .map((dynamic item) =>
-              CharacterModel.fromJson(item as Map<String, dynamic>))
+          .map(
+            (dynamic item) =>
+                CharacterModel.fromJson(item as Map<String, dynamic>),
+          )
           .toList(growable: false),
     );
   }

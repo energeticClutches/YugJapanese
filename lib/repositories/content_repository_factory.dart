@@ -14,10 +14,10 @@ class ContentRepositoryFactory {
 
   static final Map<String, LessonRepository Function()> _factories =
       <String, LessonRepository Function()>{
-    'hiragana': () => HiraganaRepository(),
-    'katakana': () => KatakanaRepository(),
-    'kanji': () => KanjiRepository(),
-  };
+        'hiragana': () => HiraganaRepository(),
+        'katakana': () => KatakanaRepository(),
+        'kanji': () => KanjiRepository(),
+      };
 
   static List<String> get availableContentIds =>
       _factories.keys.toList(growable: false);

@@ -30,5 +30,6 @@ class DailyLearningStat {
   bool get hasActivity =>
       lessonsCompleted > 0 || reviewsCompleted > 0 || practiceSessions > 0;
 
-  int get activityCount => lessonsCompleted + reviewsCompleted + practiceSessions;
+  int get activityCount =>
+      lessonsCompleted + reviewsCompleted + practiceSessions;
 }

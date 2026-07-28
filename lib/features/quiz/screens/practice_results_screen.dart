@@ -15,7 +15,9 @@ class PracticeResultsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final PracticeResult? result = ref.watch(practiceServiceProvider).lastResult;
+    final PracticeResult? result = ref
+        .watch(practiceServiceProvider)
+        .lastResult;
 
     if (result == null) {
       return AppScaffold(
@@ -95,7 +97,10 @@ class PracticeResultsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.xl),
             if (hasMistakes) ...[
-              Text('Areas to Review', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Areas to Review',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: AppSpacing.md),
               Text(
                 '${result.incorrectItemIds.length} character(s) to review.',

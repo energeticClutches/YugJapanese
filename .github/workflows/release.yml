@@ -1,0 +1,96 @@
+name: Release
+
+# Phase 3 - dedicated Continuous Delivery workflow, deliberately separate
+# from the CI workflow (flutter_ci.yml): CI validates every push and PR,
+# this only ever runs when a `vX.Y.Z` tag is pushed, and its one job is to
+# turn that tag into a GitHub Release with a release APK and AAB attached.
+# It shares its build-environment setup with CI via
+# ./.github/actions/setup-flutter-build (same pinned Flutter/JDK versions,
+# same caches) but does not re-run format/analyze/test - by the time a
+# release is tagged, that commit is expected to have already passed CI on
+# its branch. Signing, Play Store, Firebase App Distribution, and Fastlane
+# are explicitly out of scope for this phase.
+on:
+  push:
+    tags:
+      - "v*"
+
+# Needed for softprops/action-gh-release to create/update the Release and
+# upload assets with the automatic GITHUB_TOKEN - no extra secrets needed.
+permissions:
+  contents: write
+
+jobs:
+  validate-version:
+    name: Validate version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build_number: ${{ steps.version.outputs.build_number }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate pubspec.yaml version against the tag
+        id: version
+        run: |
+          set -euo pipefail
+
+          VERSION_LINE="$(grep -E '^version:[[:space:]]*' pubspec.yaml || true)"
+          if [ -z "$VERSION_LINE" ]; then
+            echo "::error file=pubspec.yaml::No 'version:' field found in pubspec.yaml."
+            exit 1
+          fi
+
+          RAW_VERSION="$(echo "$VERSION_LINE" | sed -E 's/^version:[[:space:]]*//')"
+
+          # Require <major>.<minor>.<patch>+<build number>, e.g. 1.0.0+1.
+          if [[ ! "$RAW_VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)\+([0-9]+)$ ]]; then
+            echo "::error file=pubspec.yaml::version '$RAW_VERSION' is not valid semantic versioning with a build number (expected <major>.<minor>.<patch>+<build>, e.g. 1.0.0+1)."
+            exit 1
+          fi
+
+          SEMVER="${RAW_VERSION%%+*}"
+          BUILD_NUMBER="${RAW_VERSION##*+}"
+          echo "pubspec.yaml version: $RAW_VERSION (semver=$SEMVER, build number=$BUILD_NUMBER)"
+
+          TAG="${GITHUB_REF#refs/tags/}"
+          TAG_VERSION="${TAG#v}"
+
+          if [ "$TAG_VERSION" != "$SEMVER" ]; then
+            echo "::error::Tag '$TAG' implies version '$TAG_VERSION', but pubspec.yaml has '$SEMVER'. Update pubspec.yaml's version to match before tagging, or push the correct tag."
+            exit 1
+          fi
+
+          echo "Tag '$TAG' matches pubspec.yaml version '$SEMVER'."
+          echo "version=$SEMVER" >> "$GITHUB_OUTPUT"
+          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+
+  build-and-release:
+    name: Build release artifacts and publish GitHub Release
+    needs: validate-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter build environment
+        uses: ./.github/actions/setup-flutter-build
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Build App Bundle
+        run: flutter build appbundle --release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Version ${{ needs.validate-version.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab

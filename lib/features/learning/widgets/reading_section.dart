@@ -49,7 +49,11 @@ class _ReadingColumn extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     return Column(
       children: [
-        Text(label, style: theme.textTheme.labelMedium, textAlign: TextAlign.center),
+        Text(
+          label,
+          style: theme.textTheme.labelMedium,
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           readings.join(', '),

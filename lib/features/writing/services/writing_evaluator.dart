@@ -59,7 +59,10 @@ class WritingEvaluator {
     required bool isDrawingCompleted,
     List<StrokeTemplate>? referenceStrokes,
   }) {
-    final List<List<Offset>> drawn = _denoise(_toPolylines(strokes), canvasSize);
+    final List<List<Offset>> drawn = _denoise(
+      _toPolylines(strokes),
+      canvasSize,
+    );
 
     // Nothing usable survived: either literally nothing was drawn, or
     // every "stroke" was a tap/fleck too short to be part of a real
@@ -126,10 +129,7 @@ class WritingEvaluator {
 
     final _ShapeMatch match = _matchShapes(userNorm, refNorm);
 
-    final double countScore = _strokeCountScore(
-      drawn.length,
-      reference.length,
-    );
+    final double countScore = _strokeCountScore(drawn.length, reference.length);
     final double proportionScore = _proportionScore(userNorm, refNorm);
 
     // How much ink was actually put down, relative to how much the real
@@ -142,16 +142,19 @@ class WritingEvaluator {
     final double completionRatio = _totalLength(refNorm) > 0
         ? _totalLength(userNorm) / _totalLength(refNorm)
         : 1;
-    final double completionFactor = math.pow(
-      _clamp01(completionRatio / _completionRatioForFullCredit),
-      _completionExponent,
-    ).toDouble();
+    final double completionFactor = math
+        .pow(
+          _clamp01(completionRatio / _completionRatioForFullCredit),
+          _completionExponent,
+        )
+        .toDouble();
 
     // Direction is technique, not shape: one slip on a long character is a
     // small deduction, but writing most strokes backwards is a different
     // (wrong) way of forming the character and is penalised steeply.
-    final double reversedShare =
-        match.matched == 0 ? 0 : match.reversed / match.matched;
+    final double reversedShare = match.matched == 0
+        ? 0
+        : match.reversed / match.matched;
     final double directionFactor =
         1 - (0.20 * reversedShare) - (0.30 * reversedShare * reversedShare);
 
@@ -210,7 +213,9 @@ class WritingEvaluator {
     final Rect bounds = _boundsOf(strokes);
     final double reference = bounds.isEmpty
         ? canvasSize.shortestSide
-        : math.sqrt(bounds.width * bounds.width + bounds.height * bounds.height);
+        : math.sqrt(
+            bounds.width * bounds.width + bounds.height * bounds.height,
+          );
     final double minLength = math.max(6, reference * 0.03);
     return <List<Offset>>[
       for (final List<Offset> s in strokes)
@@ -265,7 +270,8 @@ class WritingEvaluator {
     final double scale = math.max(bounds.width, bounds.height);
     if (scale <= 0) {
       return <List<Offset>>[
-        for (final List<Offset> s in strokes) <Offset>[for (final _ in s) Offset.zero],
+        for (final List<Offset> s in strokes)
+          <Offset>[for (final _ in s) Offset.zero],
       ];
     }
     final Offset centre = bounds.center;
@@ -332,14 +338,20 @@ class WritingEvaluator {
     final List<Offset> u = _resample(user, _samplesPerStroke);
     final List<Offset> r = _resample(reference, _samplesPerStroke);
     final double forward = _meanDistance(u, r);
-    final double backward = _meanDistance(u, r.reversed.toList(growable: false));
+    final double backward = _meanDistance(
+      u,
+      r.reversed.toList(growable: false),
+    );
     // Only call it backwards when the reversed reading is clearly better, so
     // symmetric strokes are not flagged on noise alone.
     final bool reversed = forward - backward > _directionMargin;
     final double best = math.min(forward, backward);
-    final double normalized = (best / _maxStrokeDistance).clamp(0, 1).toDouble();
-    final double score =
-        _clamp01(1 - math.pow(normalized, _distanceExponent).toDouble());
+    final double normalized = (best / _maxStrokeDistance)
+        .clamp(0, 1)
+        .toDouble();
+    final double score = _clamp01(
+      1 - math.pow(normalized, _distanceExponent).toDouble(),
+    );
     return _StrokeMatch(score: score, reversed: reversed);
   }
 
@@ -353,7 +365,12 @@ class WritingEvaluator {
     final int slots = math.max(user.length, reference.length);
     final int pairs = math.min(user.length, reference.length);
     if (slots == 0) {
-      return const _ShapeMatch(score: 0, reversed: 0, matched: 0, orderPenalised: false);
+      return const _ShapeMatch(
+        score: 0,
+        reversed: 0,
+        matched: 0,
+        orderPenalised: false,
+      );
     }
 
     double orderedTotal = 0;
@@ -395,8 +412,9 @@ class WritingEvaluator {
     // Correct order => the two agree and nothing is deducted. Wrong order =>
     // only part of the gap is credited, so order still matters.
     final bool orderPenalised = unordered > ordered + 0.05;
-    final double score =
-        orderPenalised ? ordered + (unordered - ordered) * 0.6 : ordered;
+    final double score = orderPenalised
+        ? ordered + (unordered - ordered) * 0.6
+        : ordered;
 
     return _ShapeMatch(
       score: _clamp01(score),
@@ -423,8 +441,8 @@ class WritingEvaluator {
     // Deliberately not Rect.isEmpty: that is true when *either* side is zero,
     // which is exactly the case for a legitimately flat glyph like 一. Only a
     // stroke with no extent at all is unscoreable.
-    final bool degenerate = (u.width <= 0 && u.height <= 0) ||
-        (r.width <= 0 && r.height <= 0);
+    final bool degenerate =
+        (u.width <= 0 && u.height <= 0) || (r.width <= 0 && r.height <= 0);
     if (degenerate) {
       return 0;
     }
@@ -432,7 +450,8 @@ class WritingEvaluator {
     final double refAspect = r.width / math.max(r.height, 1e-6);
     final double ratio = userAspect / math.max(refAspect, 1e-6);
     // 1.0 is a perfect match; score falls off either side symmetrically.
-    final double deviation = (math.log(ratio.clamp(1e-6, 1e6)) / math.ln2).abs();
+    final double deviation = (math.log(ratio.clamp(1e-6, 1e6)) / math.ln2)
+        .abs();
     return _clamp01(1 - deviation / 2);
   }
 
@@ -445,11 +464,15 @@ class WritingEvaluator {
     required Size canvasSize,
   }) {
     final Rect bounds = _boundsOf(drawn);
-    final double countScore =
-        _strokeCountScore(drawn.length, expectedStrokeCount);
+    final double countScore = _strokeCountScore(
+      drawn.length,
+      expectedStrokeCount,
+    );
     final double coverage = _coverage(bounds, canvasSize);
-    final double boxSimilarity =
-        _boundingBoxSimilarity(bounds, expectedBoundingBox);
+    final double boxSimilarity = _boundingBoxSimilarity(
+      bounds,
+      expectedBoundingBox,
+    );
     return _clamp01(
       ((countScore * 0.4) + (boxSimilarity * 0.35) + (coverage * 0.25)) * 0.6,
     );
@@ -474,7 +497,8 @@ class WritingEvaluator {
         (actual.width - expected.width).abs() / math.max(expected.width, 1);
     final double heightDelta =
         (actual.height - expected.height).abs() / math.max(expected.height, 1);
-    final double offsetDelta = ((actual.left - expected.left).abs() +
+    final double offsetDelta =
+        ((actual.left - expected.left).abs() +
             (actual.top - expected.top).abs()) /
         math.max(expected.width + expected.height, 1);
     return _clamp01(1 - ((widthDelta + heightDelta + offsetDelta) / 3));

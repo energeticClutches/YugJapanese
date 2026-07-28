@@ -19,8 +19,8 @@ class StatisticsService {
       final lessons = await source.repository.getAllLessons();
       totalLessons += lessons.length;
 
-      final List<LessonProgress> progressItems =
-          await _progressRepository.getProgressForContent(source.contentId);
+      final List<LessonProgress> progressItems = await _progressRepository
+          .getProgressForContent(source.contentId);
       for (final LessonProgress progress in progressItems) {
         if (progress.isCompleted) {
           completedLessons++;
@@ -29,14 +29,17 @@ class StatisticsService {
           lessonsInProgress++;
         }
         if (mostRecentProgress == null ||
-            progress.lastAccessedAt.isAfter(mostRecentProgress.lastAccessedAt)) {
+            progress.lastAccessedAt.isAfter(
+              mostRecentProgress.lastAccessedAt,
+            )) {
           mostRecentProgress = progress;
         }
       }
     }
 
-    final double completionPercentage =
-        totalLessons == 0 ? 0 : (completedLessons / totalLessons) * 100;
+    final double completionPercentage = totalLessons == 0
+        ? 0
+        : (completedLessons / totalLessons) * 100;
     final double averageAccuracy = accuracies.isEmpty
         ? 0
         : accuracies.reduce((double a, double b) => a + b) / accuracies.length;

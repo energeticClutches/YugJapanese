@@ -66,7 +66,8 @@ Future<_ContinueSuggestion?> _resolveContinueSuggestion(
 }
 
 List<SearchResult> _popularFrom(List<SearchResult> all) {
-  final Map<String, List<SearchResult>> byScript = <String, List<SearchResult>>{};
+  final Map<String, List<SearchResult>> byScript =
+      <String, List<SearchResult>>{};
   for (final SearchResult result in all) {
     if (result.learningItem.lessonNumber != 1) {
       continue;
@@ -74,7 +75,8 @@ List<SearchResult> _popularFrom(List<SearchResult> all) {
     byScript.putIfAbsent(result.script, () => <SearchResult>[]).add(result);
   }
   return <SearchResult>[
-    for (final List<SearchResult> results in byScript.values) ...results.take(2),
+    for (final List<SearchResult> results in byScript.values)
+      ...results.take(2),
   ];
 }
 
@@ -112,8 +114,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final String query = ref.watch(searchQueryProvider);
-    final AsyncValue<List<SearchResult>> resultsAsync =
-        ref.watch(searchResultsProvider);
+    final AsyncValue<List<SearchResult>> resultsAsync = ref.watch(
+      searchResultsProvider,
+    );
     final SearchHistoryController history = ref.watch(searchHistoryProvider);
 
     return AppScaffold(
@@ -147,8 +150,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             results: results,
                             onResultTap: _openResult,
                           ),
-                    loading: () =>
-                        const LoadingIndicator(),
+                    loading: () => const LoadingIndicator(),
                     error: (Object error, StackTrace stackTrace) =>
                         const EmptySearchState(
                           message: 'Something went wrong while searching.',
@@ -169,12 +171,14 @@ class _SearchResults extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Map<String, List<SearchResult>> grouped =
-        ref.read(searchServiceProvider).groupByScript(results);
+    final Map<String, List<SearchResult>> grouped = ref
+        .read(searchServiceProvider)
+        .groupByScript(results);
 
     return ListView(
       children: [
-        for (final MapEntry<String, List<SearchResult>> entry in grouped.entries)
+        for (final MapEntry<String, List<SearchResult>> entry
+            in grouped.entries)
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.lg),
             child: SearchSection(
@@ -204,10 +208,12 @@ class _SearchSuggestions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<SearchResult>> allAsync =
-        ref.watch(allSearchResultsProvider);
-    final AsyncValue<LearningStatistics> statisticsAsync =
-        ref.watch(learningStatisticsProvider);
+    final AsyncValue<List<SearchResult>> allAsync = ref.watch(
+      allSearchResultsProvider,
+    );
+    final AsyncValue<LearningStatistics> statisticsAsync = ref.watch(
+      learningStatisticsProvider,
+    );
 
     return ListView(
       children: [

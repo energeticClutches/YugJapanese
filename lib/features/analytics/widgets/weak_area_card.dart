@@ -42,8 +42,14 @@ class WeakAreaCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(weakArea.label, style: Theme.of(context).textTheme.labelLarge),
-                  Text(weakArea.description, style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    weakArea.label,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  Text(
+                    weakArea.description,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
               ),
             ),

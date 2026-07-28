@@ -1,0 +1,54 @@
+version: 2
+
+updates:
+  # Flutter / Dart packages (pubspec.yaml, pubspec.lock).
+  - package-ecosystem: "pub"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Etc/UTC"
+    labels:
+      - "dependencies"
+      - "flutter"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    # Most direct dependencies in pubspec.yaml are unconstrained ("any"),
+    # so Dependabot's default versioning strategy already does the right
+    # thing here: it only widens/rewrites a constraint when a dependency
+    # can't otherwise be updated, and otherwise just bumps pubspec.lock.
+    groups:
+      flutter-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Major-version bumps are deliberately left out of the group above so
+    # they open their own PR instead of riding along with routine ones.
+    open-pull-requests-limit: 10
+
+  # GitHub Actions used by the workflows in .github/workflows/.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Etc/UTC"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(ci)"
+      include: "scope"
+    groups:
+      github-actions-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 10

@@ -34,8 +34,9 @@ class _KanjiScreenState extends ConsumerState<KanjiScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ProgressController progressController =
-        ref.watch(progressControllerProvider);
+    final ProgressController progressController = ref.watch(
+      progressControllerProvider,
+    );
 
     return AppScaffold(
       appBar: AppBar(title: const Text('Kanji')),
@@ -43,54 +44,54 @@ class _KanjiScreenState extends ConsumerState<KanjiScreen> {
         future: _lessonsFuture,
         builder:
             (BuildContext context, AsyncSnapshot<List<LessonModel>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingIndicator();
-          }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const LoadingIndicator();
+              }
 
-          final List<LessonModel> lessons =
-              snapshot.data ?? const <LessonModel>[];
-          if (snapshot.hasError || lessons.isEmpty) {
-            return const Center(child: Text('Coming Soon'));
-          }
+              final List<LessonModel> lessons =
+                  snapshot.data ?? const <LessonModel>[];
+              if (snapshot.hasError || lessons.isEmpty) {
+                return const Center(child: Text('Coming Soon'));
+              }
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Learn beginner (JLPT N5) Kanji.',
-                  style: Theme.of(context).textTheme.bodyMedium,
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Learn beginner (JLPT N5) Kanji.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    for (final LessonModel lesson in lessons) ...[
+                      LessonCard(
+                        lessonTitle: lesson.title,
+                        lessonSubtitle: lesson.description,
+                        characters: lesson.characters
+                            .map((character) => character.character)
+                            .toList(growable: false),
+                        progressLabel: _progressLabel(
+                          progressController.lessonProgress(
+                            _contentId,
+                            lesson.lessonNumber,
+                          ),
+                        ),
+                        writingAccuracy: _writingAccuracy(
+                          progressController.lessonProgress(
+                            _contentId,
+                            lesson.lessonNumber,
+                          ),
+                        ),
+                        onStartPressed: () => context.push(
+                          '/practice/${lesson.lessonNumber}?content=$_contentId',
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                    ],
+                  ],
                 ),
-                const SizedBox(height: AppSpacing.xl),
-                for (final LessonModel lesson in lessons) ...[
-                  LessonCard(
-                    lessonTitle: lesson.title,
-                    lessonSubtitle: lesson.description,
-                    characters: lesson.characters
-                        .map((character) => character.character)
-                        .toList(growable: false),
-                    progressLabel: _progressLabel(
-                      progressController.lessonProgress(
-                        _contentId,
-                        lesson.lessonNumber,
-                      ),
-                    ),
-                    writingAccuracy: _writingAccuracy(
-                      progressController.lessonProgress(
-                        _contentId,
-                        lesson.lessonNumber,
-                      ),
-                    ),
-                    onStartPressed: () => context.push(
-                      '/practice/${lesson.lessonNumber}?content=$_contentId',
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
-              ],
-            ),
-          );
-        },
+              );
+            },
       ),
     );
   }
@@ -100,8 +101,8 @@ class _KanjiScreenState extends ConsumerState<KanjiScreen> {
   /// shows status alone.
   double? _writingAccuracy(LessonProgress? progress) =>
       progress != null && progress.isCompleted
-          ? progress.bestWritingAccuracy
-          : null;
+      ? progress.bestWritingAccuracy
+      : null;
 
   String _progressLabel(LessonProgress? progress) {
     if (progress == null) {

@@ -31,11 +31,11 @@ class PracticeGenerator {
     required ReviewRepository reviewRepository,
     required PracticeRepository practiceRepository,
     Random? random,
-  })  : _audioRepository = audioRepository,
-        _progressRepository = progressRepository,
-        _reviewRepository = reviewRepository,
-        _practiceRepository = practiceRepository,
-        _random = random ?? Random();
+  }) : _audioRepository = audioRepository,
+       _progressRepository = progressRepository,
+       _reviewRepository = reviewRepository,
+       _practiceRepository = practiceRepository,
+       _random = random ?? Random();
 
   final AudioRepository _audioRepository;
   final ProgressRepository _progressRepository;
@@ -122,11 +122,23 @@ class PracticeGenerator {
   }) async {
     switch (modeId) {
       case 'recognition':
-        return _generateSingleType(scripts, QuestionType.recognition, questionCount);
+        return _generateSingleType(
+          scripts,
+          QuestionType.recognition,
+          questionCount,
+        );
       case 'meaning':
-        return _generateSingleType(scripts, QuestionType.meaning, questionCount);
+        return _generateSingleType(
+          scripts,
+          QuestionType.meaning,
+          questionCount,
+        );
       case 'reading':
-        return _generateSingleType(scripts, QuestionType.reading, questionCount);
+        return _generateSingleType(
+          scripts,
+          QuestionType.reading,
+          questionCount,
+        );
       case 'listening':
         return _generateListening(scripts, questionCount);
       case 'mixed':
@@ -146,8 +158,9 @@ class PracticeGenerator {
     final List<_PoolItem> pool = await _loadPool(
       ContentRepositoryFactory.availableContentIds,
     );
-    final List<_PoolItem> targets =
-        pool.where((_PoolItem item) => itemIds.contains(item.learningItem.id)).toList();
+    final List<_PoolItem> targets = pool
+        .where((_PoolItem item) => itemIds.contains(item.learningItem.id))
+        .toList();
     if (targets.isEmpty) {
       return const <PracticeQuestion>[];
     }
@@ -179,7 +192,12 @@ class PracticeGenerator {
     final List<_PoolItem> targets = _pickTargets(pool, count);
     return <PracticeQuestion>[
       for (int i = 0; i < targets.length; i++)
-        _buildQuestion(targets[i], type, pool, 'q_${i}_${targets[i].learningItem.id}'),
+        _buildQuestion(
+          targets[i],
+          type,
+          pool,
+          'q_${i}_${targets[i].learningItem.id}',
+        ),
     ];
   }
 
@@ -221,19 +239,27 @@ class PracticeGenerator {
 
     final List<PracticeQuestion> questions = <PracticeQuestion>[];
     for (int i = 0; i < count; i++) {
-      final QuestionType type = availableTypes[_random.nextInt(availableTypes.length)];
-      final List<_PoolItem> sourcePool =
-          type == QuestionType.listening ? listenablePool : pool;
+      final QuestionType type =
+          availableTypes[_random.nextInt(availableTypes.length)];
+      final List<_PoolItem> sourcePool = type == QuestionType.listening
+          ? listenablePool
+          : pool;
       final _PoolItem target = sourcePool[_random.nextInt(sourcePool.length)];
       questions.add(
-        _buildQuestion(target, type, sourcePool, 'q_${i}_${target.learningItem.id}'),
+        _buildQuestion(
+          target,
+          type,
+          sourcePool,
+          'q_${i}_${target.learningItem.id}',
+        ),
       );
     }
     return questions;
   }
 
   Future<List<PracticeQuestion>> _generateWeakItems(int count) async {
-    final List<String> allScripts = ContentRepositoryFactory.availableContentIds;
+    final List<String> allScripts =
+        ContentRepositoryFactory.availableContentIds;
     final List<_PoolItem> pool = await _loadPool(allScripts);
     if (pool.isEmpty) {
       return const <PracticeQuestion>[];
@@ -242,8 +268,8 @@ class PracticeGenerator {
     final Set<String> weakIds = <String>{};
 
     for (final String contentId in allScripts) {
-      final List<LessonProgress> progressItems =
-          await _progressRepository.getProgressForContent(contentId);
+      final List<LessonProgress> progressItems = await _progressRepository
+          .getProgressForContent(contentId);
       for (final LessonProgress progress in progressItems) {
         if (progress.isCompleted && progress.bestWritingAccuracy < 70) {
           for (final _PoolItem item in pool) {
@@ -279,13 +305,15 @@ class PracticeGenerator {
       }
     }
 
-    final List<PracticeResult> results = await _practiceRepository.getAllResults();
+    final List<PracticeResult> results = await _practiceRepository
+        .getAllResults();
     for (final PracticeResult result in results) {
       weakIds.addAll(result.incorrectItemIds);
     }
 
-    List<_PoolItem> weakPool =
-        pool.where((_PoolItem item) => weakIds.contains(item.learningItem.id)).toList();
+    List<_PoolItem> weakPool = pool
+        .where((_PoolItem item) => weakIds.contains(item.learningItem.id))
+        .toList();
     if (weakPool.isEmpty) {
       // No weak-signal data yet — fall back to the full pool so the mode
       // still produces a session instead of an empty one.
@@ -367,8 +395,9 @@ class PracticeGenerator {
     List<_PoolItem> pool,
     String id,
   ) {
-    final List<_PoolItem> samePool =
-        pool.where((_PoolItem item) => item.contentId == target.contentId).toList();
+    final List<_PoolItem> samePool = pool
+        .where((_PoolItem item) => item.contentId == target.contentId)
+        .toList();
     switch (type) {
       case QuestionType.recognition:
         return PracticeQuestion(
@@ -447,7 +476,8 @@ class PracticeGenerator {
   }) {
     final Set<String> choices = <String>{correctValue};
 
-    final List<_PoolItem> primary = List<_PoolItem>.of(samePool)..shuffle(_random);
+    final List<_PoolItem> primary = List<_PoolItem>.of(samePool)
+      ..shuffle(_random);
     for (final _PoolItem item in primary) {
       if (choices.length >= count) {
         break;
@@ -460,7 +490,8 @@ class PracticeGenerator {
     }
 
     if (choices.length < count) {
-      final List<_PoolItem> secondary = List<_PoolItem>.of(fullPool)..shuffle(_random);
+      final List<_PoolItem> secondary = List<_PoolItem>.of(fullPool)
+        ..shuffle(_random);
       for (final _PoolItem item in secondary) {
         if (choices.length >= count) {
           break;

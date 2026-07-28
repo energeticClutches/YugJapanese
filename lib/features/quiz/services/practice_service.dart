@@ -13,8 +13,8 @@ class PracticeService extends ChangeNotifier {
   PracticeService({
     required PracticeGenerator generator,
     required PracticeRepository repository,
-  })  : _generator = generator,
-        _repository = repository;
+  }) : _generator = generator,
+       _repository = repository;
 
   final PracticeGenerator _generator;
   final PracticeRepository _repository;
@@ -59,8 +59,8 @@ class PracticeService extends ChangeNotifier {
     _isGenerating = true;
     notifyListeners();
 
-    final List<PracticeQuestion> questions =
-        await _generator.generateForItemIds(itemIds);
+    final List<PracticeQuestion> questions = await _generator
+        .generateForItemIds(itemIds);
 
     _session = PracticeSession(
       modeId: _lastResult?.modeId ?? 'weak_items',
@@ -100,7 +100,9 @@ class PracticeService extends ChangeNotifier {
     );
 
     if (updated.isComplete) {
-      final PracticeSession finished = updated.copyWith(endTime: DateTime.now());
+      final PracticeSession finished = updated.copyWith(
+        endTime: DateTime.now(),
+      );
       _session = finished;
       await _finishSession(finished);
     } else {

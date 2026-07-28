@@ -54,7 +54,11 @@ void main() {
   group('LearningController.nextLessonNumber (BUG-008)', () {
     test('returns the following lesson mid-script', () async {
       final LearningController controller = LearningController(
-        _FakeLessonRepository(<LessonModel>[_lesson(1), _lesson(2), _lesson(3)]),
+        _FakeLessonRepository(<LessonModel>[
+          _lesson(1),
+          _lesson(2),
+          _lesson(3),
+        ]),
       );
       await controller.startLesson(2);
 
@@ -70,19 +74,25 @@ void main() {
       expect(await controller.nextLessonNumber(), isNull);
     });
 
-    test('picks the lowest lesson above the current one, not file order',
-        () async {
-      final LearningController controller = LearningController(
-        _FakeLessonRepository(<LessonModel>[_lesson(3), _lesson(1), _lesson(2)]),
-      );
-      await controller.startLesson(1);
+    test(
+      'picks the lowest lesson above the current one, not file order',
+      () async {
+        final LearningController controller = LearningController(
+          _FakeLessonRepository(<LessonModel>[
+            _lesson(3),
+            _lesson(1),
+            _lesson(2),
+          ]),
+        );
+        await controller.startLesson(1);
 
-      expect(
-        await controller.nextLessonNumber(),
-        2,
-        reason: 'progression follows lesson numbering, not JSON ordering',
-      );
-    });
+        expect(
+          await controller.nextLessonNumber(),
+          2,
+          reason: 'progression follows lesson numbering, not JSON ordering',
+        );
+      },
+    );
 
     test('skips gaps in lesson numbering', () async {
       final LearningController controller = LearningController(

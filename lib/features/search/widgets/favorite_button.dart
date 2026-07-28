@@ -27,11 +27,8 @@ class FavoriteButton extends ConsumerWidget {
       icon: Icon(isFavorite ? Icons.star : Icons.star_border),
       color: isFavorite ? Colors.amber[700] : null,
       tooltip: isFavorite ? 'Remove favorite' : 'Add favorite',
-      onPressed: () => controller.toggle(
-        script: script,
-        itemId: itemId,
-        symbol: symbol,
-      ),
+      onPressed: () =>
+          controller.toggle(script: script, itemId: itemId, symbol: symbol),
     );
   }
 }

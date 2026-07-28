@@ -9,30 +9,30 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData get light => _build(
-        brightness: Brightness.light,
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        surface: AppColors.surface,
-        background: AppColors.background,
-        error: AppColors.error,
-        divider: AppColors.divider,
-        textPrimary: AppColors.textPrimary,
-        textSecondary: AppColors.textSecondary,
-        textTheme: AppTypography.textTheme,
-      );
+    brightness: Brightness.light,
+    primary: AppColors.primary,
+    secondary: AppColors.secondary,
+    surface: AppColors.surface,
+    background: AppColors.background,
+    error: AppColors.error,
+    divider: AppColors.divider,
+    textPrimary: AppColors.textPrimary,
+    textSecondary: AppColors.textSecondary,
+    textTheme: AppTypography.textTheme,
+  );
 
   static ThemeData get dark => _build(
-        brightness: Brightness.dark,
-        primary: AppColors.darkPrimary,
-        secondary: AppColors.darkSecondary,
-        surface: AppColors.darkSurface,
-        background: AppColors.darkBackground,
-        error: AppColors.darkError,
-        divider: AppColors.darkDivider,
-        textPrimary: AppColors.darkTextPrimary,
-        textSecondary: AppColors.darkTextSecondary,
-        textTheme: AppTypography.darkTextTheme,
-      );
+    brightness: Brightness.dark,
+    primary: AppColors.darkPrimary,
+    secondary: AppColors.darkSecondary,
+    surface: AppColors.darkSurface,
+    background: AppColors.darkBackground,
+    error: AppColors.darkError,
+    divider: AppColors.darkDivider,
+    textPrimary: AppColors.darkTextPrimary,
+    textSecondary: AppColors.darkTextSecondary,
+    textTheme: AppTypography.darkTextTheme,
+  );
 
   static ThemeData _build({
     required Brightness brightness,
@@ -74,11 +74,7 @@ class AppTheme {
       brightness: brightness,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: background,
-      dividerTheme: DividerThemeData(
-        color: divider,
-        thickness: 1,
-        space: 1,
-      ),
+      dividerTheme: DividerThemeData(color: divider, thickness: 1, space: 1),
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
         backgroundColor: background,

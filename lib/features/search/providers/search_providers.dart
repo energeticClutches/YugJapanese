@@ -41,13 +41,13 @@ final searchHistoryProvider = ChangeNotifierProvider<SearchHistoryController>(
 /// The text currently typed into the search bar.
 final searchQueryProvider = StateProvider<String>((Ref ref) => '');
 
-final searchResultsProvider = FutureProvider<List<SearchResult>>(
-  (Ref ref) async {
-    final String query = ref.watch(searchQueryProvider);
-    final SearchService service = ref.watch(searchServiceProvider);
-    return service.search(query);
-  },
-);
+final searchResultsProvider = FutureProvider<List<SearchResult>>((
+  Ref ref,
+) async {
+  final String query = ref.watch(searchQueryProvider);
+  final SearchService service = ref.watch(searchServiceProvider);
+  return service.search(query);
+});
 
 /// The full, unfiltered index — used to derive "Popular" suggestions
 /// without re-triggering a search.

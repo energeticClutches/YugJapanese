@@ -7,21 +7,21 @@ class ProgressController extends ChangeNotifier {
   ProgressController(this._repository);
 
   final ProgressRepository _repository;
-  final Map<String, LessonProgress> _progressByKey =
-      <String, LessonProgress>{};
+  final Map<String, LessonProgress> _progressByKey = <String, LessonProgress>{};
 
   LessonProgress? lessonProgress(String contentId, int lessonNumber) {
     return _progressByKey[_key(contentId, lessonNumber)];
   }
 
   int? lastLessonNumber(String contentId) {
-    final List<LessonProgress> progressItems = _progressByKey.values
-        .where((LessonProgress progress) => progress.contentId == contentId)
-        .toList()
-      ..sort(
-        (LessonProgress first, LessonProgress second) =>
-            second.lastAccessedAt.compareTo(first.lastAccessedAt),
-      );
+    final List<LessonProgress> progressItems =
+        _progressByKey.values
+            .where((LessonProgress progress) => progress.contentId == contentId)
+            .toList()
+          ..sort(
+            (LessonProgress first, LessonProgress second) =>
+                second.lastAccessedAt.compareTo(first.lastAccessedAt),
+          );
     return progressItems.isEmpty ? null : progressItems.first.lessonNumber;
   }
 
@@ -60,10 +60,11 @@ class ProgressController extends ChangeNotifier {
   }
 
   Future<void> loadProgress(String contentId) async {
-    final List<LessonProgress> progressItems =
-        await _repository.getProgressForContent(contentId);
+    final List<LessonProgress> progressItems = await _repository
+        .getProgressForContent(contentId);
     for (final LessonProgress progress in progressItems) {
-      _progressByKey[_key(progress.contentId, progress.lessonNumber)] = progress;
+      _progressByKey[_key(progress.contentId, progress.lessonNumber)] =
+          progress;
     }
     notifyListeners();
   }
@@ -77,7 +78,8 @@ class ProgressController extends ChangeNotifier {
       contentId: contentId,
       lessonNumber: lessonNumber,
     );
-    final LessonProgress progress = existing?.copyWith(lastAccessedAt: now) ??
+    final LessonProgress progress =
+        existing?.copyWith(lastAccessedAt: now) ??
         LessonProgress(
           contentId: contentId,
           lessonNumber: lessonNumber,
@@ -121,6 +123,5 @@ class ProgressController extends ChangeNotifier {
   double _bestAccuracy(double current, double candidate) =>
       candidate > current ? candidate : current;
 
-  String _key(String contentId, int lessonNumber) =>
-      '$contentId:$lessonNumber';
+  String _key(String contentId, int lessonNumber) => '$contentId:$lessonNumber';
 }

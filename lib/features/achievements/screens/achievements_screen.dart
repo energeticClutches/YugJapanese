@@ -14,21 +14,23 @@ import '../widgets/achievement_icons.dart';
 import '../widgets/streak_card.dart';
 
 List<AchievementGridItem> _toGridItems(List<AchievementProgress> progress) {
-  return AchievementService.catalog.map((Achievement achievement) {
-    final AchievementProgress itemProgress = progress.firstWhere(
-      (AchievementProgress p) => p.achievementId == achievement.id,
-      orElse: () => AchievementProgress(
-        achievementId: achievement.id,
-        isUnlocked: false,
-      ),
-    );
-    return AchievementGridItem(
-      title: achievement.title,
-      description: achievement.description,
-      icon: achievementIconForKey(achievement.iconKey),
-      isUnlocked: itemProgress.isUnlocked,
-    );
-  }).toList(growable: false);
+  return AchievementService.catalog
+      .map((Achievement achievement) {
+        final AchievementProgress itemProgress = progress.firstWhere(
+          (AchievementProgress p) => p.achievementId == achievement.id,
+          orElse: () => AchievementProgress(
+            achievementId: achievement.id,
+            isUnlocked: false,
+          ),
+        );
+        return AchievementGridItem(
+          title: achievement.title,
+          description: achievement.description,
+          icon: achievementIconForKey(achievement.iconKey),
+          isUnlocked: itemProgress.isUnlocked,
+        );
+      })
+      .toList(growable: false);
 }
 
 class AchievementsScreen extends ConsumerWidget {
@@ -37,8 +39,9 @@ class AchievementsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<StreakInfo> streakAsync = ref.watch(streakInfoProvider);
-    final AsyncValue<List<AchievementProgress>> achievementsAsync =
-        ref.watch(achievementProgressListProvider);
+    final AsyncValue<List<AchievementProgress>> achievementsAsync = ref.watch(
+      achievementProgressListProvider,
+    );
     final StreakInfo streak = streakAsync.asData?.value ?? StreakInfo.empty;
 
     return AppScaffold(
@@ -52,18 +55,15 @@ class AchievementsScreen extends ConsumerWidget {
               longestStreak: streak.longestStreak,
             ),
             const SizedBox(height: AppSpacing.xl),
-            Text(
-              'Achievements',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('Achievements', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: AppSpacing.md),
             achievementsAsync.when(
               data: (List<AchievementProgress> progress) =>
                   AchievementGrid(items: _toGridItems(progress)),
-              loading: () =>
-                  const LoadingIndicator(),
-              error: (Object error, StackTrace stackTrace) =>
-                  AchievementGrid(items: _toGridItems(const <AchievementProgress>[])),
+              loading: () => const LoadingIndicator(),
+              error: (Object error, StackTrace stackTrace) => AchievementGrid(
+                items: _toGridItems(const <AchievementProgress>[]),
+              ),
             ),
             const SizedBox(height: AppSpacing.xl),
           ],

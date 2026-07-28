@@ -22,10 +22,9 @@ class ScriptCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final Color foreground =
-        enabled
-            ? colorScheme.primary
-            : colorScheme.onSurface.withValues(alpha: 0.6);
+    final Color foreground = enabled
+        ? colorScheme.primary
+        : colorScheme.onSurface.withValues(alpha: 0.6);
 
     return Material(
       color: colorScheme.surface,

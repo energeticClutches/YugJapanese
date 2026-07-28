@@ -44,7 +44,10 @@ class StreakCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Current Streak', style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      'Current Streak',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                     Text(
                       '$currentStreak ${currentStreak == 1 ? 'Day' : 'Days'}',
                       style: Theme.of(context).textTheme.titleLarge,
@@ -57,7 +60,10 @@ class StreakCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Longest Streak', style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      'Longest Streak',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                     Text(
                       '$longestStreak ${longestStreak == 1 ? 'Day' : 'Days'}',
                       style: Theme.of(context).textTheme.titleLarge,

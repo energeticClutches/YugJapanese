@@ -37,12 +37,16 @@ class SearchService {
     }
 
     final List<SearchResult> results = byId.values.toList()
-      ..sort((SearchResult a, SearchResult b) => _score(b, query).compareTo(_score(a, query)));
+      ..sort(
+        (SearchResult a, SearchResult b) =>
+            _score(b, query).compareTo(_score(a, query)),
+      );
     return results;
   }
 
   Map<String, List<SearchResult>> groupByScript(List<SearchResult> results) {
-    final Map<String, List<SearchResult>> grouped = <String, List<SearchResult>>{};
+    final Map<String, List<SearchResult>> grouped =
+        <String, List<SearchResult>>{};
     for (final SearchResult result in results) {
       grouped.putIfAbsent(result.script, () => <SearchResult>[]).add(result);
     }
@@ -101,9 +105,11 @@ class SearchService {
         final int deletion = previousRow[j] + 1;
         final int insertion = currentRow[j - 1] + 1;
         final int substitution = previousRow[j - 1] + cost;
-        currentRow[j] = [deletion, insertion, substitution].reduce(
-          (int x, int y) => x < y ? x : y,
-        );
+        currentRow[j] = [
+          deletion,
+          insertion,
+          substitution,
+        ].reduce((int x, int y) => x < y ? x : y);
       }
       previousRow = currentRow;
     }

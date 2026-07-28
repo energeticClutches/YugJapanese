@@ -57,15 +57,23 @@ class _FakeSearchRepository implements SearchRepository {
 
 void main() {
   group('SearchService', () {
-    test('empty query returns no results without touching the repository', () async {
-      final service = SearchService(_FakeSearchRepository(<SearchResult>[]));
+    test(
+      'empty query returns no results without touching the repository',
+      () async {
+        final service = SearchService(_FakeSearchRepository(<SearchResult>[]));
 
-      expect(await service.search('   '), isEmpty);
-    });
+        expect(await service.search('   '), isEmpty);
+      },
+    );
 
     test('ranks an exact symbol match above a prefix match', () async {
       final List<SearchResult> data = <SearchResult>[
-        _result(id: 'a', symbol: 'あ', script: 'hiragana', keywords: <String>['a']),
+        _result(
+          id: 'a',
+          symbol: 'あ',
+          script: 'hiragana',
+          keywords: <String>['a'],
+        ),
         _result(
           id: 'a-word',
           symbol: 'あい',
@@ -82,7 +90,12 @@ void main() {
 
     test('ranks an exact keyword match above a keyword-prefix match', () async {
       final List<SearchResult> data = <SearchResult>[
-        _result(id: 'exact', symbol: '一', script: 'kanji', keywords: <String>['one']),
+        _result(
+          id: 'exact',
+          symbol: '一',
+          script: 'kanji',
+          keywords: <String>['one'],
+        ),
         _result(
           id: 'prefix',
           symbol: '二',
@@ -99,7 +112,12 @@ void main() {
 
     test('falls back to fuzzy matching for a near-miss query', () async {
       final List<SearchResult> data = <SearchResult>[
-        _result(id: 'ka', symbol: 'か', script: 'hiragana', keywords: <String>['ka']),
+        _result(
+          id: 'ka',
+          symbol: 'か',
+          script: 'hiragana',
+          keywords: <String>['ka'],
+        ),
       ];
       final service = SearchService(_FakeSearchRepository(data));
 
@@ -117,8 +135,9 @@ void main() {
         _result(id: 'k', symbol: '一', script: 'kanji', keywords: <String>[]),
       ];
 
-      final Map<String, List<SearchResult>> grouped =
-          service.groupByScript(results);
+      final Map<String, List<SearchResult>> grouped = service.groupByScript(
+        results,
+      );
 
       expect(grouped['hiragana']?.single.id, 'h');
       expect(grouped['kanji']?.single.id, 'k');

@@ -32,7 +32,8 @@ class PracticeSessionScreen extends ConsumerStatefulWidget {
   final List<String>? reviewItemIds;
 
   @override
-  ConsumerState<PracticeSessionScreen> createState() => _PracticeSessionScreenState();
+  ConsumerState<PracticeSessionScreen> createState() =>
+      _PracticeSessionScreenState();
 }
 
 class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
@@ -120,9 +121,8 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
               const Text('Not enough content available for this mode yet.'),
               const SizedBox(height: AppSpacing.md),
               FilledButton(
-                onPressed: () => context.canPop()
-                    ? context.pop()
-                    : context.go('/quiz'),
+                onPressed: () =>
+                    context.canPop() ? context.pop() : context.go('/quiz'),
                 child: const Text('Return to Practice'),
               ),
             ],
@@ -165,7 +165,9 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
               AnswerOption(
                 label: choice,
                 state: _stateFor(choice, question),
-                onTap: _selectedAnswer == null ? () => _selectAnswer(choice) : null,
+                onTap: _selectedAnswer == null
+                    ? () => _selectAnswer(choice)
+                    : null,
               ),
               const SizedBox(height: AppSpacing.sm),
             ],

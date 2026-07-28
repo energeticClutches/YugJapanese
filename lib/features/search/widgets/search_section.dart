@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_spacing.dart';
 
 class SearchSection extends StatelessWidget {
-  const SearchSection({
-    super.key,
-    required this.title,
-    required this.children,
-  });
+  const SearchSection({super.key, required this.title, required this.children});
 
   final String title;
   final List<Widget> children;

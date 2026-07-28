@@ -40,8 +40,10 @@ class StrokeDataRepository {
 
       final Map<String, CharacterStrokes> parsed = <String, CharacterStrokes>{};
       characters.forEach((String symbol, dynamic strokes) {
-        parsed[symbol] =
-            CharacterStrokes.fromJson(symbol, strokes as List<dynamic>);
+        parsed[symbol] = CharacterStrokes.fromJson(
+          symbol,
+          strokes as List<dynamic>,
+        );
       });
       _cache = parsed;
       return parsed;

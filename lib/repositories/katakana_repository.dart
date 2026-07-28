@@ -6,7 +6,7 @@ import '../services/json_loader_service.dart';
 
 class KatakanaRepository implements LessonRepository {
   KatakanaRepository({JsonLoaderService? loader})
-      : _loader = loader ?? const JsonLoaderService();
+    : _loader = loader ?? const JsonLoaderService();
 
   static const String _assetPath = 'assets/data/katakana_lessons.json';
 

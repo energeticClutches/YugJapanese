@@ -82,25 +82,25 @@ final GoRouter appRouter = GoRouter(
       path: '/legal/privacy',
       builder: (BuildContext context, GoRouterState state) =>
           const LegalDocumentScreen(
-        title: 'Privacy Policy',
-        assetPath: 'PRIVACY_POLICY.md',
-      ),
+            title: 'Privacy Policy',
+            assetPath: 'PRIVACY_POLICY.md',
+          ),
     ),
     GoRoute(
       path: '/legal/terms',
       builder: (BuildContext context, GoRouterState state) =>
           const LegalDocumentScreen(
-        title: 'Terms of Use',
-        assetPath: 'TERMS_OF_USE.md',
-      ),
+            title: 'Terms of Use',
+            assetPath: 'TERMS_OF_USE.md',
+          ),
     ),
     GoRoute(
       path: '/legal/credits',
       builder: (BuildContext context, GoRouterState state) =>
           const LegalDocumentScreen(
-        title: 'Credits & Attribution',
-        assetPath: 'CREDITS.md',
-      ),
+            title: 'Credits & Attribution',
+            assetPath: 'CREDITS.md',
+          ),
     ),
     GoRoute(
       path: '/search',
@@ -115,7 +115,8 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/quiz/play',
       builder: (BuildContext context, GoRouterState state) {
-        final String modeId = state.uri.queryParameters['mode'] ?? 'recognition';
+        final String modeId =
+            state.uri.queryParameters['mode'] ?? 'recognition';
         final String scriptsParam = state.uri.queryParameters['scripts'] ?? '';
         final List<String> scripts = scriptsParam.isEmpty
             ? ContentRepositoryFactory.availableContentIds
@@ -125,8 +126,8 @@ final GoRouter appRouter = GoRouter(
         final String? itemsParam = state.uri.queryParameters['items'];
         final List<String>? reviewItemIds =
             itemsParam == null || itemsParam.isEmpty
-                ? null
-                : itemsParam.split(',');
+            ? null
+            : itemsParam.split(',');
         return PracticeSessionScreen(
           modeId: modeId,
           scripts: scripts,

@@ -6,7 +6,7 @@ import '../services/json_loader_service.dart';
 
 class HiraganaRepository implements LessonRepository {
   HiraganaRepository({JsonLoaderService? loader})
-      : _loader = loader ?? const JsonLoaderService();
+    : _loader = loader ?? const JsonLoaderService();
 
   final JsonLoaderService _loader;
   List<LessonModel>? _cachedLessons;

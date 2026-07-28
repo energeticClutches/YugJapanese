@@ -20,8 +20,10 @@ class JsonLoaderService {
           (decoded as Map<String, dynamic>)['lessons'] as List<dynamic>;
 
       return lessonsJson
-          .map((dynamic item) =>
-              LessonModel.fromJson(item as Map<String, dynamic>))
+          .map(
+            (dynamic item) =>
+                LessonModel.fromJson(item as Map<String, dynamic>),
+          )
           .toList(growable: false);
     } catch (_) {
       return <LessonModel>[];

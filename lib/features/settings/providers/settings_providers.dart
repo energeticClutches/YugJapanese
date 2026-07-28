@@ -26,9 +26,7 @@ final comingSoonGateProvider = Provider<ComingSoonGate>(
   (Ref ref) => ComingSoonGate(),
 );
 
-final storageUsageProvider = FutureProvider<int>(
-  (Ref ref) async {
-    ref.watch(currentSettingsProvider);
-    return ref.watch(settingsServiceProvider).getStorageUsageBytes();
-  },
-);
+final storageUsageProvider = FutureProvider<int>((Ref ref) async {
+  ref.watch(currentSettingsProvider);
+  return ref.watch(settingsServiceProvider).getStorageUsageBytes();
+});

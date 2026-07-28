@@ -119,6 +119,7 @@ functional offline from first launch.
 ## Testing
 
 ```bash
+dart format --output=none --set-exit-if-changed .   # formatting check
 flutter analyze   # static analysis
 flutter test      # unit + widget + flow tests
 ```
@@ -130,6 +131,174 @@ device-driver machinery. `analysis_options.yaml` intentionally runs with
 Dart's bare defaults — no `flutter_lints` — to avoid an unplanned
 retroactive cleanup pass across the whole existing codebase; this is a
 disclosed limitation, not an oversight.
+
+## Continuous Integration
+
+Every push and every pull request runs the [Flutter CI workflow](.github/workflows/flutter_ci.yml)
+on `ubuntu-latest`: install the pinned Flutter SDK (`3.44.8`, matching this
+project) and JDK 17, `flutter pub get`, a `dart format --set-exit-if-changed`
+check, `flutter analyze`, the full `flutter test` suite, then a release
+`flutter build apk` and `flutter build appbundle` — in that order, so the
+workflow stops at the first stage that fails and the failing step name in
+the Actions log tells you which one. Release builds sign with the debug
+key already checked into `android/app/build.gradle` (see
+[RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md)), so no signing secrets are
+needed in CI. Flutter SDK, pub packages, and Gradle caches are all cached
+between runs to keep builds fast. This is still validation-only — no
+upload to Play Store, Firebase App Distribution, or any deployment step
+runs in CI; that's a later phase.
+
+The JDK/Flutter install and cache-restore steps live in a shared composite
+action, [`.github/actions/setup-flutter-build`](.github/actions/setup-flutter-build/action.yml),
+also used by the Release workflow below — one definition of the build
+environment instead of two copies to keep in sync.
+
+**Downloading a CI build:** open the workflow run for the commit you want
+(GitHub → **Actions** tab → *Flutter CI* → the run) and scroll to its
+**Artifacts** section at the bottom of the summary page. Two artifacts are
+attached to every successful run:
+
+- `flutter-release-apk` — the release APK (`app-release.apk`), installable
+  directly on a device with `adb install`.
+- `flutter-release-aab` — the release App Bundle (`app-release.aab`), the
+  format Play Store submissions use.
+
+Artifacts follow GitHub's default retention window and are only produced
+when the build stage succeeds — a failed run has no artifacts to
+download.
+
+## Release process
+
+Pushing a Git tag matching `v*` (e.g. `v1.0.0`) triggers the separate
+[Release workflow](.github/workflows/release.yml) — it never runs on a
+normal push or pull request, only on that tag pattern. It does not re-run
+formatting/analysis/tests (the tagged commit is expected to have already
+passed CI on its branch); it validates the version, builds, and publishes:
+
+1. **Validate version** — reads `version:` from `pubspec.yaml`, and fails
+   the workflow if: the field is missing, it isn't valid
+   `<major>.<minor>.<patch>+<build number>` semantic versioning (e.g.
+   `1.0.0+1`), or the numeric part doesn't match the pushed tag (tag
+   `v1.0.0` requires `pubspec.yaml` to say `1.0.0+<anything>`). Version
+   numbers are never modified automatically — bump `pubspec.yaml` and
+   commit it yourself before tagging.
+2. **Build** — the same `flutter build apk --release` and
+   `flutter build appbundle --release` used in CI, via the same shared
+   `setup-flutter-build` action (same pinned Flutter/JDK versions, same
+   debug-signed release config).
+3. **Publish** — creates (or updates, if re-run on the same tag) a
+   production GitHub Release titled `Version <version>` with
+   auto-generated release notes, and attaches `app-release.apk` and
+   `app-release.aab` as downloadable assets. The workflow fails if either
+   asset can't be uploaded.
+
+To cut a release:
+
+```bash
+# 1. Bump pubspec.yaml's version (e.g. 1.0.0+1 -> 1.0.1+2) and commit it.
+# 2. Tag that commit and push the tag:
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+## Recommended repository settings (not yet applied)
+
+The settings below are **recommendations only** — they require the
+GitHub web UI (**Settings → Branches** / **Rulesets**) and are not, and
+cannot be, applied by a workflow file or by Claude. Documenting them here
+so they're a deliberate decision when someone with admin access wants to
+turn them on, not an unreviewed default.
+
+**Branch naming** this repository is set up to expect: `main` (protected,
+production), `develop` (optional integration branch, same protections
+minus "require PRs" if solo development doesn't need it), and
+short-lived `feature/*`, `bugfix/*`, `hotfix/*` branches merged via PR
+and deleted after merge.
+
+**Recommended protection rule for `main`** (Settings → Branches → Add
+branch protection rule, or the newer Rulesets UI):
+
+- Require a pull request before merging (require at least 1 approval if
+  this becomes a multi-contributor repo).
+- Require status checks to pass before merging — select the `Flutter CI`
+  workflow's `Format, analyze, test, and build` job specifically, so a
+  broken build/test/format/analyze can't merge.
+- Require branches to be up to date before merging, so a PR is tested
+  against the code it will actually merge into, not a stale base.
+- Do not allow bypassing the above settings (applies rules to admins too,
+  not just other contributors).
+- Restrict force pushes to `main`.
+- Restrict deletions of `main`.
+- Require linear history, if the project commits to a single merge
+  strategy (squash or rebase merges only) — optional, a style preference
+  rather than a safety requirement.
+
+The same rule (minus "require linear history", which is more of a `main`
+convention) is reasonable to mirror on `develop` if that branch is
+adopted. `feature/*`/`bugfix/*`/`hotfix/*` branches are intentionally
+left unprotected — they're disposable working branches merged via PR into
+one of the two above.
+
+## Dependency management (Dependabot)
+
+[Dependabot](https://docs.github.com/en/code-security/dependabot) is
+GitHub's built-in bot for dependency freshness and security: it watches
+this repo's manifests, and when a newer (or, more urgently, a
+vulnerable) version of something is available, it opens a Pull Request
+that bumps just that dependency — instead of updates being tracked
+manually or drifting unnoticed. Configured in
+[`.github/dependabot.yml`](.github/dependabot.yml) for the two
+ecosystems this repo actually has:
+
+- **`pub`** (Flutter/Dart) — watches `pubspec.yaml`/`pubspec.lock`.
+- **`github-actions`** — watches the actions referenced in
+  `.github/workflows/` (`actions/checkout`, `actions/cache`,
+  `actions/setup-java`, `subosito/flutter-action`,
+  `softprops/action-gh-release`, etc.).
+
+No other ecosystem is configured — there's no `ios/`, `package.json`,
+`Gemfile`, or similar in this repo for Dependabot to watch.
+
+**Schedule:** both ecosystems check weekly (Monday, 06:00 UTC), not
+daily — enough to stay current without turning every morning into a PR
+queue. Security-vulnerability updates aren't bound by this schedule:
+GitHub opens those as soon as a vulnerability affecting a dependency
+actually in use is published, independent of the weekly cadence (this
+requires "Dependabot security updates" to be turned on under **Settings
+→ Security** — a repository setting, not something a config file can
+enable; see the branch-protection section above for the same caveat).
+
+**Grouping:** minor/patch bumps within each ecosystem are grouped into a
+single PR (`flutter-minor-and-patch`, `github-actions-minor-and-patch`)
+so routine updates don't produce one PR per package. Major-version bumps
+are deliberately left out of the group and always get their own PR, so
+a breaking upgrade doesn't quietly ride along with routine ones and stays
+easy to find in review.
+
+**Version constraints are never rewritten automatically.** Most direct
+dependencies in `pubspec.yaml` are declared as `any` (no upper bound), so
+Dependabot's default versioning strategy only needs to update
+`pubspec.lock`'s resolved versions — the manifest constraints you wrote
+stay exactly as they are unless a dependency genuinely can't be
+satisfied any other way.
+
+**Reviewing a Dependabot PR:** it runs through [the same CI
+workflow](.github/workflows/flutter_ci.yml) as any human-authored PR —
+formatting, static analysis, the full test suite, and a release APK/AAB
+build — no special-casing needed, since `flutter_ci.yml` triggers on
+every pull request regardless of author. Treat a Dependabot PR like any
+other: read the changelog/diff it links, confirm CI is green, and merge
+manually. There's no reviewer/assignee auto-added — that's still a human
+decision here.
+
+**Why auto-merge is intentionally off:** nothing in this repo merges a
+Dependabot PR automatically — that would require a *separate* GitHub
+Actions workflow reacting to Dependabot PRs (e.g. auto-approving and
+enabling auto-merge), which this phase deliberately does not add, per
+its own constraints. Even a passing CI run only proves the app still
+builds and the existing tests still pass — it doesn't guarantee a
+dependency's behavior didn't change in some way the test suite doesn't
+cover, so a human still looks at every one before it merges.
 
 ## Asset management guide
 

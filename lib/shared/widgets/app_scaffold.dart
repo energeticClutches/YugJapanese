@@ -19,8 +19,9 @@ class AppScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double horizontalPadding =
-        Responsive.isTablet(context) ? AppSpacing.xl : AppSpacing.lg;
+    final double horizontalPadding = Responsive.isTablet(context)
+        ? AppSpacing.xl
+        : AppSpacing.lg;
 
     return Scaffold(
       appBar: appBar,

@@ -127,10 +127,7 @@ class _WritingCanvasState extends State<WritingCanvas> {
       aspectRatio: 1,
       child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          final Size size = Size(
-            constraints.maxWidth,
-            constraints.maxHeight,
-          );
+          final Size size = Size(constraints.maxWidth, constraints.maxHeight);
           final ValueChanged<Size>? report = widget.onCanvasSize;
           if (report != null) {
             // Reporting during layout would mutate parent state mid-build.
@@ -165,7 +162,8 @@ class _WritingCanvasState extends State<WritingCanvas> {
                       activeStroke: _active,
                       showGrid: widget.showGrid,
                       guideStrokes: widget.guideStrokes,
-                      guideProgress: widget.guideProgress ??
+                      guideProgress:
+                          widget.guideProgress ??
                           (widget.guideStrokes?.length.toDouble() ?? 0),
                       inkColor: scheme.onSurface,
                       gridColor: scheme.outlineVariant,

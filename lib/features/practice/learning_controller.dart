@@ -66,8 +66,9 @@ class LearningController extends ChangeNotifier {
         ),
       );
     }
-    final LearningStep startStep =
-        skipIntroduction ? LearningStep.strokeOrder : LearningStep.introduction;
+    final LearningStep startStep = skipIntroduction
+        ? LearningStep.strokeOrder
+        : LearningStep.introduction;
     final int requestedIndex = startCharacterId == null
         ? -1
         : _items.indexWhere((LearningItem item) => item.id == startCharacterId);

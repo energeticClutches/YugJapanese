@@ -228,7 +228,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       final double lessonAccuracy = _characterAccuracies.isEmpty
           ? result.accuracy
           : _characterAccuracies.reduce((double a, double b) => a + b) /
-              _characterAccuracies.length;
+                _characterAccuracies.length;
 
       await ref
           .read(progressControllerProvider)
@@ -243,10 +243,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       if (widget.isReviewMode) {
         // Scored, not assumed: a weak attempt sends the lesson back down the
         // interval ladder instead of pushing it further away.
-        await reviewScheduler.recordReview(
-          lessonId,
-          accuracy: lessonAccuracy,
-        );
+        await reviewScheduler.recordReview(lessonId, accuracy: lessonAccuracy);
       } else {
         await reviewScheduler.scheduleInitialReview(
           lessonId,
@@ -257,8 +254,9 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
 
       // Review mode belongs to the review queue, not the lesson ladder, so it
       // keeps returning to /review rather than offering the next lesson.
-      final int? nextLesson =
-          widget.isReviewMode ? null : await _controller.nextLessonNumber();
+      final int? nextLesson = widget.isReviewMode
+          ? null
+          : await _controller.nextLessonNumber();
 
       if (!mounted) {
         return;
@@ -268,8 +266,10 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       });
 
       if (!widget.isReviewMode) {
-        final bool goToNext =
-            await _showLessonCompleteDialog(lessonAccuracy, nextLesson);
+        final bool goToNext = await _showLessonCompleteDialog(
+          lessonAccuracy,
+          nextLesson,
+        );
         if (!mounted) {
           return;
         }
@@ -277,9 +277,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
           // Replace rather than push: chaining lessons would otherwise stack
           // a screen per lesson, so Back would walk the learner through every
           // lesson they just finished instead of returning to the list.
-          context.pushReplacement(
-            '/practice/$nextLesson?content=$_contentId',
-          );
+          context.pushReplacement('/practice/$nextLesson?content=$_contentId');
           return;
         }
       }
@@ -289,7 +287,9 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       // would collapse the whole navigation stack down to a single entry
       // and break Back navigation afterward. Falls back to `go()` only if
       // there's nothing left to pop to.
-      final String fallbackRoute = widget.isReviewMode ? '/review' : '/$_contentId';
+      final String fallbackRoute = widget.isReviewMode
+          ? '/review'
+          : '/$_contentId';
       if (context.canPop()) {
         context.pop();
       } else {
@@ -333,7 +333,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                 isModuleComplete
                     ? 'That was the last lesson here. Your progress is saved.'
                     : 'Your progress is saved. Lesson $nextLesson is ready '
-                        'when you are.',
+                          'when you are.',
               ),
             ],
           ),
@@ -363,8 +363,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
 
     // Moving to a different character clears the canvas, drops the stale
     // reference strokes, and forgets which step the canvas belongs to.
-    if (currentCharacter != null &&
-        _strokesForItemId != currentCharacter.id) {
+    if (currentCharacter != null && _strokesForItemId != currentCharacter.id) {
       _strokesForItemId = currentCharacter.id;
       _strokes = <Stroke>[];
       _guideStrokes = null;
@@ -507,16 +506,17 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                                   Icon(
                                     Icons.lightbulb_outline,
                                     size: 18,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                   ),
                                   const SizedBox(width: AppSpacing.sm),
                                   Flexible(
                                     child: Text(
                                       currentCharacter.notes!,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall,
                                     ),
                                   ),
                                 ],
@@ -669,8 +669,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
           // Tracing shows the reference behind the ink; free writing is
           // from memory. Either way the user's Stroke Guides preference
           // wins — turning it off removes the overlay everywhere.
-          guideStrokes:
-              isTracing && settings.showStrokeGuide ? guide : null,
+          guideStrokes: isTracing && settings.showStrokeGuide ? guide : null,
           showGrid: settings.showGrid,
           instructions: isTracing
               ? 'Trace over the guide with your finger.'
@@ -680,8 +679,9 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
           // claimed an evaluation that never happens (Milestone 21,
           // Issue 5). Free writing keeps the default label; that's the
           // step _evaluateDrawnStrokes actually scores.
-          submitLabel:
-              isTracing ? 'Continue to Free Writing' : 'Check my writing',
+          submitLabel: isTracing
+              ? 'Continue to Free Writing'
+              : 'Check my writing',
           onStrokesChanged: (List<Stroke> strokes) {
             setState(() {
               _strokes = strokes;

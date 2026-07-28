@@ -42,11 +42,15 @@ class ProgressSummaryCard extends StatelessWidget {
                       value: clamped / 100,
                       strokeWidth: 10,
                       backgroundColor: Theme.of(context).colorScheme.outline,
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        colorScheme.primary,
+                      ),
                     ),
                   ),
-                  Text('${clamped.round()}%', style: Theme.of(context).textTheme.headlineMedium),
+                  Text(
+                    '${clamped.round()}%',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                 ],
               ),
             ),

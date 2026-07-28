@@ -95,7 +95,9 @@ String _resolvePracticeTrend(List<DailyLearningStat> dailyActivity) {
   if (dailyActivity.length < 14) {
     return 'No data yet';
   }
-  final List<DailyLearningStat> last7 = dailyActivity.sublist(dailyActivity.length - 7);
+  final List<DailyLearningStat> last7 = dailyActivity.sublist(
+    dailyActivity.length - 7,
+  );
   final List<DailyLearningStat> prev7 = dailyActivity.sublist(
     dailyActivity.length - 14,
     dailyActivity.length - 7,
@@ -151,10 +153,11 @@ Future<_ScriptSummary> _resolveScriptSummary(
   List<ReviewItem> dueReviews,
 ) async {
   final int totalLessons = (await source.repository.getAllLessons()).length;
-  final List<LessonProgress> progressItems =
-      await progressRepository.getProgressForContent(source.contentId);
-  final int completedLessons =
-      progressItems.where((LessonProgress p) => p.isCompleted).length;
+  final List<LessonProgress> progressItems = await progressRepository
+      .getProgressForContent(source.contentId);
+  final int completedLessons = progressItems
+      .where((LessonProgress p) => p.isCompleted)
+      .length;
   final int completionPercentage = totalLessons == 0
       ? 0
       : ((completedLessons / totalLessons) * 100).round();
@@ -170,13 +173,16 @@ Future<_ScriptSummary> _resolveScriptSummary(
 }
 
 Achievement? _mostRecentlyUnlocked(List<AchievementProgress> progress) {
-  final List<AchievementProgress> unlocked = progress
-      .where((AchievementProgress p) => p.isUnlocked && p.unlockedAt != null)
-      .toList()
-    ..sort(
-      (AchievementProgress a, AchievementProgress b) =>
-          b.unlockedAt!.compareTo(a.unlockedAt!),
-    );
+  final List<AchievementProgress> unlocked =
+      progress
+          .where(
+            (AchievementProgress p) => p.isUnlocked && p.unlockedAt != null,
+          )
+          .toList()
+        ..sort(
+          (AchievementProgress a, AchievementProgress b) =>
+              b.unlockedAt!.compareTo(a.unlockedAt!),
+        );
   if (unlocked.isEmpty) {
     return null;
   }
@@ -201,7 +207,9 @@ class _ContinueLessonInfo {
   final String displayTitle;
 }
 
-Future<_ContinueLessonInfo?> _resolveContinueLesson(String? lastLessonId) async {
+Future<_ContinueLessonInfo?> _resolveContinueLesson(
+  String? lastLessonId,
+) async {
   if (lastLessonId == null) {
     return null;
   }
@@ -238,23 +246,31 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<LearningStatistics> statisticsAsync =
-        ref.watch(learningStatisticsProvider);
-    final AsyncValue<List<ReviewItem>> dueReviewsAsync =
-        ref.watch(dueReviewsProvider);
+    final AsyncValue<LearningStatistics> statisticsAsync = ref.watch(
+      learningStatisticsProvider,
+    );
+    final AsyncValue<List<ReviewItem>> dueReviewsAsync = ref.watch(
+      dueReviewsProvider,
+    );
     final AsyncValue<StreakInfo> streakAsync = ref.watch(streakInfoProvider);
-    final AsyncValue<List<AchievementProgress>> achievementsAsync =
-        ref.watch(achievementProgressListProvider);
-    final List<ContentSource> contentSources =
-        ref.watch(contentSourcesProvider);
-    final ProgressRepository progressRepository =
-        ref.watch(progressRepositoryProvider);
-    final AsyncValue<PracticeStatistics> practiceStatisticsAsync =
-        ref.watch(practiceStatisticsProvider);
-    final AsyncValue<List<PracticeResult>> practiceResultsAsync =
-        ref.watch(practiceResultsProvider);
-    final AsyncValue<LearningAnalytics> analyticsAsync =
-        ref.watch(learningAnalyticsProvider);
+    final AsyncValue<List<AchievementProgress>> achievementsAsync = ref.watch(
+      achievementProgressListProvider,
+    );
+    final List<ContentSource> contentSources = ref.watch(
+      contentSourcesProvider,
+    );
+    final ProgressRepository progressRepository = ref.watch(
+      progressRepositoryProvider,
+    );
+    final AsyncValue<PracticeStatistics> practiceStatisticsAsync = ref.watch(
+      practiceStatisticsProvider,
+    );
+    final AsyncValue<List<PracticeResult>> practiceResultsAsync = ref.watch(
+      practiceResultsProvider,
+    );
+    final AsyncValue<LearningAnalytics> analyticsAsync = ref.watch(
+      learningAnalyticsProvider,
+    );
 
     return AppScaffold(
       appBar: AppBar(
@@ -413,14 +429,12 @@ class _DashboardContent extends StatelessWidget {
             onTap: () => context.push('/review'),
           ),
           const SizedBox(height: AppSpacing.xl),
-          Text(
-            'Achievements',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('Achievements', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.md),
           Builder(
             builder: (context) {
-              final StreakInfo streak = streakAsync.asData?.value ?? StreakInfo.empty;
+              final StreakInfo streak =
+                  streakAsync.asData?.value ?? StreakInfo.empty;
               return StreakCard(
                 currentStreak: streak.currentStreak,
                 longestStreak: streak.longestStreak,
@@ -449,20 +463,19 @@ class _DashboardContent extends StatelessWidget {
             },
           ),
           const SizedBox(height: AppSpacing.xl),
-          Text(
-            'Practice',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('Practice', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.md),
           Builder(
             builder: (context) {
               final List<PracticeResult> results =
-                  practiceResultsAsync.asData?.value ?? const <PracticeResult>[];
+                  practiceResultsAsync.asData?.value ??
+                  const <PracticeResult>[];
               return SessionSummaryCard(
                 label: results.isEmpty ? 'Get Started' : 'Continue',
                 title: _practiceSummaryTitle(results),
-                buttonLabel:
-                    results.isEmpty ? 'Start Practice' : 'Continue Last Practice',
+                buttonLabel: results.isEmpty
+                    ? 'Start Practice'
+                    : 'Continue Last Practice',
                 onPressed: () => context.push('/quiz'),
               );
             },
@@ -471,10 +484,13 @@ class _DashboardContent extends StatelessWidget {
           Builder(
             builder: (context) {
               final PracticeStatistics practiceStatistics =
-                  practiceStatisticsAsync.asData?.value ?? PracticeStatistics.empty;
-              final _WeeklyPracticeSummary weekly = _resolveWeeklyPracticeSummary(
-                practiceResultsAsync.asData?.value ?? const <PracticeResult>[],
-              );
+                  practiceStatisticsAsync.asData?.value ??
+                  PracticeStatistics.empty;
+              final _WeeklyPracticeSummary weekly =
+                  _resolveWeeklyPracticeSummary(
+                    practiceResultsAsync.asData?.value ??
+                        const <PracticeResult>[],
+                  );
               return EqualWidthGrid(
                 children: [
                   StatisticCard(
@@ -514,7 +530,10 @@ class _DashboardContent extends StatelessWidget {
                   analyticsAsync.asData?.value ?? LearningAnalytics.empty;
               final int weeklyActivity = analytics.dailyActivity
                   .where((DailyLearningStat d) => d.hasActivity)
-                  .fold<int>(0, (int sum, DailyLearningStat d) => sum + d.activityCount);
+                  .fold<int>(
+                    0,
+                    (int sum, DailyLearningStat d) => sum + d.activityCount,
+                  );
               return EqualWidthGrid(
                 children: [
                   StatisticCard(
@@ -539,10 +558,7 @@ class _DashboardContent extends StatelessWidget {
             },
           ),
           const SizedBox(height: AppSpacing.xl),
-          Text(
-            'Scripts',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('Scripts', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.md),
           EqualWidthGrid(
             children: [
@@ -556,10 +572,11 @@ class _DashboardContent extends StatelessWidget {
                   builder: (context, snapshot) {
                     final _ScriptSummary? summary = snapshot.data;
                     return ScriptCard(
-                      icon: _scriptIcons[source.contentId] ??
+                      icon:
+                          _scriptIcons[source.contentId] ??
                           Icons.translate_outlined,
-                      title: _scriptTitles[source.contentId] ??
-                          source.contentId,
+                      title:
+                          _scriptTitles[source.contentId] ?? source.contentId,
                       subtitle: summary == null
                           ? 'Loading...'
                           : '${summary.completionPercentage}% complete · ${summary.reviewCount} due',

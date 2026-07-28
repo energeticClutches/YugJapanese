@@ -3,12 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:japanese_learning/features/review/widgets/review_card.dart';
 
 void main() {
-  Widget wrap(Widget child) =>
-      MaterialApp(home: Scaffold(body: SingleChildScrollView(child: child)));
+  Widget wrap(Widget child) => MaterialApp(
+    home: Scaffold(body: SingleChildScrollView(child: child)),
+  );
 
   group('ReviewCard (Milestone 23, Issue 1)', () {
-    testWidgets('renders the script and lesson, not a bare glyph',
-        (WidgetTester tester) async {
+    testWidgets('renders the script and lesson, not a bare glyph', (
+      WidgetTester tester,
+    ) async {
       // The screen used to build its title as
       // 'Lesson ${lesson.characters.first.character}' — i.e. "Lesson あ" —
       // naming neither the script nor the lesson number.

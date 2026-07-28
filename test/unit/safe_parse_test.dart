@@ -14,7 +14,10 @@ class _Point {
 void main() {
   group('safeParse', () {
     test('returns the parsed value for well-formed data', () {
-      final result = safeParse(<String, dynamic>{'x': 1, 'y': 2}, _Point.fromMap);
+      final result = safeParse(<String, dynamic>{
+        'x': 1,
+        'y': 2,
+      }, _Point.fromMap);
 
       expect(result, isNotNull);
       expect(result!.x, 1);
@@ -28,8 +31,10 @@ void main() {
     });
 
     test('returns null instead of throwing for a wrong-typed field', () {
-      final result =
-          safeParse(<String, dynamic>{'x': 'not a number', 'y': 2}, _Point.fromMap);
+      final result = safeParse(<String, dynamic>{
+        'x': 'not a number',
+        'y': 2,
+      }, _Point.fromMap);
 
       expect(result, isNull);
     });

@@ -36,26 +36,25 @@ final practiceStatisticsServiceProvider = Provider<PracticeStatisticsService>(
   (Ref ref) => PracticeStatisticsService(ref.watch(practiceRepositoryProvider)),
 );
 
-final practiceStatisticsProvider = FutureProvider<PracticeStatistics>(
-  (Ref ref) async {
-    ref.watch(practiceServiceProvider);
-    final PracticeStatisticsService service =
-        ref.watch(practiceStatisticsServiceProvider);
-    return service.getStatistics();
-  },
-);
+final practiceStatisticsProvider = FutureProvider<PracticeStatistics>((
+  Ref ref,
+) async {
+  ref.watch(practiceServiceProvider);
+  final PracticeStatisticsService service = ref.watch(
+    practiceStatisticsServiceProvider,
+  );
+  return service.getStatistics();
+});
 
-final practiceResultsProvider = FutureProvider<List<PracticeResult>>(
-  (Ref ref) async {
-    ref.watch(practiceServiceProvider);
-    final PracticeRepository repository = ref.watch(practiceRepositoryProvider);
-    return repository.getAllResults();
-  },
-);
+final practiceResultsProvider = FutureProvider<List<PracticeResult>>((
+  Ref ref,
+) async {
+  ref.watch(practiceServiceProvider);
+  final PracticeRepository repository = ref.watch(practiceRepositoryProvider);
+  return repository.getAllResults();
+});
 
-final listeningModeAvailableProvider = FutureProvider<bool>(
-  (Ref ref) async {
-    final PracticeGenerator generator = ref.watch(practiceGeneratorProvider);
-    return generator.isListeningModeAvailable();
-  },
-);
+final listeningModeAvailableProvider = FutureProvider<bool>((Ref ref) async {
+  final PracticeGenerator generator = ref.watch(practiceGeneratorProvider);
+  return generator.isListeningModeAvailable();
+});

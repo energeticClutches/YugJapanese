@@ -55,18 +55,21 @@ class LearningItem {
       audioAsset: json['audioAsset'] as String,
       strokeAsset: json['strokeAsset'] as String? ?? '',
       metadata: json['metadata'] as Map<String, dynamic>?,
-      secondaryReadings: (json['secondaryReadings'] as List<dynamic>?)
+      secondaryReadings:
+          (json['secondaryReadings'] as List<dynamic>?)
               ?.map((dynamic e) => e as String)
               .toList() ??
           const <String>[],
-      kunReadings: (json['kunReadings'] as List<dynamic>?)
+      kunReadings:
+          (json['kunReadings'] as List<dynamic>?)
               ?.map((dynamic e) => e as String)
               .toList() ??
           const <String>[],
       radical: json['radical'] as String?,
       grade: json['grade'] as int?,
       jlptLevel: json['jlptLevel'] as String?,
-      examples: (json['examples'] as List<dynamic>?)
+      examples:
+          (json['examples'] as List<dynamic>?)
               ?.map(
                 (dynamic e) => KanjiExample.fromJson(e as Map<String, dynamic>),
               )

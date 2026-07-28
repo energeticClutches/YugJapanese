@@ -9,10 +9,7 @@ class AchievementProgress {
   final bool isUnlocked;
   final DateTime? unlockedAt;
 
-  AchievementProgress copyWith({
-    bool? isUnlocked,
-    DateTime? unlockedAt,
-  }) {
+  AchievementProgress copyWith({bool? isUnlocked, DateTime? unlockedAt}) {
     return AchievementProgress(
       achievementId: achievementId,
       isUnlocked: isUnlocked ?? this.isUnlocked,

@@ -32,8 +32,9 @@ class FavoritesController extends ChangeNotifier {
     final String id = '$script:$itemId';
     if (isFavorite(id)) {
       await _repository.remove(id);
-      _favorites =
-          _favorites.where((FavoriteItem item) => item.id != id).toList();
+      _favorites = _favorites
+          .where((FavoriteItem item) => item.id != id)
+          .toList();
     } else {
       final FavoriteItem item = FavoriteItem(
         script: script,

@@ -48,7 +48,9 @@ LearningAnalytics _sampleAnalytics() {
         severity: 2,
       ),
     ],
-    insights: const <String>['Listening Quiz is your strongest practice mode (20% accuracy).'],
+    insights: const <String>[
+      'Listening Quiz is your strongest practice mode (20% accuracy).',
+    ],
     achievementsUnlocked: 3,
     achievementsTotal: 12,
     nextAchievements: const <NextAchievement>[],

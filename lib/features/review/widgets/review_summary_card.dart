@@ -37,7 +37,10 @@ class ReviewSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("Today's Reviews", style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      "Today's Reviews",
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       hasDueReviews
@@ -49,9 +52,7 @@ class ReviewSummaryCard extends StatelessWidget {
                 ),
               ),
               Icon(
-                hasDueReviews
-                    ? Icons.refresh
-                    : Icons.check_circle_outline,
+                hasDueReviews ? Icons.refresh : Icons.check_circle_outline,
                 color: colorScheme.primary,
                 size: 32,
               ),

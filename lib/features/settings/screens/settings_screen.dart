@@ -88,9 +88,9 @@ class SettingsScreen extends ConsumerWidget {
     if (!context.mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(successMessage)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(successMessage)));
   }
 
   /// Shows the "not built yet" notice, but at most once per 15 minutes per
@@ -101,9 +101,9 @@ class SettingsScreen extends ConsumerWidget {
     if (!ref.read(comingSoonGateProvider).shouldShow(feature)) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature is not available yet.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('$feature is not available yet.')));
   }
 
   @override
@@ -128,8 +128,9 @@ class SettingsScreen extends ConsumerWidget {
                         value: settings.themeMode,
                         options: AppThemeMode.values,
                         labelBuilder: _themeModeLabel,
-                        onChanged: (AppThemeMode mode) =>
-                            controller.update(settings.copyWith(themeMode: mode)),
+                        onChanged: (AppThemeMode mode) => controller.update(
+                          settings.copyWith(themeMode: mode),
+                        ),
                       ),
                     ],
                   ),
@@ -142,16 +143,18 @@ class SettingsScreen extends ConsumerWidget {
                         subtitle: 'Display stroke order hints while writing',
                         leading: Icons.gesture_outlined,
                         value: settings.showStrokeGuide,
-                        onChanged: (bool value) => controller
-                            .update(settings.copyWith(showStrokeGuide: value)),
+                        onChanged: (bool value) => controller.update(
+                          settings.copyWith(showStrokeGuide: value),
+                        ),
                       ),
                       SettingsSwitchTile(
                         title: 'Show writing grid',
                         subtitle: 'Display a reference grid on the canvas',
                         leading: Icons.grid_4x4_outlined,
                         value: settings.showGrid,
-                        onChanged: (bool value) =>
-                            controller.update(settings.copyWith(showGrid: value)),
+                        onChanged: (bool value) => controller.update(
+                          settings.copyWith(showGrid: value),
+                        ),
                       ),
                       SettingsDropdownTile<AnimationSpeed>(
                         title: 'Animation speed',
@@ -159,8 +162,9 @@ class SettingsScreen extends ConsumerWidget {
                         value: settings.animationSpeed,
                         options: AnimationSpeed.values,
                         labelBuilder: _animationSpeedLabel,
-                        onChanged: (AnimationSpeed speed) => controller
-                            .update(settings.copyWith(animationSpeed: speed)),
+                        onChanged: (AnimationSpeed speed) => controller.update(
+                          settings.copyWith(animationSpeed: speed),
+                        ),
                       ),
                     ],
                   ),
@@ -172,15 +176,17 @@ class SettingsScreen extends ConsumerWidget {
                         title: 'Sound effects',
                         leading: Icons.volume_up_outlined,
                         value: settings.soundEnabled,
-                        onChanged: (bool value) => controller
-                            .update(settings.copyWith(soundEnabled: value)),
+                        onChanged: (bool value) => controller.update(
+                          settings.copyWith(soundEnabled: value),
+                        ),
                       ),
                       SettingsSwitchTile(
                         title: 'Haptic feedback',
                         leading: Icons.vibration_outlined,
                         value: settings.hapticsEnabled,
-                        onChanged: (bool value) => controller
-                            .update(settings.copyWith(hapticsEnabled: value)),
+                        onChanged: (bool value) => controller.update(
+                          settings.copyWith(hapticsEnabled: value),
+                        ),
                       ),
                     ],
                   ),
@@ -223,7 +229,8 @@ class SettingsScreen extends ConsumerWidget {
                     subtitle: 'Save your progress to a file',
                     leading: Icons.upload_outlined,
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _showComingSoon(context, ref, 'Export progress'),
+                    onTap: () =>
+                        _showComingSoon(context, ref, 'Export progress'),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsTile(
@@ -231,7 +238,8 @@ class SettingsScreen extends ConsumerWidget {
                     subtitle: 'Restore progress from a file',
                     leading: Icons.download_outlined,
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _showComingSoon(context, ref, 'Import progress'),
+                    onTap: () =>
+                        _showComingSoon(context, ref, 'Import progress'),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   DangerZoneCard(
@@ -312,7 +320,8 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.sm),
                   SettingsTile(
                     title: 'Privacy Policy',
-                    subtitle: 'How your data is handled (spoiler: it stays here)',
+                    subtitle:
+                        'How your data is handled (spoiler: it stays here)',
                     leading: Icons.privacy_tip_outlined,
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => context.push('/legal/privacy'),
@@ -344,8 +353,9 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.sm),
                   Consumer(
                     builder: (BuildContext context, WidgetRef ref, _) {
-                      final AsyncValue<int> storageAsync =
-                          ref.watch(storageUsageProvider);
+                      final AsyncValue<int> storageAsync = ref.watch(
+                        storageUsageProvider,
+                      );
                       return SettingsTile(
                         title: 'Storage usage',
                         subtitle: storageAsync.when(
@@ -367,7 +377,8 @@ class SettingsScreen extends ConsumerWidget {
                     onTap: () => showLicensePage(
                       context: context,
                       applicationName: _appName,
-                      applicationVersion: '$_appVersion (build $_appBuildNumber)',
+                      applicationVersion:
+                          '$_appVersion (build $_appBuildNumber)',
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl),

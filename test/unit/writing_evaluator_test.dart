@@ -12,8 +12,7 @@ import 'package:japanese_learning/features/writing/services/writing_evaluator.da
 const Size _canvas = Size(300, 300);
 const Rect _expectedBox = Rect.fromLTRB(30, 30, 270, 270);
 
-Stroke _strokeAcross(Offset from, Offset to) =>
-    _stroke(<Offset>[from, to]);
+Stroke _strokeAcross(Offset from, Offset to) => _stroke(<Offset>[from, to]);
 
 Stroke _stroke(List<Offset> points) {
   final DateTime now = DateTime(2026, 1, 1);
@@ -36,8 +35,8 @@ StrokeTemplate _template(Offset from, Offset to, {int samples = 16}) {
 
 /// Maps reference templates onto the canvas — i.e. a flawless trace.
 List<Stroke> _perfectTrace(List<StrokeTemplate> reference) => <Stroke>[
-      for (final StrokeTemplate t in reference) _stroke(t.scaledTo(_canvas)),
-    ];
+  for (final StrokeTemplate t in reference) _stroke(t.scaledTo(_canvas)),
+];
 
 double _score(
   List<Stroke> strokes,
@@ -59,14 +58,14 @@ double _score(
 
 /// A plain cross — two strokes, unambiguous geometry.
 List<StrokeTemplate> get _cross => <StrokeTemplate>[
-      _template(const Offset(0.1, 0.5), const Offset(0.9, 0.5)),
-      _template(const Offset(0.5, 0.1), const Offset(0.5, 0.9)),
-    ];
+  _template(const Offset(0.1, 0.5), const Offset(0.9, 0.5)),
+  _template(const Offset(0.5, 0.1), const Offset(0.5, 0.9)),
+];
 
 Map<String, List<StrokeTemplate>> _loadRealStrokeData() {
-  final Map<String, dynamic> raw = jsonDecode(
-    File('assets/data/stroke_data.json').readAsStringSync(),
-  ) as Map<String, dynamic>;
+  final Map<String, dynamic> raw =
+      jsonDecode(File('assets/data/stroke_data.json').readAsStringSync())
+          as Map<String, dynamic>;
   final Map<String, dynamic> characters =
       raw['characters'] as Map<String, dynamic>;
   return <String, List<StrokeTemplate>>{
@@ -137,28 +136,30 @@ void main() {
           for (int s = 0; s < 2; s++)
             _stroke(<Offset>[
               for (int i = 0; i < 14; i++)
-                Offset(30 + rng.nextDouble() * 240, 30 + rng.nextDouble() * 240),
+                Offset(
+                  30 + rng.nextDouble() * 240,
+                  30 + rng.nextDouble() * 240,
+                ),
             ]),
         ];
         expect(_score(scribble, _cross), lessThan(0.2));
       });
 
-      test('a single diagonal line does not pass for a two-stroke character', () {
-        final double score = _score(
-          <Stroke>[_strokeAcross(const Offset(30, 30), const Offset(270, 270))],
-          _cross,
-        );
-        expect(score, lessThan(0.3));
-      });
+      test(
+        'a single diagonal line does not pass for a two-stroke character',
+        () {
+          final double score = _score(<Stroke>[
+            _strokeAcross(const Offset(30, 30), const Offset(270, 270)),
+          ], _cross);
+          expect(score, lessThan(0.3));
+        },
+      );
 
       test('two dots in opposite corners score near zero', () {
-        final double score = _score(
-          <Stroke>[
-            _stroke(const <Offset>[Offset(30, 30), Offset(33, 33)]),
-            _stroke(const <Offset>[Offset(267, 267), Offset(270, 270)]),
-          ],
-          _cross,
-        );
+        final double score = _score(<Stroke>[
+          _stroke(const <Offset>[Offset(30, 30), Offset(33, 33)]),
+          _stroke(const <Offset>[Offset(267, 267), Offset(270, 270)]),
+        ], _cross);
         expect(score, lessThan(0.2));
       });
 
@@ -182,8 +183,10 @@ void main() {
 
       test('correct shapes in the wrong order lose marks but keep credit', () {
         final double inOrder = _score(_perfectTrace(_cross), _cross);
-        final double outOfOrder =
-            _score(_perfectTrace(_cross).reversed.toList(), _cross);
+        final double outOfOrder = _score(
+          _perfectTrace(_cross).reversed.toList(),
+          _cross,
+        );
 
         expect(outOfOrder, lessThan(inOrder));
         // Right shapes, wrong sequence still beats an unrelated scribble.
@@ -205,7 +208,10 @@ void main() {
         );
 
         expect(result.feedbackMessage, contains('wrong direction'));
-        expect(result.accuracy, lessThan(_score(_perfectTrace(_cross), _cross)));
+        expect(
+          result.accuracy,
+          lessThan(_score(_perfectTrace(_cross), _cross)),
+        );
       });
 
       test('writing every stroke backwards costs far more than one slip', () {
@@ -237,25 +243,27 @@ void main() {
         expect(_score(allReversed, _cross), lessThan(0.75));
       });
 
-      test('a symmetric stroke drawn correctly is not flagged as backwards',
-          () {
-        // A single centred horizontal line: forward and reversed readings are
-        // close, so a marginless comparison would flip on noise.
-        final List<StrokeTemplate> dash = <StrokeTemplate>[
-          _template(const Offset(0.2, 0.5), const Offset(0.8, 0.5)),
-        ];
-        final result = evaluator.evaluate(
-          strokes: _perfectTrace(dash),
-          expectedStrokeCount: 1,
-          expectedBoundingBox: _expectedBox,
-          canvasSize: _canvas,
-          isDrawingCompleted: true,
-          referenceStrokes: dash,
-        );
+      test(
+        'a symmetric stroke drawn correctly is not flagged as backwards',
+        () {
+          // A single centred horizontal line: forward and reversed readings are
+          // close, so a marginless comparison would flip on noise.
+          final List<StrokeTemplate> dash = <StrokeTemplate>[
+            _template(const Offset(0.2, 0.5), const Offset(0.8, 0.5)),
+          ];
+          final result = evaluator.evaluate(
+            strokes: _perfectTrace(dash),
+            expectedStrokeCount: 1,
+            expectedBoundingBox: _expectedBox,
+            canvasSize: _canvas,
+            isDrawingCompleted: true,
+            referenceStrokes: dash,
+          );
 
-        expect(result.feedbackMessage, isNot(contains('wrong direction')));
-        expect(result.accuracy, greaterThan(0.9));
-      });
+          expect(result.feedbackMessage, isNot(contains('wrong direction')));
+          expect(result.accuracy, greaterThan(0.9));
+        },
+      );
 
       test('a correct character written small still scores well', () {
         // Same shape, half size, shifted — normalization should absorb this.
@@ -281,39 +289,38 @@ void main() {
 
     group('incomplete drawings (Milestone 22, Issue 1)', () {
       test('a single dot scores zero, not a lucky partial match', () {
-        final double score = _score(
-          <Stroke>[_stroke(const <Offset>[Offset(150, 150), Offset(151, 151)])],
-          _cross,
-        );
+        final double score = _score(<Stroke>[
+          _stroke(const <Offset>[Offset(150, 150), Offset(151, 151)]),
+        ], _cross);
         expect(score, 0);
       });
 
-      test('a single dot produces "too small" feedback, not a shape verdict',
-          () {
-        final result = evaluator.evaluate(
-          strokes: <Stroke>[
-            _stroke(const <Offset>[Offset(150, 150), Offset(151, 151)]),
-          ],
-          expectedStrokeCount: 2,
-          expectedBoundingBox: _expectedBox,
-          canvasSize: _canvas,
-          isDrawingCompleted: true,
-          referenceStrokes: _cross,
-        );
-        expect(result.feedbackMessage, contains('too small to count'));
-      });
+      test(
+        'a single dot produces "too small" feedback, not a shape verdict',
+        () {
+          final result = evaluator.evaluate(
+            strokes: <Stroke>[
+              _stroke(const <Offset>[Offset(150, 150), Offset(151, 151)]),
+            ],
+            expectedStrokeCount: 2,
+            expectedBoundingBox: _expectedBox,
+            canvasSize: _canvas,
+            isDrawingCompleted: true,
+            referenceStrokes: _cross,
+          );
+          expect(result.feedbackMessage, contains('too small to count'));
+        },
+      );
 
       test('an extremely short stroke scores zero', () {
         // Below _denoise's own noise-length threshold, same as a dot.
-        final double score = _score(
-          <Stroke>[_strokeAcross(const Offset(150, 150), const Offset(152, 151))],
-          _cross,
-        );
+        final double score = _score(<Stroke>[
+          _strokeAcross(const Offset(150, 150), const Offset(152, 151)),
+        ], _cross);
         expect(score, 0);
       });
 
-      test('one full stroke out of three expected scores well under half',
-          () {
+      test('one full stroke out of three expected scores well under half', () {
         final List<StrokeTemplate> threeStrokes = <StrokeTemplate>[
           ..._cross,
           _template(const Offset(0.2, 0.2), const Offset(0.8, 0.8)),
@@ -325,18 +332,21 @@ void main() {
         expect(
           score,
           lessThan(0.35),
-          reason: 'one accurate stroke out of three is incomplete, not '
+          reason:
+              'one accurate stroke out of three is incomplete, not '
               'roughly-a-third correct',
         );
       });
 
-      test('a faithful full-length trace is unaffected by the completion check',
-          () {
-        // Guards the completion factor itself: a complete attempt must not
-        // be penalised by the new gate — covered here directly rather than
-        // relying only on the pre-existing "faithful trace" test above.
-        expect(_score(_perfectTrace(_cross), _cross), greaterThan(0.9));
-      });
+      test(
+        'a faithful full-length trace is unaffected by the completion check',
+        () {
+          // Guards the completion factor itself: a complete attempt must not
+          // be penalised by the new gate — covered here directly rather than
+          // relying only on the pre-existing "faithful trace" test above.
+          expect(_score(_perfectTrace(_cross), _cross), greaterThan(0.9));
+        },
+      );
     });
 
     group('without reference geometry', () {
@@ -364,14 +374,14 @@ void main() {
       final Map<String, List<StrokeTemplate>> data = _loadRealStrokeData();
 
       test('every lesson character has reference strokes', () {
-        for (final String script in <String>[
-          'hiragana',
-          'katakana',
-          'kanji',
-        ]) {
-          final Map<String, dynamic> lessons = jsonDecode(
-            File('assets/data/${script}_lessons.json').readAsStringSync(),
-          ) as Map<String, dynamic>;
+        for (final String script in <String>['hiragana', 'katakana', 'kanji']) {
+          final Map<String, dynamic> lessons =
+              jsonDecode(
+                    File(
+                      'assets/data/${script}_lessons.json',
+                    ).readAsStringSync(),
+                  )
+                  as Map<String, dynamic>;
           for (final dynamic lesson in lessons['lessons'] as List<dynamic>) {
             for (final dynamic c
                 in (lesson as Map<String, dynamic>)['characters']

@@ -65,7 +65,10 @@ class PracticeCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(mode.title, style: Theme.of(context).textTheme.titleLarge),
+                          Text(
+                            mode.title,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
                           Text(
                             practiceDifficultyLabel(mode.difficulty),
                             style: Theme.of(context).textTheme.bodySmall,
@@ -76,14 +79,17 @@ class PracticeCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                Text(mode.description, style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  mode.description,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 if (!enabled && disabledReason != null)
                   Text(
                     disabledReason!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.error,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: colorScheme.error),
                   )
                 else
                   Text(

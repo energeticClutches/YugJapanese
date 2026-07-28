@@ -60,8 +60,10 @@ class JapaneseLearningApp extends StatelessWidget {
     return ProviderScope(
       child: Consumer(
         builder: (BuildContext context, WidgetRef ref, Widget? child) {
-          final AppThemeMode mode =
-              ref.watch(currentSettingsProvider).settings.themeMode;
+          final AppThemeMode mode = ref
+              .watch(currentSettingsProvider)
+              .settings
+              .themeMode;
           return MaterialApp.router(
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,

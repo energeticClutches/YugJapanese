@@ -13,9 +13,7 @@ final reviewSchedulerProvider = Provider<ReviewScheduler>(
   (Ref ref) => ReviewScheduler(ref.watch(reviewRepositoryProvider)),
 );
 
-final dueReviewsProvider = FutureProvider<List<ReviewItem>>(
-  (Ref ref) async {
-    final ReviewScheduler scheduler = ref.watch(reviewSchedulerProvider);
-    return scheduler.getDueReviews();
-  },
-);
+final dueReviewsProvider = FutureProvider<List<ReviewItem>>((Ref ref) async {
+  final ReviewScheduler scheduler = ref.watch(reviewSchedulerProvider);
+  return scheduler.getDueReviews();
+});

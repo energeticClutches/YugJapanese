@@ -37,24 +37,27 @@ void main() {
     expect(tapCount, 1);
   });
 
-  testWidgets('does not call onTap when onTap is null (locked/answered state)',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(
-      wrap(
-        const AnswerOption(
-          label: 'ka',
-          state: AnswerOptionState.revealedCorrect,
-          onTap: null,
+  testWidgets(
+    'does not call onTap when onTap is null (locked/answered state)',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const AnswerOption(
+            label: 'ka',
+            state: AnswerOptionState.revealedCorrect,
+            onTap: null,
+          ),
         ),
-      ),
-    );
+      );
 
-    // Should render without throwing and without a tappable InkWell action.
-    expect(find.text('ka'), findsOneWidget);
-  });
+      // Should render without throwing and without a tappable InkWell action.
+      expect(find.text('ka'), findsOneWidget);
+    },
+  );
 
-  testWidgets('renders distinctly for each visual state without throwing',
-      (WidgetTester tester) async {
+  testWidgets('renders distinctly for each visual state without throwing', (
+    WidgetTester tester,
+  ) async {
     for (final AnswerOptionState state in AnswerOptionState.values) {
       await tester.pumpWidget(
         wrap(AnswerOption(label: 'ka', state: state, onTap: () {})),

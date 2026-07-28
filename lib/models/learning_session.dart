@@ -79,7 +79,8 @@ class LearningSession {
   }) {
     return LearningSession(
       lessonNumber: lessonNumber ?? this.lessonNumber,
-      currentCharacterIndex: currentCharacterIndex ?? this.currentCharacterIndex,
+      currentCharacterIndex:
+          currentCharacterIndex ?? this.currentCharacterIndex,
       currentStep: currentStep ?? this.currentStep,
       totalCharacters: totalCharacters ?? this.totalCharacters,
       completedCharacters: completedCharacters ?? this.completedCharacters,

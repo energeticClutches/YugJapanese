@@ -21,11 +21,11 @@ final contentSourcesProvider = Provider<List<ContentSource>>(
       .toList(growable: false),
 );
 
-final learningStatisticsProvider = FutureProvider<LearningStatistics>(
-  (Ref ref) async {
-    ref.watch(progressControllerProvider);
-    final StatisticsService service = ref.watch(statisticsServiceProvider);
-    final List<ContentSource> sources = ref.watch(contentSourcesProvider);
-    return service.getStatistics(sources);
-  },
-);
+final learningStatisticsProvider = FutureProvider<LearningStatistics>((
+  Ref ref,
+) async {
+  ref.watch(progressControllerProvider);
+  final StatisticsService service = ref.watch(statisticsServiceProvider);
+  final List<ContentSource> sources = ref.watch(contentSourcesProvider);
+  return service.getStatistics(sources);
+});

@@ -51,8 +51,9 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            progressRepositoryProvider
-                .overrideWithValue(FakeProgressRepository()),
+            progressRepositoryProvider.overrideWithValue(
+              FakeProgressRepository(),
+            ),
             learningStatisticsProvider.overrideWith(
               (Ref ref) async => LearningStatistics.empty,
             ),

@@ -3,7 +3,8 @@ import 'package:japanese_learning/features/achievements/repositories/achievement
 
 /// Simple in-memory [AchievementRepository] for tests — no Hive involved.
 class FakeAchievementRepository implements AchievementRepository {
-  final Map<String, AchievementProgress> _store = <String, AchievementProgress>{};
+  final Map<String, AchievementProgress> _store =
+      <String, AchievementProgress>{};
 
   @override
   Future<List<AchievementProgress>> getAllProgress() async =>

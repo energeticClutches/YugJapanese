@@ -85,8 +85,8 @@ class WritingPracticePanel extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: hasInk
                     ? () => onStrokesChanged(
-                          strokes.sublist(0, strokes.length - 1),
-                        )
+                        strokes.sublist(0, strokes.length - 1),
+                      )
                     : null,
                 icon: const Icon(Icons.undo),
                 label: const Text('Undo'),
@@ -95,8 +95,9 @@ class WritingPracticePanel extends StatelessWidget {
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: OutlinedButton.icon(
-                onPressed:
-                    hasInk ? () => onStrokesChanged(const <Stroke>[]) : null,
+                onPressed: hasInk
+                    ? () => onStrokesChanged(const <Stroke>[])
+                    : null,
                 icon: const Icon(Icons.clear),
                 label: const Text('Clear'),
               ),

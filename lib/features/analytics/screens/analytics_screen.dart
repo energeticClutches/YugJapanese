@@ -34,8 +34,9 @@ class AnalyticsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<LearningAnalytics> analyticsAsync =
-        ref.watch(learningAnalyticsProvider);
+    final AsyncValue<LearningAnalytics> analyticsAsync = ref.watch(
+      learningAnalyticsProvider,
+    );
 
     return AppScaffold(
       appBar: AppBar(
@@ -51,13 +52,17 @@ class AnalyticsScreen extends ConsumerWidget {
             ),
             itemBuilder: (BuildContext context) => const [
               PopupMenuItem<String>(value: 'csv', child: Text('Export as CSV')),
-              PopupMenuItem<String>(value: 'json', child: Text('Export as JSON')),
+              PopupMenuItem<String>(
+                value: 'json',
+                child: Text('Export as JSON'),
+              ),
             ],
           ),
         ],
       ),
       child: analyticsAsync.when(
-        data: (LearningAnalytics analytics) => _AnalyticsContent(analytics: analytics),
+        data: (LearningAnalytics analytics) =>
+            _AnalyticsContent(analytics: analytics),
         loading: () => const LoadingIndicator(),
         error: (Object error, StackTrace stackTrace) =>
             _AnalyticsContent(analytics: LearningAnalytics.empty),
@@ -79,9 +84,7 @@ class AnalyticsScreen extends ConsumerWidget {
       final file = await ref
           .read(analyticsExportServiceProvider)
           .exportToFile(analytics, asCsv: asCsv);
-      messenger.showSnackBar(
-        SnackBar(content: Text('Saved to ${file.path}')),
-      );
+      messenger.showSnackBar(SnackBar(content: Text('Saved to ${file.path}')));
     } catch (_) {
       messenger.showSnackBar(
         const SnackBar(content: Text('Export failed. Please try again.')),
@@ -102,7 +105,10 @@ class _AnalyticsContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: AppSpacing.md),
-          Text('Overall Progress', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'Overall Progress',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: AppSpacing.md),
           Center(
             child: ProgressRing(
@@ -139,17 +145,22 @@ class _AnalyticsContent extends StatelessWidget {
               StatisticCard(
                 icon: Icons.local_fire_department_outlined,
                 label: 'Current Streak',
-                value: '${analytics.currentStreakDays} day${analytics.currentStreakDays == 1 ? '' : 's'}',
+                value:
+                    '${analytics.currentStreakDays} day${analytics.currentStreakDays == 1 ? '' : 's'}',
               ),
               StatisticCard(
                 icon: Icons.emoji_events_outlined,
                 label: 'Longest Streak',
-                value: '${analytics.longestStreakDays} day${analytics.longestStreakDays == 1 ? '' : 's'}',
+                value:
+                    '${analytics.longestStreakDays} day${analytics.longestStreakDays == 1 ? '' : 's'}',
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.xl),
-          Text('Script Breakdown', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'Script Breakdown',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: AppSpacing.md),
           Wrap(
             spacing: AppSpacing.md,
@@ -166,7 +177,10 @@ class _AnalyticsContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xl),
-          Text('Accuracy Trends', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'Accuracy Trends',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: AppSpacing.md),
           TrendChart(
             series: [
@@ -191,13 +205,18 @@ class _AnalyticsContent extends StatelessWidget {
                 color: AppColors.warning,
                 values: [
                   for (final DailyLearningStat day in analytics.dailyActivity)
-                    day.reviewSuccessRate == null ? null : day.reviewSuccessRate! * 100,
+                    day.reviewSuccessRate == null
+                        ? null
+                        : day.reviewSuccessRate! * 100,
                 ],
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.xl),
-          Text('Activity Calendar', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'Activity Calendar',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: AppSpacing.md),
           ActivityHeatmap(days: analytics.dailyActivity),
           const SizedBox(height: AppSpacing.xl),
@@ -206,7 +225,8 @@ class _AnalyticsContent extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () => context.push('/quiz/play?mode=weak_items&length=10'),
+              onPressed: () =>
+                  context.push('/quiz/play?mode=weak_items&length=10'),
               icon: const Icon(Icons.fitness_center),
               label: const Text('Practice Now'),
             ),
@@ -228,12 +248,16 @@ class _AnalyticsContent extends StatelessWidget {
               ],
             ),
           const SizedBox(height: AppSpacing.xl),
-          Text('Achievement Summary', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'Achievement Summary',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: AppSpacing.md),
           StatisticCard(
             icon: Icons.emoji_events_outlined,
             label: 'Unlocked',
-            value: '${analytics.achievementsUnlocked} / ${analytics.achievementsTotal}',
+            value:
+                '${analytics.achievementsUnlocked} / ${analytics.achievementsTotal}',
           ),
           if (analytics.nextAchievements.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.md),
@@ -251,11 +275,18 @@ class _AnalyticsContent extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(next.title, style: Theme.of(context).textTheme.labelLarge),
+                          Text(
+                            next.title,
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
                           const SizedBox(height: AppSpacing.xs),
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(AppRadius.small),
-                            child: LinearProgressIndicator(value: next.progress),
+                            borderRadius: BorderRadius.circular(
+                              AppRadius.small,
+                            ),
+                            child: LinearProgressIndicator(
+                              value: next.progress,
+                            ),
                           ),
                         ],
                       ),

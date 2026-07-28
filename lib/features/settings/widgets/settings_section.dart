@@ -38,9 +38,7 @@ class SettingsSection extends StatelessWidget {
             side: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
           clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: _withDividers(children),
-          ),
+          child: Column(children: _withDividers(children)),
         ),
       ],
     );

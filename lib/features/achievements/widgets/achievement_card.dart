@@ -20,10 +20,9 @@ class AchievementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final Color foreground =
-        isUnlocked
-            ? colorScheme.primary
-            : colorScheme.onSurface.withValues(alpha: 0.6);
+    final Color foreground = isUnlocked
+        ? colorScheme.primary
+        : colorScheme.onSurface.withValues(alpha: 0.6);
 
     final Widget card = Material(
       color: colorScheme.surface,

@@ -11,5 +11,5 @@ final strokeDataRepositoryProvider = Provider<StrokeDataRepository>(
 /// has no entry for it (the writing UI then falls back to free drawing).
 final characterStrokesProvider =
     FutureProvider.family<CharacterStrokes?, String>((Ref ref, String symbol) {
-  return ref.watch(strokeDataRepositoryProvider).strokesFor(symbol);
-});
+      return ref.watch(strokeDataRepositoryProvider).strokesFor(symbol);
+    });
