@@ -3106,3 +3106,160 @@ to Codecov. Constraints respected: no threshold, no build failing on
 coverage percentage, no second workflow, `flutter_ci.yml`'s existing
 format/analyze/test/build steps and the Phase 2 build artifacts are
 otherwise untouched.
+
+## Milestone 26: Release Candidate (RC1) Validation
+
+Full end-to-end audit ahead of tagging `v1.0.0`, against a release build
+built fresh from a clean checkout — not the codebase, an actual installed
+APK. Automated checks (`flutter analyze`, `flutter test` 94/94,
+`flutter build apk/appbundle --release`) all pass, matching CI. The real
+work was a live interactive walkthrough: fresh install (`pm clear` for a
+genuine first-run state) on an Android emulator, driven via `adb`
+(`input tap`/`swipe` against real `uiautomator dump` coordinates, not
+guessed — several early taps missed their target and were caught exactly
+this way), with `adb logcat` capturing the full session — three separate
+process lifetimes (initial launch, a real `am force-stop` + relaunch, and
+an airplane-mode relaunch), ~67,000 log lines total, grepped for crashes,
+Riverpod errors, Hive errors, layout overflows, and asset failures across
+all three, not spot-checked. Full findings, evidence, and the exact
+recurrence count are in `RC1_VERIFICATION_REPORT.md`; summary here.
+
+**One release blocker found: `google_fonts` phones home.**
+`lib/core/theme/app_typography.dart`/`app_theme.dart` call
+`GoogleFonts.notoSansJp()`/`notoSansJpTextTheme()` for the app's entire
+typography system. No `.ttf` is bundled and no `fonts:` block exists in
+`pubspec.yaml`, so `google_fonts`'s default behavior — fetch the font
+live from `fonts.gstatic.com` — is the *only* path, not a fallback. That
+directly contradicts `PRIVACY_POLICY.md` ("The app makes no network
+requests. It does not use the internet.") and `README.md` ("fully
+functional offline from first launch"). Confirmed via logcat that this
+recurs **7 times across one session** (once per distinct font
+weight/variant first hit while navigating, not just once at splash), and
+confirmed via `svc wifi disable`/`svc data disable` plus a relaunch that
+it fires unconditionally — it doesn't check connectivity first, it just
+always tries. It's logged as an `Unhandled Exception`
+(`dart_vm_initializer.cc(40)`), which is exactly the kind of thing this
+audit's technical-verification pass was designed to catch.
+
+**What it doesn't do: break anything visible.** Every Hiragana, Katakana,
+and Kanji character rendered correctly and legibly in every screen
+tested, light and dark theme both — Android's system font stack supplies
+CJK fallback glyphs, so the failure is invisible unless you're reading
+logs. That's exactly why it survived this long: nothing in manual
+spot-testing or the automated suite would have surfaced it. Not a
+crash, not a rendering bug — a genuine breach of a specific written
+privacy promise, and a real (if narrow) fix: bundle `NotoSansJP` as a
+local asset instead of using the runtime-fetch API, or set
+`GoogleFonts.config.allowRuntimeFetching = false` with that asset as
+fallback. Recorded as a new, separate "Blocking — required before
+tagging v1.0.0" section in `RELEASE_CHECKLIST.md`, ahead of the existing
+"Deferred — required before publishing" items — this one should block
+the tag itself, not just a Play Store submission the way a missing
+production keystore or placeholder branding does. Also corrected two
+now-inaccurate `[x]` claims in that same checklist from Milestone 20
+("no network requests" / "no uncaught exceptions in logcat") rather than
+leaving them checked and misleading next to the new finding.
+
+**Everything else in scope held up.** Re-verified, in a real release
+build, that previously-fixed bugs are still fixed: BUG-006 (writing
+evaluator doesn't reward scribbles — drew a real sloppy free-writing
+attempt, got scored 0%), BUG-004 (dark theme readability — Light→Dark
+switch confirmed clean on Settings and Dashboard), BUG-007/Milestone 22
+Issue 3 (writing-canvas state reset — traced an edge case where skipping
+a character via "Next Character" before finishing its writing step shows
+0% rather than stale data from a different character, confirmed
+intentional and correctly engineered, not a new bug), and Milestone 24
+(activity calendar — confirmed the week-grid fix renders correctly with
+today's cell highlighted, live in the release build). Also exercised for
+real, not just visually inspected: touch-based stroke tracing (with its
+accuracy gate correctly rejecting a sloppy trace), a full 10-question
+quiz session (real scoring, achievement unlock, streak increment),
+search live-filtering, progress persistence across a genuine process
+kill (not just backgrounding — confirmed via `pidof` returning nothing
+before relaunch), landscape orientation (no overflow), back navigation
+at every depth, and full offline operation with wifi and mobile data
+both disabled.
+
+**Recommendation: Minor fixes required.** One well-scoped blocker
+(narrow fix, two files, no architecture change) against an otherwise
+clean pass — zero crashes, zero framework-level errors of any kind
+across the entire session. Fix the font bundling, rebuild, and re-verify
+before tagging `v1.0.0`; every other item already tracked as deferred
+post-v1.0 work in `RELEASE_CHECKLIST.md` (production keystore, real
+branding, physical-device verification, store assets, iOS) remains
+correctly out of scope for this milestone.
+
+## Milestone 26.1: Offline Font Compliance
+
+Fixed the one blocker Milestone 26 found. `lib/core/theme/
+app_typography.dart` and `app_theme.dart` no longer call
+`GoogleFonts.notoSansJp()`/`notoSansJpTextTheme()` at all —
+`NotoSansJP-Variable.ttf` is downloaded once (from
+`raw.githubusercontent.com/google/fonts`, the same official source
+`google_fonts` itself pulls from — verified by size against the GitHub
+API listing: 9,589,900 bytes, byte-for-byte match) and bundled directly
+in `assets/fonts/`, declared as a `fonts:` family in `pubspec.yaml` with
+four `weight:` entries (400/500/600/700) all pointing at the same
+variable-font file — Flutter resolves the correct instance from the
+weight axis per Flutter's own documented pattern for using a single
+variable font across multiple weights, so this isn't four copies of a
+9.5MB file, just four ways to address the one bundled copy. `app_theme.dart`
+and `app_typography.dart` now reference it by a shared
+`AppTypography.fontFamily` constant instead of duplicating the family
+name string in two places. `google_fonts` was removed from `pubspec.yaml`
+entirely — `flutter pub get` confirmed it's no longer in the dependency
+tree — and `CLAUDE.md`'s approved-dependencies list was updated to match
+(the one exception to "don't remove dependencies without approval" this
+session: the user's own fix instructions explicitly specified bundling a
+local asset in place of the package, which makes it unambiguously unused).
+
+**A workaround became dead code and was deleted.** `test/
+flutter_test_config.dart` existed solely to set `GoogleFonts.config.
+allowRuntimeFetching = false` so widget tests wouldn't hang trying to
+reach the network in a sandboxed test environment — its own comment
+described exactly the symptom this whole milestone traces back to. With
+`google_fonts` gone, there's nothing left for it to guard against, so it
+was removed rather than left as a confusing no-op. Tests still pass
+(94/94, same as before) and run in the same ~9s, confirming no test ever
+actually needed a real network fetch — the workaround was doing its job.
+
+**Caught a bug in my own fix before calling it done.** The first rebuild
+threw a real, user-visible error: opening Settings → Licenses showed
+*"Unable to load asset: assets/fonts/OFL.txt"*. `main.dart` registers
+that file's contents via `LicenseRegistry.addLicense()` (so the bundled
+font's SIL OFL 1.1 license shows up in the in-app Licenses page the same
+way pub-package licenses do automatically — Flutter's own aggregation
+only covers pub packages, not raw bundled assets, so this needed doing
+by hand) — but the `fonts:` block in `pubspec.yaml` only registers the
+`.ttf` itself as a font asset, not other files sitting in that directory.
+Added `assets/fonts/OFL.txt` as its own explicit `assets:` entry and
+rebuilt; confirmed the error is gone and the Licenses page loads cleanly.
+Also corrected `CREDITS.md`'s prior "google_fonts — bundles the Noto Sans
+JP typeface" line, which was already factually wrong before this
+milestone (that's precisely the behavior Milestone 26 found it doesn't
+do) — it now credits Noto Sans JP directly as a bundled asset, sourced
+and licensed correctly.
+
+**Re-validation, targeted per the plan rather than a full second RC1
+pass**: `flutter analyze` clean, `flutter test` 94/94, both
+`flutter build apk/appbundle --release` succeed (APK grew from 52.7MB to
+57.2MB — the bundled font's cost, paid once at install time instead of
+on every cold start over the network). Installed the rebuilt APK fresh
+(`pm clear`), disabled wifi *and* mobile data (`svc wifi disable`/
+`svc data disable`, not just airplane mode), launched, and captured the
+full `adb logcat`: zero requests to `fonts.gstatic.com` or
+`fonts.google.com`, zero `E/flutter` lines, zero unhandled exceptions,
+zero crashes. Spot-checked the Kanji lesson list (the densest,
+most-multi-stroke glyphs in the app) offline — renders identically to
+before, exactly as expected since it's the same typeface file, now just
+loaded from the app package instead of a CDN.
+
+**Recommendation updated: Ready for release.** `RC1_VERIFICATION_REPORT.md`
+and `RELEASE_CHECKLIST.md` both updated in place — the checklist's
+"Blocking — required before tagging v1.0.0" section is now "Resolved
+blockers," and the two Milestone-20 checklist lines Milestone 26 had to
+mark false ("no network requests," "no uncaught exceptions in logcat")
+are back to `[x]`, with their correction history kept visible rather than
+silently restored, so a future reader can see both that they briefly
+went false and exactly why. Per the plan, next up is Milestone 27 —
+Release Preparation.

@@ -26,7 +26,6 @@ lib/
 - hive
 - hive_flutter
 - path_provider
-- google_fonts
 - shared_preferences
 - flutter_svg
 - audioplayers

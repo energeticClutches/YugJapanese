@@ -21,9 +21,17 @@ YugJapanese is built with the following open-source software:
 
 ## Typography & graphics
 
-- [google_fonts](https://pub.dev/packages/google_fonts) — bundles the
-  Noto Sans JP typeface (SIL Open Font License) used throughout the app
-  for Japanese text rendering.
+- **[Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP)**,
+  designed by Google, licensed under the
+  [SIL Open Font License 1.1](https://openfontlicense.org/) — used
+  throughout the app for Japanese text rendering. The variable font file
+  is bundled directly in `assets/fonts/` and loaded from the app package
+  (see the license text bundled alongside it,
+  `assets/fonts/OFL.txt`), rather than fetched over the network at
+  runtime — a change made in Milestone 26.1 after the RC1 audit found
+  the previous `google_fonts`-based runtime fetch contradicted this
+  project's own offline/no-network-requests claims (see
+  `RC1_VERIFICATION_REPORT.md`).
 - [flutter_svg](https://pub.dev/packages/flutter_svg) — vector graphics
   rendering (MIT)
 

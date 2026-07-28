@@ -1,13 +1,16 @@
 # Release Checklist — v1.0.0
 
-Status as of Milestone 20 (2026-07-26). Items marked ⬜ are **blockers for
-a public Play Store release** and are intentionally deferred out of this
-milestone's scope.
+Status as of Milestone 20 (2026-07-26), re-verified and corrected by the
+Milestone 26 (RC1) audit and Milestone 26.1 fix (2026-07-28). Items marked
+⬜ are **blockers for a public Play Store release** and are intentionally
+deferred out of this milestone's scope.
 
 ## Code quality
 
 - [x] `flutter analyze` reports no issues.
-- [x] `flutter test` — all 36 tests pass (unit, widget, and flow).
+- [x] `flutter test` — all 94 tests pass (unit, widget, and flow; grown
+      from 36 at Milestone 20 as the app grew — re-confirmed passing as
+      of Milestone 26.1).
 - [x] No stray debug printing on the startup or interaction paths.
       (`debugPrint` appears only inside `safe_parse`'s `kDebugMode` guard.)
 - [x] No TODO/FIXME comments blocking v1.0. The former `TODO` markers in
@@ -44,9 +47,20 @@ clean install:
 - [x] Settings — all preference groups, Diagnostics (storage usage,
       licenses), and the new Legal section.
 - [x] Legal — Privacy Policy, Terms of Use, and Credits render in-app.
-- [x] Offline — the app makes no network requests; no networking package
-      is present in the dependency tree.
+- [x] Offline — the app makes no network requests. **Flagged false by the
+      Milestone 26 (RC1) audit** (`google_fonts` fetched `NotoSansJP` from
+      `fonts.gstatic.com` at runtime), **fixed in Milestone 26.1**: the
+      font is now bundled locally (`assets/fonts/NotoSansJP-Variable.ttf`)
+      and `google_fonts` was removed from the dependency tree entirely.
+      Re-verified with wifi and mobile data both disabled: zero requests
+      to `fonts.gstatic.com`/`fonts.google.com` in logcat. See
+      `RC1_VERIFICATION_REPORT.md`.
 - [x] No uncaught exceptions in logcat across the entire walkthrough.
+      **Flagged false by the Milestone 26 (RC1) audit** (the network
+      fetch above threw an unhandled exception on every cold start),
+      **fixed in Milestone 26.1**: re-ran the full offline walkthrough
+      against the rebuilt release APK — zero `E/flutter` lines, zero
+      unhandled exceptions, zero crashes.
 
 ## UI
 
@@ -71,8 +85,28 @@ clean install:
       adaptive icon.
 - [x] Splash screen generated with light and dark variants.
 - [x] Legal documents bundled in-app and present at the repository root.
-- [x] `flutter build apk --release` succeeds (52.2 MB).
-- [x] `flutter build appbundle` succeeds (50.9 MB).
+- [x] `flutter build apk --release` succeeds (57.2 MB — up from 52.2 MB
+      after Milestone 26.1 bundled the ~9.1 MB Noto Sans JP variable font
+      directly into the APK instead of fetching it at runtime).
+- [x] `flutter build appbundle` succeeds (56.0 MB).
+
+## Resolved blockers
+
+- [x] ~~Stop `google_fonts` from fetching `NotoSansJP` over the network at
+      runtime.~~ Found by the Milestone 26 (RC1) audit, **fixed in
+      Milestone 26.1**: `NotoSansJP-Variable.ttf` (SIL OFL 1.1, official
+      Google Fonts source) is now bundled directly in `assets/fonts/` and
+      declared as a `fonts:` entry in `pubspec.yaml`; `app_typography.dart`
+      and `app_theme.dart` reference it by family name instead of calling
+      `GoogleFonts.notoSansJp()`/`notoSansJpTextTheme()`; the `google_fonts`
+      package was removed from `pubspec.yaml` entirely (confirmed via
+      `flutter pub get`: "These packages are no longer being depended on:
+      google_fonts"). Re-verified end to end: `flutter analyze` clean,
+      `flutter test` 94/94, both release builds succeed, and a fresh
+      offline install (wifi + mobile data both disabled) produces zero
+      requests to `fonts.gstatic.com`/`fonts.google.com` and zero
+      unhandled exceptions in logcat. Full detail in
+      `RC1_VERIFICATION_REPORT.md`.
 
 ## Deferred — required before publishing
 

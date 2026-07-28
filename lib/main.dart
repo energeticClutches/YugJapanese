@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -14,6 +16,13 @@ import 'features/settings/repositories/hive_settings_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Noto Sans JP is a bundled asset, not a pub package, so Flutter's
+  // automatic per-package LICENSE aggregation (Settings -> Licenses)
+  // doesn't pick it up on its own — register it explicitly instead.
+  LicenseRegistry.addLicense(() async* {
+    final String ofl = await rootBundle.loadString('assets/fonts/OFL.txt');
+    yield LicenseEntryWithLineBreaks(<String>['Noto Sans JP'], ofl);
+  });
   await Hive.initFlutter();
   await Future.wait(<Future<void>>[
     _openBoxSafely('lesson_progress'),

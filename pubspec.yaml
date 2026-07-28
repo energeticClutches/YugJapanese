@@ -14,7 +14,6 @@ dependencies:
   hive: any
   hive_flutter: any
   path_provider: any
-  google_fonts: any
   shared_preferences: any
   flutter_svg: any
   audioplayers: any
@@ -41,6 +40,26 @@ flutter:
     - PRIVACY_POLICY.md
     - TERMS_OF_USE.md
     - CREDITS.md
+    # Bundled font's license text, read at runtime for Settings -> Licenses
+    # (see main.dart's LicenseRegistry.addLicense). The `fonts:` block below
+    # only registers the .ttf itself as a font asset, not other files in
+    # that directory, so this needs its own explicit `assets:` entry.
+    - assets/fonts/OFL.txt
+  # Bundled locally so Japanese text renders without a network fetch (see
+  # RC1_VERIFICATION_REPORT.md / Milestone 26.1) — Noto Sans JP, SIL Open
+  # Font License 1.1, sourced from Google's official font repository. One
+  # variable font file serves every weight declared below.
+  fonts:
+    - family: "Noto Sans JP"
+      fonts:
+        - asset: assets/fonts/NotoSansJP-Variable.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansJP-Variable.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSansJP-Variable.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSansJP-Variable.ttf
+          weight: 700
 
 # Placeholder v1.0 branding, generated from a simple torii-gate silhouette
 # (see assets/branding/). These are temporary and meant to be replaced

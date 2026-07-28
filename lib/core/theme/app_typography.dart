@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
 class AppTypography {
   AppTypography._();
+
+  /// Family name declared for the bundled variable font in pubspec.yaml
+  /// (`assets/fonts/NotoSansJP-Variable.ttf`, SIL OFL 1.1 — see
+  /// CREDITS.md). Rendered locally rather than fetched at runtime; see
+  /// RC1_VERIFICATION_REPORT.md for why that distinction matters here.
+  static const String fontFamily = 'Noto Sans JP';
 
   static TextTheme get textTheme => _buildTextTheme(
     primary: AppColors.textPrimary,
@@ -20,7 +25,9 @@ class AppTypography {
     required Color primary,
     required Color secondary,
   }) {
-    final base = GoogleFonts.notoSansJpTextTheme();
+    final TextTheme base = Typography.material2021(
+      platform: TargetPlatform.android,
+    ).black.apply(fontFamily: fontFamily);
 
     return base.copyWith(
       displayLarge: base.displayLarge?.copyWith(
