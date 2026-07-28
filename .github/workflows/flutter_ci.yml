@@ -20,14 +20,24 @@ name: Flutter CI
 # Milestone 30 - `push:` was previously unfiltered, and an unfiltered push
 # event matches every ref, tags included. Pushing v1.0.0 therefore ran
 # this workflow *and* release.yml against the same commit: two full
-# format/analyze/test/build cycles for one release. `tags-ignore: '**'`
-# excludes tag pushes only - every branch push still runs, and the
-# pull_request trigger below is untouched. Release tags are validated by
-# CI on their branch before tagging, and release.yml builds the artifacts
-# it publishes, so nothing is left unverified by this.
+# format/analyze/test/build cycles for one release.
+#
+# `branches: '**'` restricts this trigger to branch pushes, so tag pushes
+# no longer match and release tags run release.yml alone. Nothing is left
+# unverified: a release commit is validated by CI on its branch before
+# being tagged, and release.yml builds the artifacts it publishes. The
+# pull_request trigger below is untouched.
+#
+# Do NOT "simplify" this to `tags-ignore: '**'`. That was tried first and
+# silently disabled CI completely - GitHub only runs a push trigger for
+# refs of a kind you filtered on, so defining tags-ignore alone makes the
+# trigger tag-only, and ignoring every tag then leaves nothing that can
+# ever match. `branches: '**'` is the correct inverse. `**` (not `*`) is
+# required so branch names containing slashes still match, e.g.
+# dependabot/github_actions/... - `*` stops at the first slash.
 on:
   push:
-    tags-ignore:
+    branches:
       - "**"
   pull_request:
 
