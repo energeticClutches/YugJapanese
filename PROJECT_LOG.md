@@ -7,23 +7,35 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
 
 ## Current State (read this first in a new session)
 
-- **Last completed milestone: 28 (Publish v1.0.0). `v1.0.0` is tagged and
-  released — the project is now a shipped product, not a pre-release
-  codebase.** The tag `v1.0.0` (lightweight) points at commit `d7e21ad`,
-  and the automated Release workflow published
+- **Last completed milestone: 30 (Post-Release Maintenance).** CI/CD
+  hygiene only — no application code touched since Milestone 26.1. `main`
+  is at `1ffea25`; `v1.0.0` still tags `d7e21ad` (Milestone 28's release
+  commit is untouched by design — maintenance moved `main` forward, it
+  did not retag or republish the release). `flutter_ci.yml`'s push
+  trigger no longer matches tag pushes (`branches: '**'`, not the
+  previous unfiltered `push:`), so a release tag now runs only
+  `release.yml` — verified live with a throwaway tag, not just read from
+  the YAML. All three open Dependabot PRs were reviewed and merged
+  individually (`upload-artifact`, `checkout` → v7; `action-gh-release`
+  → v3), each confirmed via a full green CI run before the next was
+  touched. See the Milestone 30 entry below for the CI-disabling mistake
+  made and caught while getting there.
+- **Last release-affecting milestone: 28 (Publish v1.0.0).** `v1.0.0` is
+  tagged and released — the project is a shipped product, not a
+  pre-release codebase. The Release workflow published
   <https://github.com/energeticClutches/YugJapanese/releases/tag/v1.0.0>
   with `app-release.apk` (57.2 MB) and `app-release.aab` (55.9 MB)
-  attached. Milestone 27 (documentation) and 28 (publication) touched no
-  application code; the last milestone to change application code was
-  **26.1 (Offline Font Compliance)**, which resolved the one release
-  blocker Milestone 26 (RC1 Validation) found (`google_fonts` fetching
-  over the network). Between Milestone 20 and 26.1, ten numbered bugs
-  (BUG-001 through BUG-010), four stabilization milestones (21–24), and
-  one enhancement pass (spaced repetition, stroke direction, mnemonics,
-  pacing) were completed — see their individual entries below; the
-  now-comprehensive list also lives in `CHANGELOG.md`'s `[1.0.0]` entry.
-  `flutter analyze` clean, `flutter test` passing (94/94), and both
-  release builds succeed — verified locally and in CI.
+  attached. Milestones 27–30 touched no application code; the last
+  milestone to change application code was **26.1 (Offline Font
+  Compliance)**, which resolved the one release blocker Milestone 26
+  (RC1 Validation) found (`google_fonts` fetching over the network).
+  Between Milestone 20 and 26.1, ten numbered bugs (BUG-001 through
+  BUG-010), four stabilization milestones (21–24), and one enhancement
+  pass (spaced repetition, stroke direction, mnemonics, pacing) were
+  completed — see their individual entries below; the now-comprehensive
+  list also lives in `CHANGELOG.md`'s `[1.0.0]` entry. `flutter analyze`
+  clean, `flutter test` passing (94/94), and both release builds succeed
+  — verified locally and in CI.
 - **Future work is now post-1.0 and must follow semantic versioning.** A
   new release means bumping `pubspec.yaml`'s `version:` and pushing a
   matching `vX.Y.Z` tag — the Release workflow hard-fails if the tag and
@@ -3492,3 +3504,138 @@ and push a matching `vX.Y.Z` tag. The deferred items in
 physical-device/tablet verification, store assets, iOS) remain open and
 are the gate for a **Play Store** submission specifically — none of them
 blocked this GitHub release.
+
+## Milestone 30: Post-Release Maintenance
+
+CI/CD hygiene following the v1.0.0 publication: stopped Flutter CI from
+double-running on release tags, and reviewed/merged the three Dependabot
+PRs that were sitting open through Milestones 27–29. No application
+code, business logic, or dependency (in the `pubspec.yaml` sense)
+changed — every commit here touches only `.github/workflows/`.
+
+### Part 1: Preventing duplicate CI runs
+
+**Root cause.** `flutter_ci.yml`'s trigger was a bare `on: push:` with no
+ref filter. A push event matches every ref a repository can push,
+branches and tags alike, so the `v1.0.0` tag push in Milestone 28 matched
+both `flutter_ci.yml` and the tag-scoped `release.yml`, running two full
+format/analyze/test/build cycles for one release.
+
+**First attempt was wrong, and it was caught before being called done.**
+Added `tags-ignore: '**'` under `push:`, reasoning "exclude tags, keep
+everything else." Pushed it as `e8746dc`, then — per this milestone's own
+"verify before committing" instruction — checked for the resulting CI run
+rather than trusting the YAML. There wasn't one. GitHub's actual rule:
+if a `push` trigger defines only a tag filter (`tags`/`tags-ignore`), the
+trigger becomes tag-only for matching purposes, and a workflow with
+*only* `tags-ignore: '**'` therefore matches no ref at all — tags are
+excluded and there is no branches filter to admit anything else. The fix
+didn't just stop double-running on tags, it silently disabled CI on
+every push.
+
+**Correct fix:** `branches: '**'` (commit `a3cf57e`) — the actual
+inverse of "run on branch pushes, not tag pushes." `**` rather than `*`
+so branch names containing slashes still match (this repo's own
+`dependabot/github_actions/...` branches would otherwise have been
+silently skipped, `*` stops at the first path segment).
+
+**Verified both directions live, not just re-read from the config:**
+
+- Pushed a throwaway lightweight tag (`ci-trigger-check` → `a3cf57e`) and
+  confirmed zero workflow runs were created for it — `release.yml` didn't
+  fire either, correctly, since the tag didn't match `v*`. Deleted the
+  tag (local and remote) immediately after.
+- Pushed a normal commit to `main` and confirmed `flutter_ci.yml` ran and
+  passed as usual.
+
+`release.yml` itself was not touched in this part — its own `push.tags:
+["v*"]` trigger was never the problem.
+
+### Part 2: Dependabot review
+
+Three PRs were open, all opened before Milestone 27 and untouched since:
+
+| PR | Bump | Files touched |
+|----|------|----------------|
+| #1 | `actions/upload-artifact` 4 → 7 | `flutter_ci.yml` (3 call sites) |
+| #2 | `actions/checkout` 4 → 7 | `flutter_ci.yml` + `release.yml` (3 call sites) |
+| #3 | `softprops/action-gh-release` 2 → 3 | `release.yml` (1 call site) |
+
+**Risk assessment**, read from each project's actual GitHub release
+notes (`gh release view`), not assumed from version numbers:
+
+- **upload-artifact v5/v6/v7**: each major bump is a Node runtime move
+  (20 → 24 across v5/v6) plus, in v7, an ESM rewrite and a new opt-in
+  `archive: false` input this repo doesn't use. `name`/`path`/
+  `if-no-files-found` — the only inputs in use — are unchanged.
+- **checkout v5/v6/v7**: same Node 20 → 24 pattern; v6 moved where
+  credentials are persisted internally (no behavior change for a
+  no-input checkout like every call site here); v7's only functional
+  change is blocking fork-PR checkouts under `pull_request_target`/
+  `workflow_run`, neither of which this repo's workflows use.
+- **action-gh-release v3**: diffed the published `action.yml` between
+  `v2.6.2` and `v3.0.2` directly (not just the changelog prose) — the
+  *only* line that differs in the entire input/runtime schema is
+  `using: node20` → `using: node24`. Every input `release.yml` sets
+  (`name`, `draft`, `prerelease`, `generate_release_notes`,
+  `fail_on_unmatched_files`, `files`) is byte-identical between versions.
+
+All three assessed as low-risk, compatible, no input migration needed.
+
+**Merged one at a time, per the milestone's explicit instruction, waiting
+for a full green CI run after each before touching the next:**
+
+1. PR #1 → `3d9e560`. CI run `30372201496`: success, all 15 steps green
+   including all three `upload-artifact@v7` calls (coverage report,
+   release APK, release AAB).
+2. PR #2 → `b7fcb58`. CI run `30372923780`: success, `checkout@v7` clean.
+3. PR #3 → `1ffea25`. CI run `30373591631`: success. `release.yml`'s
+   `action-gh-release@v3` step could **not** be exercised this way —
+   `release.yml` only triggers on a `v*` tag push, and merging to `main`
+   doesn't produce one. What *was* verified: the input-schema diff above,
+   and that merging didn't disturb anything else in the workflow file.
+   **This one specific step (`Create GitHub Release` running on v3) will
+   only be exercised for real at the next tagged release** — worth a
+   deliberate check when that happens, rather than assuming it from this
+   review alone.
+
+No regression surfaced at any step; nothing needed to stop-and-report.
+
+Each PR was squash-merged with `--delete-branch`, so all three
+`dependabot/github_actions/...` branches are gone from the remote —
+confirmed via the GitHub API (`repos/.../branches` lists only `main`).
+
+### Part 3: Repository health
+
+- Working tree: clean.
+- Local `main` and `origin/main`: both `1ffea25` (a fast-forward was
+  needed locally after the PR-merge commits landed on GitHub).
+- Tags: only `v1.0.0`, still pointing at `d7e21ad` — untouched by this
+  milestone, as intended; maintenance moves `main` forward, it doesn't
+  retag or republish a release.
+- `release.yml`: diffed against its Milestone 28 state (`git diff
+  d7e21ad..HEAD -- .github/workflows/release.yml`) — the only changes
+  are the two version-pin bumps from Part 2. Trigger, jobs, permissions,
+  and every input are byte-identical.
+- CI on tip (`1ffea25`): green.
+- Open PRs: none. Remote branches: only `main`.
+
+### Issues encountered
+
+The `tags-ignore` mistake in Part 1, above — caught by verifying against
+a live push rather than trusting the YAML's apparent intent, which is
+exactly why this milestone's "verify before committing" instruction
+mattered. No other issues; nothing else required a fix, a re-run, or a
+stop-and-report.
+
+### Final status
+
+**CI/CD is healthy.** Duplicate tag-triggered CI runs are eliminated and
+verified gone via a real tag push, not just inferred from the config.
+All GitHub Actions dependencies are current with no known incompatible
+inputs. `release.yml` is functionally unchanged since Milestone 28
+(version pins only). Repository is clean and fully synchronized with
+`origin/main`. One follow-up worth remembering, not a blocker: confirm
+`action-gh-release@v3`'s `Create GitHub Release` step at the next actual
+tagged release, since this milestone could only verify it by reading its
+schema, not by running it.
