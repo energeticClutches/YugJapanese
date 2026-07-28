@@ -17,8 +17,18 @@ name: Flutter CI
 # Phase 5 - tests now run with --coverage and coverage/lcov.info uploads
 # as its own workflow artifact. Coverage is informational only here: no
 # threshold is enforced and nothing fails based on the percentage.
+# Milestone 30 - `push:` was previously unfiltered, and an unfiltered push
+# event matches every ref, tags included. Pushing v1.0.0 therefore ran
+# this workflow *and* release.yml against the same commit: two full
+# format/analyze/test/build cycles for one release. `tags-ignore: '**'`
+# excludes tag pushes only - every branch push still runs, and the
+# pull_request trigger below is untouched. Release tags are validated by
+# CI on their branch before tagging, and release.yml builds the artifacts
+# it publishes, so nothing is left unverified by this.
 on:
   push:
+    tags-ignore:
+      - "**"
   pull_request:
 
 # A newer push/PR update cancels any run already in progress for the same
