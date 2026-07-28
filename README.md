@@ -11,8 +11,9 @@ dashboard. No account, no cloud, no network access required.
 Release builds are currently signed with the debug key and the launcher
 icon/splash are placeholder artwork — see [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md)
 for what must be done before publishing. Other docs:
-[CHANGELOG.md](CHANGELOG.md), [PRIVACY_POLICY.md](PRIVACY_POLICY.md),
-[TERMS_OF_USE.md](TERMS_OF_USE.md), [CREDITS.md](CREDITS.md).
+[CHANGELOG.md](CHANGELOG.md), [RELEASE_NOTES.md](RELEASE_NOTES.md),
+[PRIVACY_POLICY.md](PRIVACY_POLICY.md), [TERMS_OF_USE.md](TERMS_OF_USE.md),
+[CREDITS.md](CREDITS.md).
 
 ## Features
 

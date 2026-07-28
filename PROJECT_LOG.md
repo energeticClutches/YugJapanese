@@ -7,16 +7,20 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
 
 ## Current State (read this first in a new session)
 
-- **Last completed milestone: 20 (Production Release v1.0), plus five
-  post-release bugfixes — BUG-001 (Android back button), BUG-002 (the
-  writing canvas never existed — see that entry below, it's a substantial
-  feature build, not a small patch), BUG-003 (Hiragana lesson list),
-  BUG-004 (dark mode readability), BUG-006 (writing evaluator scored
-  scribbles as correct) — and one enhancement pass over the learning
-  systems (spaced repetition, stroke direction, mnemonics, pacing).**
-  `flutter analyze` clean, `flutter test` passing (68/68). **The release
-  APK/AAB have not been rebuilt since the enhancement pass** — rebuild
-  before treating release artifacts as current.
+- **Last completed milestone: 27 (Version 1.0.0 Release Preparation)** —
+  documentation-only, no application code touched; see that entry below
+  for full scope. The last milestone to change application code was
+  **26.1 (Offline Font Compliance)**, which resolved the one release
+  blocker Milestone 26 (RC1 Validation) found (`google_fonts` fetching
+  over the network). Between Milestone 20 and 26.1, ten numbered bugs
+  (BUG-001 through BUG-010), four stabilization milestones (21–24), and
+  one enhancement pass (spaced repetition, stroke direction, mnemonics,
+  pacing) were completed — see their individual entries below; the
+  now-comprehensive list also lives in `CHANGELOG.md`'s `[1.0.0]` entry.
+  `flutter analyze` clean, `flutter test` passing (94/94), and both
+  release APK (57.2 MB) and AAB (56.0 MB) build successfully — verified
+  fresh as of Milestone 27. **No `v1.0.0` git tag has been created yet**
+  — that is Milestone 28.
 - **Writing accuracy is measured against real stroke geometry as of
   BUG-006.** Before that fix the evaluator only ever saw a stroke count
   and a bounding box, so any scribble with the right number of strokes
@@ -3263,3 +3267,118 @@ are back to `[x]`, with their correction history kept visible rather than
 silently restored, so a future reader can see both that they briefly
 went false and exactly why. Per the plan, next up is Milestone 27 —
 Release Preparation.
+
+## Milestone 27: Version 1.0.0 Release Preparation
+
+Documentation and repository-readiness pass ahead of tagging `v1.0.0`.
+No application code, business logic, or dependencies were touched —
+every change in this milestone is to Markdown docs, per its own
+constraints.
+
+**Version verification.** `pubspec.yaml` already declared
+`version: 1.0.0+1` (semantic version `1.0.0`, build number `1`), matching
+the intended `v1.0.0` tag. `android/app/build.gradle.kts` reads
+`versionCode`/`versionName` from `flutter.versionCode`/`versionName`
+rather than hardcoding its own, so there is no second place that could
+drift out of sync. Not incremented — no inconsistency was found to
+justify it.
+
+**Documentation audit findings and fixes:**
+
+- **`CHANGELOG.md` was significantly stale.** Its `[Unreleased]` section
+  only listed BUG-002, BUG-001, and the Hiragana content gap; the
+  `[1.0.0]` entry stopped at Milestone 20. Everything from BUG-003
+  onward — seven more numbered bugs (003, 004, 006–010), four
+  stabilization milestones (21–24), the spaced-repetition/stroke-
+  direction/mnemonics/pacing enhancement pass, and the Milestone 26/26.1
+  RC1 audit and font fix — was missing entirely, even though all of it
+  ships in the build being tagged `v1.0.0`. Since no `v1.0.0` tag has
+  ever actually been pushed, there is only one real release to document,
+  not two: consolidated the old `[Unreleased]` and `[1.0.0]` sections
+  into a single comprehensive `[1.0.0] — 2026-07-28` entry covering
+  everything through Milestone 26.1, restored an empty `[Unreleased]`
+  header above it (`Keep a Changelog` convention) for future work, and
+  reused `PROJECT_LOG.md`'s own detail (read in full for this milestone)
+  as the source of truth for what to include.
+- **`PROJECT_RULES.md`'s Technology Stack list still said "Google
+  Fonts."** That became inaccurate the moment Milestone 26.1 removed the
+  `google_fonts` package and switched to a bundled `NotoSansJP` asset —
+  `CLAUDE.md`'s approved-dependency list was updated at the time, but
+  this file was missed. Corrected to name the bundled font and point at
+  the milestone that changed it, closing out this milestone's explicit
+  "no references to removed dependencies such as `google_fonts`"
+  requirement (the four other hits for that string — `PROJECT_LOG.md`,
+  `RC1_VERIFICATION_REPORT.md`, `RELEASE_CHECKLIST.md`, `CREDITS.md` —
+  are all historical/explanatory mentions of the fix itself, not stale
+  claims that the app still uses it, and were left alone).
+- **`PROJECT_LOG.md`'s own "Current State" summary was stale**, still
+  citing Milestone 20 plus five bugfixes and 68 passing tests as the
+  most recent state, and claiming the release APK/AAB "have not been
+  rebuilt since the enhancement pass" — both wrong since Milestone 26/
+  26.1 rebuilt and re-verified everything. Refreshed (see the top of
+  this file) to cite Milestone 27 as current and point at 26.1 as the
+  last code-touching milestone.
+- **`README.md`, `LICENSE`, `PRIVACY_POLICY.md`, `CREDITS.md`,
+  `RELEASE_CHECKLIST.md`, and `RC1_VERIFICATION_REPORT.md` were all
+  read in full and found accurate** — no changes needed. Offline claims
+  in `PRIVACY_POLICY.md`/`README.md` now genuinely hold (verified below,
+  not just re-read), installation instructions are unchanged and still
+  correct, `LICENSE` is a complete, unmodified MIT license, and
+  `CREDITS.md` already correctly documents the Milestone 26.1 font
+  change rather than the old `google_fonts` claim.
+
+**Release notes.** Added `RELEASE_NOTES.md` (new) — curated, user-facing
+GitHub Release body text for `v1.0.0`: overview, core features, the
+offline-first architecture claim, writing-recognition and review/SRS
+improvements, CI/CD infrastructure, known limitations, minimum Android
+version (API 24, read from Flutter's own default in this SDK — nothing
+in this project overrides it), and APK/AAB install instructions. The
+Release workflow (`release.yml`) auto-generates its own commit-based
+notes on tag push per `README.md`'s documented process; this file is
+meant to be pasted over that draft for a clearer summary, not a
+replacement for the workflow itself.
+
+**Repository verification:**
+
+- Working tree was clean at the start of this milestone (confirmed via
+  `git status`) and no `v1.0.0` tag exists yet, consistent with tagging
+  being Milestone 28's job, not this one's.
+- No generated files are tracked: `build/`, `.dart_tool/`, and
+  `coverage/` are all git-ignored and `git ls-files` confirms nothing
+  under `build/` is committed except the legitimate
+  `android/app/src/debug/AndroidManifest.xml` source file (a debug
+  manifest, not a build artifact — its path just happens to contain
+  "debug").
+- No TODO/FIXME/XXX markers exist anywhere in `lib/` (a repo-wide grep
+  came back clean, other than unrelated substring hits from `.toDouble()`
+  calls); the only two files mentioning "TODO" at all are
+  `PROJECT_LOG.md` and `RELEASE_CHECKLIST.md`, both in prose describing
+  TODOs that were already resolved at Milestone 20.
+- Re-ran the full verification suite fresh for this milestone rather
+  than trusting Milestone 26.1's numbers: `flutter analyze` — no issues.
+  `flutter test` — 94/94 passing. `flutter build apk --release` —
+  succeeds, 57.2 MB (matches `RELEASE_CHECKLIST.md`'s recorded figure
+  exactly). `flutter build appbundle --release` — succeeds, 56.0 MB
+  (also matches). CI (`flutter_ci.yml`) and the Release workflow
+  (`release.yml`) were read, not re-run — both already documented in
+  detail in `README.md`'s CI/CD sections and were not touched this
+  milestone.
+
+**Final release checklist.** Every item in `RELEASE_CHECKLIST.md`'s
+"Code quality," "Functionality," "UI," and "Release" sections was
+already `[x]` and re-confirmed still true above; the "Resolved blockers"
+section correctly reflects Milestone 26.1; nothing in "Deferred —
+required before publishing" (production keystore, real branding,
+physical-device verification, store assets, iOS) was expected to close
+in this milestone and none of it needs to, since none of those are
+`v1.0.0`-tag blockers, only Play-Store-submission blockers — a
+distinction the checklist itself already draws.
+
+### Recommendation
+
+**✅ Ready to tag `v1.0.0`.** Version, documentation, licensing, and
+release metadata are consistent; the working tree is clean; static
+analysis and the full test suite pass; both release builds succeed at
+their expected sizes; and no release-blocking item from
+`RELEASE_CHECKLIST.md` is open. Proceed to Milestone 28 to create the
+`v1.0.0` tag and exercise the Release workflow.

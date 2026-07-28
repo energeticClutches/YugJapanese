@@ -22,7 +22,7 @@ The primary target is Android tablets and touch-screen phones.
 - go_router
 - Hive
 - Material 3
-- Google Fonts
+- Noto Sans JP (bundled local asset, not `google_fonts` — see Milestone 26.1)
 - audioplayers
 
 Do not replace these technologies unless explicitly instructed.
