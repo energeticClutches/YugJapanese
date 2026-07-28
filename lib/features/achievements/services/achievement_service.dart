@@ -3,7 +3,9 @@ import '../../dashboard/models/learning_statistics.dart';
 import '../../dashboard/services/statistics_service.dart';
 import '../../progress/models/lesson_progress.dart';
 import '../../progress/repositories/progress_repository.dart';
+import '../../quiz/models/practice_result.dart';
 import '../../quiz/models/practice_statistics.dart';
+import '../../quiz/repositories/practice_repository.dart';
 import '../../quiz/services/practice_statistics_service.dart';
 import '../../review/models/review_item.dart';
 import '../../review/repositories/review_repository.dart';
@@ -22,17 +24,23 @@ class AchievementService {
     required StatisticsService statisticsService,
     required ReviewRepository reviewRepository,
     required PracticeStatisticsService practiceStatisticsService,
+    required PracticeRepository practiceRepository,
   }) : _achievementRepository = achievementRepository,
        _progressRepository = progressRepository,
        _statisticsService = statisticsService,
        _reviewRepository = reviewRepository,
-       _practiceStatisticsService = practiceStatisticsService;
+       _practiceStatisticsService = practiceStatisticsService,
+       _practiceRepository = practiceRepository;
 
   final AchievementRepository _achievementRepository;
   final ProgressRepository _progressRepository;
   final StatisticsService _statisticsService;
   final ReviewRepository _reviewRepository;
   final PracticeStatisticsService _practiceStatisticsService;
+
+  /// Raw results, for the per-day activity dates [calculateStreak] needs —
+  /// [PracticeStatistics] only exposes aggregates.
+  final PracticeRepository _practiceRepository;
 
   static const List<Achievement> catalog = <Achievement>[
     Achievement(
@@ -133,8 +141,20 @@ class AchievementService {
     ),
   ];
 
-  /// Computes the current and longest daily streak from every lesson's
-  /// [LessonProgress.lastAccessedAt] across the given content sources.
+  /// Computes the current and longest daily learning streak.
+  ///
+  /// A day counts once it contains at least one *completed* learning
+  /// activity — a finished lesson (which is also where writing practice is
+  /// graded), a finished quiz session, or a finished review. Repeating any
+  /// of them on the same day does not extend the streak further, and a day
+  /// with none of them breaks it.
+  ///
+  /// This used to key off [LessonProgress.lastAccessedAt] alone, so merely
+  /// opening a lesson counted as a day's learning while a full quiz or
+  /// review session counted for nothing (Milestone 31, Issue 6). Every
+  /// source read here is already persisted locally by its own feature, so
+  /// the streak survives restarts and stays offline-first without a
+  /// parallel record that could drift out of sync with the real activity.
   Future<StreakInfo> calculateStreak(
     List<ContentSource> sources, {
     DateTime? now,
@@ -145,7 +165,23 @@ class AchievementService {
       final List<LessonProgress> progressItems = await _progressRepository
           .getProgressForContent(source.contentId);
       for (final LessonProgress progress in progressItems) {
-        activeDates.add(_dateOnly(progress.lastAccessedAt));
+        final DateTime? completed =
+            progress.lastCompletedAt ?? progress.completedAt;
+        if (progress.isCompleted && completed != null) {
+          activeDates.add(_dateOnly(completed));
+        }
+      }
+    }
+
+    for (final PracticeResult result
+        in await _practiceRepository.getAllResults()) {
+      activeDates.add(_dateOnly(result.endTime));
+    }
+
+    for (final ReviewItem review in await _reviewRepository.getAllReviews()) {
+      final DateTime? reviewed = review.lastReviewed;
+      if (reviewed != null) {
+        activeDates.add(_dateOnly(reviewed));
       }
     }
 

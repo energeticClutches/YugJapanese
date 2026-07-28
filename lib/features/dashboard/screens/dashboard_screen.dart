@@ -76,8 +76,7 @@ String _practiceSummaryTitle(List<PracticeResult>? results) {
     (PracticeResult a, PracticeResult b) =>
         a.endTime.isAfter(b.endTime) ? a : b,
   );
-  return PracticeGenerator.modeById(mostRecent.modeId)?.title ??
-      mostRecent.modeId;
+  return PracticeGenerator.titleForModeId(mostRecent.modeId);
 }
 
 double _averageScriptAccuracy(LearningAnalytics analytics) {

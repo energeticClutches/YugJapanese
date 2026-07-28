@@ -5,7 +5,38 @@ All notable changes to this project are documented here. Versions follow
 
 ## [Unreleased]
 
-No changes yet.
+### Fixed
+
+- **Writing accuracy always scored 0%.** Arriving at the result step
+  cleared the strokes the learner had just drawn before they could be
+  graded, so every checked attempt was scored against an empty canvas
+  (Milestone 31, Issue 1).
+- **"Previous" did nothing on a character's first step.** It now steps
+  back into the previous character instead of silently no-opping, and is
+  disabled only where there is genuinely nothing before it — the first
+  step of the first character (Milestone 31, Issue 2).
+- **Analytics layout.** Statistic tiles used a bare `Wrap`, so each card
+  sized to its own label and the grid never lined up; script cards were
+  pinned to 280dp and left dead space beside them on a phone. Both now
+  use the same responsive layout as the dashboard (Milestone 31,
+  Issue 3).
+- **Review Mistakes was not independent of the quiz it followed.** Its
+  session was persisted under that quiz's mode id, so finishing one
+  counted as another run of that quiz and overwrote its best score and
+  "last played". Review runs now carry their own workflow identity
+  (Milestone 31, Issue 4).
+- **Learning streak counted the wrong thing.** It keyed off "lesson last
+  opened", so browsing a lesson extended a streak while a completed quiz
+  or review extended nothing. It now counts completed lessons, quizzes,
+  and reviews, one day at a time (Milestone 31, Issue 6).
+
+### Removed
+
+- **Accuracy Trends** chart from Analytics, along with its `TrendChart`
+  widget (Milestone 31, Issue 5).
+- **Activity Calendar** heatmap from Analytics, replaced by a Material 3
+  Learning Streak card showing current streak, longest streak, and last
+  active date (Milestone 31, Issue 6).
 
 ## [1.0.0] — 2026-07-28
 

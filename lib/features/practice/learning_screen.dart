@@ -377,9 +377,21 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       // (Milestone 22, Issue 3). Guide strokes are untouched: they belong
       // to the character, not the step, so re-fetching them on every step
       // change would just be a wasted flicker.
+      //
+      // `completed` is excluded: it is a read-only results step, not a
+      // drawing step, reached either via `_submitWriting` (which already
+      // computed `_writingResult` from the free-writing `_strokes` a
+      // moment ago, in the same synchronous call that triggers this
+      // rebuild) or directly via the "Next Character" shortcut on the
+      // final character (BUG-007), which needs those same `_strokes`
+      // still present for the evaluation block below to grade. Clearing
+      // them here discarded the just-drawn ink before either path could
+      // use it, so every graded attempt scored 0% (Milestone 31, Issue 1).
       _strokesForStep = currentStep;
-      _strokes = <Stroke>[];
-      _writingResult = null;
+      if (currentStep != LearningStep.completed) {
+        _strokes = <Stroke>[];
+        _writingResult = null;
+      }
     }
 
     if (currentCharacter != null) {
@@ -562,7 +574,9 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: _controller.previousStep,
+                            onPressed: session.canGoToPreviousStep
+                                ? _controller.previousStep
+                                : null,
                             child: const Text('Previous'),
                           ),
                         ),

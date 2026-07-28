@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_scaffold.dart';
-import '../models/practice_mode.dart';
 import '../models/practice_result.dart';
 import '../providers/practice_providers.dart';
 import '../services/practice_generator.dart';
@@ -37,7 +36,6 @@ class PracticeResultsScreen extends ConsumerWidget {
       );
     }
 
-    final PracticeMode? mode = PracticeGenerator.modeById(result.modeId);
     final bool hasMistakes = result.incorrectItemIds.isNotEmpty;
 
     return AppScaffold(
@@ -60,7 +58,7 @@ class PracticeResultsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              mode?.title ?? result.modeId,
+              PracticeGenerator.titleForModeId(result.modeId),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: AppSpacing.xl),

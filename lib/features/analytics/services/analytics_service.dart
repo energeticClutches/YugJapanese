@@ -607,8 +607,7 @@ class AnalyticsService {
     return insights.take(_maxInsights).toList();
   }
 
-  String _modeTitle(String modeId) =>
-      PracticeGenerator.modeById(modeId)?.title ?? modeId;
+  String _modeTitle(String modeId) => PracticeGenerator.titleForModeId(modeId);
 
   String _scriptLabel(String contentId) {
     if (contentId.isEmpty) {

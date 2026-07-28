@@ -22,12 +22,16 @@ final achievementServiceProvider = Provider<AchievementService>(
     statisticsService: ref.watch(statisticsServiceProvider),
     reviewRepository: ref.watch(reviewRepositoryProvider),
     practiceStatisticsService: ref.watch(practiceStatisticsServiceProvider),
+    practiceRepository: ref.watch(practiceRepositoryProvider),
   ),
 );
 
 final streakInfoProvider = FutureProvider<StreakInfo>((Ref ref) async {
   ref.watch(progressControllerProvider);
   ref.watch(dueReviewsProvider);
+  // Quiz sessions now count toward the streak, so finishing one has to
+  // refresh it the same way completing a lesson or review does.
+  ref.watch(practiceServiceProvider);
   final AchievementService service = ref.watch(achievementServiceProvider);
   final List<ContentSource> sources = ref.watch(contentSourcesProvider);
   return service.calculateStreak(sources);

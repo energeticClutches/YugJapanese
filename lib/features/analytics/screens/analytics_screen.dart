@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_scaffold.dart';
+import '../../../shared/widgets/equal_width_grid.dart';
 import '../../../shared/widgets/loading_indicator.dart';
+import '../../achievements/models/streak_info.dart';
+import '../../achievements/providers/achievement_providers.dart';
 import '../../achievements/widgets/achievement_icons.dart';
-import '../models/daily_learning_stat.dart';
 import '../models/learning_analytics.dart';
 import '../models/script_analytics.dart';
 import '../models/weak_area.dart';
 import '../providers/analytics_providers.dart';
-import '../widgets/activity_heatmap.dart';
 import '../widgets/insight_card.dart';
+import '../widgets/learning_streak_card.dart';
 import '../widgets/progress_ring.dart';
 import '../widgets/script_summary_card.dart';
 import '../widgets/statistic_card.dart';
-import '../widgets/trend_chart.dart';
 import '../widgets/weak_area_card.dart';
 
 const Map<String, String> _scriptTitles = <String, String>{
@@ -37,6 +37,8 @@ class AnalyticsScreen extends ConsumerWidget {
     final AsyncValue<LearningAnalytics> analyticsAsync = ref.watch(
       learningAnalyticsProvider,
     );
+    final StreakInfo streak =
+        ref.watch(streakInfoProvider).asData?.value ?? StreakInfo.empty;
 
     return AppScaffold(
       appBar: AppBar(
@@ -62,10 +64,12 @@ class AnalyticsScreen extends ConsumerWidget {
       ),
       child: analyticsAsync.when(
         data: (LearningAnalytics analytics) =>
-            _AnalyticsContent(analytics: analytics),
+            _AnalyticsContent(analytics: analytics, streak: streak),
         loading: () => const LoadingIndicator(),
-        error: (Object error, StackTrace stackTrace) =>
-            _AnalyticsContent(analytics: LearningAnalytics.empty),
+        error: (Object error, StackTrace stackTrace) => _AnalyticsContent(
+          analytics: LearningAnalytics.empty,
+          streak: streak,
+        ),
       ),
     );
   }
@@ -94,9 +98,10 @@ class AnalyticsScreen extends ConsumerWidget {
 }
 
 class _AnalyticsContent extends StatelessWidget {
-  const _AnalyticsContent({required this.analytics});
+  const _AnalyticsContent({required this.analytics, required this.streak});
 
   final LearningAnalytics analytics;
+  final StreakInfo streak;
 
   @override
   Widget build(BuildContext context) {
@@ -118,9 +123,14 @@ class _AnalyticsContent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.md,
-            runSpacing: AppSpacing.md,
+          // A bare `Wrap` sized each card to its own label width, so the
+          // tiles never lined up into columns — the exact problem
+          // `EqualWidthGrid` was written for on the dashboard, which this
+          // screen had simply never adopted (Milestone 31, Issue 3). The
+          // streak tiles are gone from here: the dedicated streak card
+          // below now owns those numbers, so keeping them would state the
+          // same fact twice.
+          EqualWidthGrid(
             children: [
               StatisticCard(
                 icon: Icons.check_circle_outline,
@@ -142,19 +152,18 @@ class _AnalyticsContent extends StatelessWidget {
                 label: 'Study Time (est.)',
                 value: '${analytics.estimatedStudyMinutes} min',
               ),
-              StatisticCard(
-                icon: Icons.local_fire_department_outlined,
-                label: 'Current Streak',
-                value:
-                    '${analytics.currentStreakDays} day${analytics.currentStreakDays == 1 ? '' : 's'}',
-              ),
-              StatisticCard(
-                icon: Icons.emoji_events_outlined,
-                label: 'Longest Streak',
-                value:
-                    '${analytics.longestStreakDays} day${analytics.longestStreakDays == 1 ? '' : 's'}',
-              ),
             ],
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Text(
+            'Learning Streak',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          LearningStreakCard(
+            currentStreak: streak.currentStreak,
+            longestStreak: streak.longestStreak,
+            lastActiveDate: streak.lastActiveDate,
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(
@@ -162,64 +171,18 @@ class _AnalyticsContent extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.md,
-            runSpacing: AppSpacing.md,
-            children: [
-              for (final ScriptAnalytics script in analytics.scriptBreakdown)
-                SizedBox(
-                  width: 280,
-                  child: ScriptSummaryCard(
-                    title: _scriptTitle(script.contentId),
-                    analytics: script,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          Text(
-            'Accuracy Trends',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TrendChart(
-            series: [
-              TrendSeries(
-                label: 'Writing accuracy',
-                color: Theme.of(context).colorScheme.primary,
-                values: [
-                  for (final DailyLearningStat day in analytics.dailyActivity)
-                    day.averageWritingAccuracy,
-                ],
-              ),
-              TrendSeries(
-                label: 'Quiz accuracy',
-                color: Theme.of(context).colorScheme.secondary,
-                values: [
-                  for (final DailyLearningStat day in analytics.dailyActivity)
-                    day.averageQuizAccuracy,
-                ],
-              ),
-              TrendSeries(
-                label: 'Review success rate',
-                color: AppColors.warning,
-                values: [
-                  for (final DailyLearningStat day in analytics.dailyActivity)
-                    day.reviewSuccessRate == null
-                        ? null
-                        : day.reviewSuccessRate! * 100,
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          Text(
-            'Activity Calendar',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          ActivityHeatmap(days: analytics.dailyActivity),
-          const SizedBox(height: AppSpacing.xl),
+          // Full-width, one per row: at `SizedBox(width: 280)` these sat in
+          // a single left-aligned column with dead space beside them on a
+          // phone, and would have overflowed a screen narrower than 280dp
+          // plus padding (Milestone 31, Issue 3).
+          for (final ScriptAnalytics script in analytics.scriptBreakdown) ...[
+            ScriptSummaryCard(
+              title: _scriptTitle(script.contentId),
+              analytics: script,
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+          const SizedBox(height: AppSpacing.lg),
           Text('Weak Areas', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
@@ -253,19 +216,24 @@ class _AnalyticsContent extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppSpacing.md),
-          StatisticCard(
-            icon: Icons.emoji_events_outlined,
-            label: 'Unlocked',
-            value:
-                '${analytics.achievementsUnlocked} / ${analytics.achievementsTotal}',
+          // Was a bare `StatisticCard`, which sizes to its own content and
+          // so sat as one narrow tile stranded against the left edge.
+          SizedBox(
+            width: double.infinity,
+            child: StatisticCard(
+              icon: Icons.emoji_events_outlined,
+              label: 'Unlocked',
+              value:
+                  '${analytics.achievementsUnlocked} / ${analytics.achievementsTotal}',
+            ),
           ),
           if (analytics.nextAchievements.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.lg),
             Text('Next up', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: AppSpacing.sm),
             for (final next in analytics.nextAchievements)
               Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: Row(
                   children: [
                     Icon(achievementIconForKey(next.iconKey)),
@@ -279,7 +247,7 @@ class _AnalyticsContent extends StatelessWidget {
                             next.title,
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
-                          const SizedBox(height: AppSpacing.xs),
+                          const SizedBox(height: AppSpacing.sm),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(
                               AppRadius.small,

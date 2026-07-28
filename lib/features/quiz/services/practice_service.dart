@@ -63,7 +63,9 @@ class PracticeService extends ChangeNotifier {
         .generateForItemIds(itemIds);
 
     _session = PracticeSession(
-      modeId: _lastResult?.modeId ?? 'weak_items',
+      // Its own workflow identity rather than the mode of the quiz this
+      // follows — see [PracticeGenerator.reviewMistakesModeId].
+      modeId: PracticeGenerator.reviewMistakesModeId,
       questions: questions,
       currentIndex: 0,
       correctAnswers: 0,

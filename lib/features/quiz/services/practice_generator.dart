@@ -95,6 +95,19 @@ class PracticeGenerator {
     ),
   ];
 
+  /// Mode id for sessions launched from the results screen's "Review
+  /// Mistakes" action. Deliberately **not** in [catalog]: it is a follow-up
+  /// workflow, not a mode you can pick, so it must not render a selectable
+  /// card on the Practice home.
+  ///
+  /// It exists because a review session used to be persisted under the
+  /// mode id of the quiz it followed, so finishing one counted as another
+  /// run of that quiz — inflating its session count and overwriting its
+  /// best score and "last played" with the review's numbers (Milestone 31,
+  /// Issue 4). Attributing review runs here keeps the two workflows
+  /// genuinely independent.
+  static const String reviewMistakesModeId = 'review_mistakes';
+
   static PracticeMode? modeById(String id) {
     for (final PracticeMode mode in catalog) {
       if (mode.id == id) {
@@ -102,6 +115,15 @@ class PracticeGenerator {
       }
     }
     return null;
+  }
+
+  /// Display name for any mode id, including [reviewMistakesModeId], which
+  /// has no [PracticeMode] entry to read a title from.
+  static String titleForModeId(String id) {
+    if (id == reviewMistakesModeId) {
+      return 'Review Mistakes';
+    }
+    return modeById(id)?.title ?? id;
   }
 
   /// Whether Listening mode currently has enough real (non-placeholder)
@@ -144,6 +166,14 @@ class PracticeGenerator {
       case 'mixed':
         return _generateMixed(scripts, questionCount);
       case 'weak_items':
+        return _generateWeakItems(questionCount);
+      case reviewMistakesModeId:
+        // Reached only by "Retry" on a review session's own results screen
+        // (the review workflow itself goes through [generateForItemIds],
+        // which needs explicit item ids this entry point does not have).
+        // Weak items is the closest generatable equivalent — "another pass
+        // at what you keep missing" — and stops that button throwing
+        // `ArgumentError` now that review runs carry their own mode id.
         return _generateWeakItems(questionCount);
       default:
         throw ArgumentError('Unknown practice mode "$modeId"');

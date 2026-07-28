@@ -7,7 +7,23 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
 
 ## Current State (read this first in a new session)
 
-- **Last completed milestone: 30 (Post-Release Maintenance).** CI/CD
+- **Last completed milestone: 31 (Comprehensive Bug Investigation &
+  Resolution).** First application-code changes since Milestone 26.1.
+  Six reported issues; five were real and fixed, one ("Review Mistakes
+  opens full quiz") did not reproduce — its filtering already worked,
+  but a genuine adjacent defect was found and fixed instead. Read the
+  Milestone 31 entry below before touching the learning flow, the
+  Analytics screen, or the streak. Headlines: writing accuracy no
+  longer always scores 0% (a state reset was wiping strokes before
+  grading); "Previous" now crosses back into the previous character;
+  Accuracy Trends and the Activity Calendar are **gone** from Analytics,
+  replaced by a Learning Streak card; the streak now counts *completed*
+  lessons/quizzes/reviews instead of "lesson last opened", so any streak
+  number recorded before this milestone is not comparable. `flutter
+  analyze` clean, `flutter test` 120/120, verified on the emulator with
+  zero exceptions or overflows. **Unreleased** — `CHANGELOG.md`'s
+  `[Unreleased]` section carries these; no new tag yet.
+- **Previous milestone: 30 (Post-Release Maintenance).** CI/CD
   hygiene only — no application code touched since Milestone 26.1. `main`
   is at `1ffea25`; `v1.0.0` still tags `d7e21ad` (Milestone 28's release
   commit is untouched by design — maintenance moved `main` forward, it
@@ -45,7 +61,10 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
   BUG-006.** Before that fix the evaluator only ever saw a stroke count
   and a bounding box, so any scribble with the right number of strokes
   scored ~100%. Accuracy figures recorded before BUG-006 are meaningless
-  and should not be compared against current ones.
+  and should not be compared against current ones. Between BUG-006 and
+  Milestone 31 the evaluator was correct but never received the drawn
+  strokes, so every graded attempt in that window recorded 0% — those
+  figures are equally meaningless.
   Remaining open items are **release blockers, not defects**, and live in
   `RELEASE_CHECKLIST.md` — chiefly: release builds are intentionally
   debug-signed (no production keystore exists yet), the launcher icon and
@@ -3639,3 +3658,187 @@ inputs. `release.yml` is functionally unchanged since Milestone 28
 `action-gh-release@v3`'s `Create GitHub Release` step at the next actual
 tagged release, since this milestone could only verify it by reading its
 schema, not by running it.
+
+## Milestone 31: Comprehensive Bug Investigation & Resolution
+
+Six reported issues, investigated root-cause-first and fixed in the
+prescribed order. Every fix was reproduced before it was written and
+verified on the Android emulator (API 37, 1080x2400) afterward, not
+merely reasoned about.
+
+**One reported issue did not reproduce as described** — see Issue 4.
+
+### Issue 1 — Writing accuracy always returned 0%
+
+**Root cause.** Not in the evaluator at all. The whole pipeline (canvas
+capture, normalization, KanjiVG reference matching, scoring) was
+working; it was simply never given any strokes. `learning_screen.dart`'s
+`build` clears `_strokes` on *every* step change — a Milestone 22 fix
+that stopped traced ink bleeding into the free-writing canvas. That
+reset also fired on the `freeWriting -> completed` transition, which is
+the one step change that must *not* clear: `_submitWriting` scores the
+strokes and calls `nextStep()` in the same synchronous call, so the
+rebuild wiped the ink and the result before either could be shown.
+Arriving at `completed` then re-graded an empty canvas — hence a
+guaranteed, every-time 0%, not an intermittent one.
+
+**Resolution.** Exclude `LearningStep.completed` from that reset. It is
+a read-only results step, not a drawing step, and both routes into it
+(the graded submit, and the "Next Character" shortcut on the final
+character from BUG-007) need the strokes still present.
+
+**Verification.** A rough but recognisable あ drawn on the emulator now
+scores **54%** with "Nice work. Your stroke count is correct." A new
+widget test (`learning_screen_writing_accuracy_test.dart`) drives the
+real screen through introduction to free writing, draws a stroke, and
+asserts the result is neither 0% nor the "nothing drawn" message. It was
+confirmed to *fail* against the pre-fix code before being kept.
+
+### Issue 2 — "Previous" did not navigate
+
+**Root cause.** `LearningSession.previousStep()` returned `this` — an
+explicit no-op — whenever the current step was the character's first
+one (`introduction`, or `strokeOrder` in review mode). Correct on the
+very first character, wrong everywhere else: on character 3 of 5 there
+is obviously somewhere to go back to. The button was also always
+enabled, so it looked functional while doing nothing.
+
+**Resolution.** From a character's first step, `previousStep()` now
+crosses into the previous character via a new `previousCharacter()` (the
+mirror of the existing `nextCharacter()`, landing on `startStep`). Added
+`canGoToPreviousStep` and bound the button's `onPressed` to it, so it is
+disabled only where it genuinely cannot move.
+
+**Verification.** Emulator: "Previous" is greyed out on character 1 step
+1, enabled on character 2, and navigates 2 back to 1. Seven unit tests in
+`learning_session_test.dart` cover within-character steps, both
+cross-character cases (normal and review mode), and the single genuine
+no-op.
+
+### Issue 3 — Analytics layout
+
+**Root cause.** The screen never adopted `EqualWidthGrid`, the shared
+widget written for precisely this problem on the dashboard. Its stat
+tiles sat in a bare `Wrap`, so each card sized to its own label text and
+no two rows lined up. Script cards were pinned to `SizedBox(width: 280)`,
+leaving dead space to their right on a phone and risking overflow below
+~300dp. The lone Achievement Summary tile was stranded at intrinsic
+width.
+
+**Resolution.** Stat tiles now use `EqualWidthGrid` (2 columns portrait,
+3 on tablet/landscape — the dashboard's exact behaviour). Script cards
+and the achievement tile go full width. Loosened the cramped spacing in
+the "Next up" achievement rows.
+
+**Verification.** Emulator screenshots before/after: tiles now form an
+even 2x2 grid with aligned edges; no horizontal dead space; no overflow
+warnings in the run log across the whole session.
+
+### Issue 4 — "Review Mistakes opens full quiz" — DID NOT REPRODUCE
+
+**Investigation.** Reproduced the exact flow on the emulator: a
+10-question Recognition Quiz with 8 wrong, then "Review Mistakes". It
+opened a session titled "Review Mistakes" containing exactly the 8
+missed characters — correctly filtered, correctly titled, on both the
+first and second iteration. `startReviewMistakes` then
+`generateForItemIds` scopes strictly to the passed ids. The reported
+symptom is not present in this build; Milestone 23 (Issues 2 and 4)
+appears to have already addressed it.
+
+**What was actually wrong.** The two workflows were not *independent*,
+which is what this issue's stated expected result requires. A review
+session was persisted under the mode id of the quiz it followed, so
+finishing one counted as another run of that quiz: after one real
+Recognition Quiz (20%) plus one review (50%), the app showed "2 Sessions
+This Week" and a Recognition Quiz "Best" of 50% — a score earned in a
+different workflow.
+
+**Resolution.** Review runs carry their own identity,
+`PracticeGenerator.reviewMistakesModeId`, deliberately kept out of
+`catalog` so it never renders a selectable mode card. Added
+`titleForModeId` for the three places that display a mode name.
+`generateSession` routes this id to weak-items generation so "Retry" on
+a review's own results screen produces a sensible session instead of
+throwing `ArgumentError`.
+
+**Verification.** Emulator: the review session's results screen now
+reads "Review Mistakes" (was "Recognition Quiz"), and Recognition Quiz's
+card shows "Best: 20%" — the real quiz score — with no Review Mistakes
+card added to the mode list. Three unit tests in
+`review_mistakes_workflow_test.dart`.
+
+### Issue 5 — Remove Accuracy Trends
+
+Removed the section from `analytics_screen.dart` and deleted
+`widgets/trend_chart.dart` (`TrendChart`/`TrendSeries` had no other
+callers). `DailyLearningStat` is **kept**: it still backs the CSV/JSON
+export, the dashboard's Weekly Activity and Practice Trend cards, and
+the analytics insight generator. `flutter analyze` clean, so nothing
+else referenced the removed code.
+
+### Issue 6 — Activity Calendar replaced with Learning Streak
+
+**Root cause of the "inaccurate" calendar.** Two separate problems. The
+heatmap's own row pitch was wrong (label column stepped 18dp per row,
+cells 22dp), so weekday labels drifted out of alignment with the squares
+they named. More importantly the streak behind it was measuring the
+wrong thing: `AchievementService.calculateStreak` keyed off
+`LessonProgress.lastAccessedAt`, which updates when a lesson is merely
+*opened*. Browsing a lesson extended a streak; completing a full quiz or
+review extended nothing.
+
+**Resolution.** The streak now counts *completed* activities only —
+finished lessons (where writing practice is graded), finished quiz
+sessions (`PracticeResult.endTime`), and finished reviews
+(`ReviewItem.lastReviewed`). Added `LessonProgress.lastCompletedAt`
+(back-compat: falls back to `completedAt` for records saved before it
+existed) because `completedAt` never moves after the first pass, so
+re-studying a finished lesson would otherwise register nothing. Replaced
+the heatmap with a Material 3 `LearningStreakCard` showing current
+streak, longest streak, and last active date. Deleted
+`widgets/activity_heatmap.dart`. The duplicate streak tiles were dropped
+from the stat grid, since the card now owns those numbers.
+
+**On "persist locally".** No new Hive box was added. Every input the
+streak reads is already persisted locally by its own feature, so the
+streak survives restarts and stays offline-first by construction. A
+mirrored streak record was considered and rejected: it can drift from
+the real activity (most obviously after Settings then reset progress),
+and `PROJECT_RULES.md`'s Riverpod convention explicitly favours deriving
+this kind of value over threading `recordActivity()` calls through the
+learning flow. Adding a qualifying activity type in future means
+extending `calculateStreak`, not touching `practice/` or `writing/`.
+
+**Verification.** Emulator: streak read 0 days after only *opening* a
+lesson (correct — nothing was completed), then 1 day after completing
+quizzes, with "Last active: 29 Jul 2026". Two sessions on the same day
+kept it at 1 day. Fifteen unit tests in `learning_streak_test.dart`
+cover each activity type, same-day de-duplication, consecutive days
+across mixed activity types, reset after a missed day, the
+yesterday-still-counts boundary, and `LessonProgress` round-tripping
+including legacy records.
+
+### Final verification
+
+- `dart format` — 8 files reformatted.
+- `flutter analyze` — **No issues found.**
+- `flutter test` — **120/120 passing** (was 94; 26 new).
+- Emulator regression sweep on a cleared install: Dashboard, Hiragana,
+  Kanji (radical/readings/examples intact), Learning Flow, Writing
+  Practice, Quiz, Review Mistakes, Analytics, Search, Settings. **Zero**
+  exceptions, Riverpod errors, Hive errors, or RenderFlex overflows in
+  the full run log.
+
+### Architectural observations
+
+- `EqualWidthGrid` already existed with a doc comment describing exactly
+  the Analytics defect, but Analytics never used it. Worth checking new
+  screens against the shared widgets before hand-rolling a `Wrap`.
+- Issues 1 and 2 were both regressions of the *same shape*: a state
+  reset or guard written for one correct case, applied unconditionally
+  to a case it should have excluded. Both were in `LearningStep`
+  transition handling.
+- `PracticeService.clearSession()` still has no callers. Not a defect
+  today (the `!_started` guard in `PracticeSessionScreen` covers the
+  stale-session case, deliberately, per Milestone 23), but it is dead
+  code that the guard's comment depends on staying dead.

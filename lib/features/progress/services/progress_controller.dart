@@ -110,6 +110,7 @@ class ProgressController extends ChangeNotifier {
       ),
       lastAccessedAt: now,
       completedAt: existing?.completedAt ?? now,
+      lastCompletedAt: now,
     );
     await _save(progress);
   }

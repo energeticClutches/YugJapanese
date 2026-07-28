@@ -22,6 +22,13 @@ class LearningSession {
 
   bool get isLessonComplete => completedCharacters >= totalCharacters;
 
+  /// Whether [previousStep] would actually move somewhere. Every character
+  /// begins on [startStep], so the only place with nothing before it is the
+  /// first step of the first character — everywhere else, "Previous" either
+  /// steps back within the character or crosses into the one before it.
+  bool get canGoToPreviousStep =>
+      !(currentStep == startStep && currentCharacterIndex == 0);
+
   LearningSession nextStep() {
     switch (currentStep) {
       case LearningStep.introduction:
@@ -40,11 +47,18 @@ class LearningSession {
   LearningSession previousStep() {
     switch (currentStep) {
       case LearningStep.introduction:
-        return this;
+        // Introduction is every character's first step outside review mode,
+        // so "Previous" here means "the character before this one", not a
+        // no-op — otherwise pressing it anywhere but character 1 silently
+        // did nothing (Milestone 31, Issue 2).
+        return currentCharacterIndex > 0 ? previousCharacter() : this;
       case LearningStep.strokeOrder:
-        return startStep == LearningStep.strokeOrder
-            ? this
-            : copyWith(currentStep: LearningStep.introduction);
+        if (startStep == LearningStep.strokeOrder) {
+          // Review mode starts each character here, so this is that
+          // character's first step — same cross-character case as above.
+          return currentCharacterIndex > 0 ? previousCharacter() : this;
+        }
+        return copyWith(currentStep: LearningStep.introduction);
       case LearningStep.tracing:
         return copyWith(currentStep: LearningStep.strokeOrder);
       case LearningStep.freeWriting:
@@ -66,6 +80,22 @@ class LearningSession {
       currentCharacterIndex: currentCharacterIndex + 1,
       currentStep: startStep,
       completedCharacters: completedCharacters + 1,
+    );
+  }
+
+  /// The character before [currentCharacterIndex], landing on its first
+  /// step — the same place [nextCharacter] lands on the character after it.
+  /// A no-op on the first character, where there is nothing before it.
+  LearningSession previousCharacter() {
+    if (currentCharacterIndex <= 0) {
+      return this;
+    }
+    return copyWith(
+      currentCharacterIndex: currentCharacterIndex - 1,
+      currentStep: startStep,
+      completedCharacters: completedCharacters > 0
+          ? completedCharacters - 1
+          : 0,
     );
   }
 
