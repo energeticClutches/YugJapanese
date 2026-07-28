@@ -7,9 +7,14 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
 
 ## Current State (read this first in a new session)
 
-- **Last completed milestone: 27 (Version 1.0.0 Release Preparation)** —
-  documentation-only, no application code touched; see that entry below
-  for full scope. The last milestone to change application code was
+- **Last completed milestone: 28 (Publish v1.0.0). `v1.0.0` is tagged and
+  released — the project is now a shipped product, not a pre-release
+  codebase.** The tag `v1.0.0` (lightweight) points at commit `d7e21ad`,
+  and the automated Release workflow published
+  <https://github.com/energeticClutches/YugJapanese/releases/tag/v1.0.0>
+  with `app-release.apk` (57.2 MB) and `app-release.aab` (55.9 MB)
+  attached. Milestone 27 (documentation) and 28 (publication) touched no
+  application code; the last milestone to change application code was
   **26.1 (Offline Font Compliance)**, which resolved the one release
   blocker Milestone 26 (RC1 Validation) found (`google_fonts` fetching
   over the network). Between Milestone 20 and 26.1, ten numbered bugs
@@ -18,9 +23,12 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
   pacing) were completed — see their individual entries below; the
   now-comprehensive list also lives in `CHANGELOG.md`'s `[1.0.0]` entry.
   `flutter analyze` clean, `flutter test` passing (94/94), and both
-  release APK (57.2 MB) and AAB (56.0 MB) build successfully — verified
-  fresh as of Milestone 27. **No `v1.0.0` git tag has been created yet**
-  — that is Milestone 28.
+  release builds succeed — verified locally and in CI.
+- **Future work is now post-1.0 and must follow semantic versioning.** A
+  new release means bumping `pubspec.yaml`'s `version:` and pushing a
+  matching `vX.Y.Z` tag — the Release workflow hard-fails if the tag and
+  `pubspec.yaml` disagree. Add changes under `CHANGELOG.md`'s
+  `[Unreleased]` heading as they land.
 - **Writing accuracy is measured against real stroke geometry as of
   BUG-006.** Before that fix the evaluator only ever saw a stroke count
   and a bounding box, so any scribble with the right number of strokes
@@ -61,9 +69,12 @@ phones and tablets. The learning order is Hiragana, Katakana, then Kanji.
   enabled end-to-end (learning flow, progress, reviews, achievements,
   dashboard, search, writing practice).
 - **Remote:** pushed to `https://github.com/energeticClutches/YugJapanese`
-  (`main` branch). Commit and push only when the user explicitly asks.
-  Latest pushed commit: `70adb40` — "fix: build the writing canvas, which
-  never existed (BUG-002)" (2026-07-27).
+  (`main` branch, **private repository**). Commit and push only when the
+  user explicitly asks. As of Milestone 28, `main` and the `v1.0.0` tag
+  both point at `d7e21ad` (2026-07-28). Note the repo being private
+  means unauthenticated GitHub API calls return 404 — inspecting
+  workflow runs or releases requires an authenticated `gh` CLI (see the
+  Milestone 28 entry).
 - **Toolchain:** Flutter 3.44.8, AGP 9.0.1, Gradle 9.1.0, Kotlin 2.3.20 — this
   is the working, verified combination. Do not change these versions; if
   `flutter run`/build ever fails again with an opaque Gradle
@@ -3382,3 +3393,102 @@ analysis and the full test suite pass; both release builds succeed at
 their expected sizes; and no release-blocking item from
 `RELEASE_CHECKLIST.md` is open. Proceed to Milestone 28 to create the
 `v1.0.0` tag and exercise the Release workflow.
+
+## Milestone 28: Publish v1.0.0
+
+**v1.0.0 is released.** The Release workflow built and published it end
+to end with no manual intervention and no repair needed — every stage
+passed on the first attempt. No application code was touched.
+
+**Sequence.** Milestone 27's documentation was committed (`d7e21ad`) and
+pushed to `main`, then tagged `v1.0.0` (lightweight — the repo had no
+existing tags, so there was no annotated-tag convention to follow) and
+the tag pushed. That push triggered `release.yml`.
+
+**Pre-tag verification.** Before tagging, all four CI gates were run
+locally against the exact tree being tagged, rather than assuming CI
+would agree: `dart format --set-exit-if-changed` (188 files, 0 changed),
+`flutter analyze` (clean), `flutter test` (94/94), and both
+`flutter build apk/appbundle --release`. The workflow's own version logic
+was also traced by hand against the commit first — `1.0.0+1` satisfies
+its `^[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$` regex, tag `v1.0.0` reduces to
+semver `1.0.0` and matches, `contents: write` is declared for
+`softprops/action-gh-release@v2`, and both paths under
+`fail_on_unmatched_files: true` match where the builds actually land.
+
+**Workflow result** — run
+<https://github.com/energeticClutches/YugJapanese/actions/runs/30368876959>,
+6m47s (14:32:33Z → 14:39:20Z), conclusion **success**. Every stage the
+milestone asked to be verified passed individually, confirmed via
+`gh run view --json jobs` rather than from the top-level green check:
+
+- `Validate version` job → success (checkout, then "Validate pubspec.yaml
+  version against the tag").
+- `Build release artifacts and publish GitHub Release` job → success
+  (checkout → "Set up Flutter build environment", the shared composite
+  action covering JDK/Flutter install and dependency restore → Build APK
+  → Build App Bundle → Create GitHub Release, which performs both asset
+  uploads).
+
+**Published release** —
+<https://github.com/energeticClutches/YugJapanese/releases/tag/v1.0.0>,
+title "Version 1.0.0", tag `v1.0.0`, `isDraft: false`,
+`isPrerelease: false`. Assets, both `state: uploaded`:
+`app-release.apk` 59,976,973 bytes (57.2 MB) and `app-release.aab`
+58,653,052 bytes (55.9 MB). Both sizes match the locally-built artifacts
+exactly. Downloadability was verified by actually downloading both via
+`gh release download` and confirming byte-identical sizes on disk — not
+inferred from the API reporting them present.
+
+**Release notes.** The workflow's `generate_release_notes: true` produced
+a one-line body (just a "Full Changelog" link), so it was replaced with
+the curated `RELEASE_NOTES.md` via `gh release edit --notes-file`. Two
+deliberate adjustments when transferring it: the file's own top preamble
+("Prepared release notes for… paste this curated version in") was
+stripped, since that's an instruction to whoever cuts the release, not
+release content; and the autogenerated "Full Changelog" link was
+re-appended at the end, since it's genuinely useful and would otherwise
+have been lost. The file itself is unchanged and remains the source of
+truth.
+
+**Environment issue encountered (not a project defect).** The repository
+is **private**, so unauthenticated GitHub API calls return 404, and the
+`gh` CLI was not installed on this machine — meaning the workflow run
+could not be observed at all at first. `gh` 2.96.0 was installed via
+`winget`, but authentication (`gh auth login`) is an interactive browser
+device-code flow that cannot run from a non-interactive shell, so it
+required the user to complete it in their own terminal. **The stored Git
+Credential Manager token was deliberately not harvested to work around
+this** — it is the user's secret, and pulling it into a command line to
+authenticate API calls is not an appropriate substitute for asking. Work
+paused until auth was available rather than reporting an unverified
+release; nothing about the tag or the workflow was blocked by this, only
+the verification of it.
+
+**Observation: `flutter_ci.yml` also runs on tag pushes.** Its trigger is
+a bare `on: push:` with no branch or tag filter, so pushing `v1.0.0`
+started a *second*, fully redundant run (`30368876997`) that re-ran
+format/analyze/test and rebuilt the same release APK/AAB in parallel with
+the Release workflow. It succeeded, so this is not a defect and it did
+not affect the release — but it doubles CI cost on every tag and is
+worth narrowing (e.g. `branches:`/`tags-ignore:`) if release tagging
+becomes frequent. Left alone here: changing CI triggers is outside this
+milestone's "preserve the automated release process" constraint.
+
+**Final validation.** Release workflow succeeded; CI is green on the
+release commit (`Flutter CI` run `30368769788` on `main` @ `d7e21ad`,
+success — plus the redundant tag run above); both assets download
+successfully; `pubspec.yaml` `1.0.0+1`, tag `v1.0.0`, and release title
+"Version 1.0.0" all agree; and the working tree was clean at tag time.
+
+### Outcome
+
+**✅ v1.0.0 published.** The release pipeline built in Phase 3 is now
+validated against a real production release, end to end, with zero
+manual artifact handling. Post-1.0 work follows semantic versioning:
+bump `pubspec.yaml`, log changes under `CHANGELOG.md`'s `[Unreleased]`,
+and push a matching `vX.Y.Z` tag. The deferred items in
+`RELEASE_CHECKLIST.md` (production upload keystore, real branding,
+physical-device/tablet verification, store assets, iOS) remain open and
+are the gate for a **Play Store** submission specifically — none of them
+blocked this GitHub release.
