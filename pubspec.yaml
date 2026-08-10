@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: any
-  go_router: any
+  go_router: 17.4.0
   hive: any
   hive_flutter: any
   path_provider: any
