@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_riverpod: any
+  flutter_riverpod: 3.4.3
   go_router: any
   hive: any
   hive_flutter: any
